@@ -1,0 +1,16 @@
+{
+    "name": "Environmental-Services",
+    "version": "0.0.0",
+    "description": "Provide remote sensing and climate data related to geographic locations.",
+    "engines": {
+        "arangodb": "^3.0.0"
+    },
+    "author": "Milko Škofič",
+    "license": "Apache 2",
+    "main": "main.js",
+    "scripts": {
+        "setup": "scripts/setup.js",
+        "teardown": "scripts/teardown.js"
+    },
+    "tests": "test/**/*.js"
+}
