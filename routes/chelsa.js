@@ -3,12 +3,13 @@ const dd = require('dedent');
 const joi = require('joi');
 const httpError = require('http-errors');
 const status = require('statuses');
-const { errors } = require('@arangodb');
+const { db, errors } = require('@arangodb');
 const { context } = require('@arangodb/locals');
 const createRouter = require('@arangodb/foxx/router');
 const Model = require('../models/chelsa');
 
-const collection = context.collection('Chelsa');
+// const collection = context.collection('Chelsa');
+const collection = db._collection('Chelsa');
 const keySchema = joi.string().required()
 .description('The key of the chelsa');
 

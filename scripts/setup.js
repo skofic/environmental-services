@@ -1,33 +1,49 @@
-'use strict';
-const { db } = require('@arangodb');
-const { context } = require('@arangodb/locals');
+'use strict'
+
+///
+// Load modules.
+///
+const {db} = require('@arangodb')
+const {context} = require('@arangodb/locals')
+
+///
+// Document collection names.
+///
 const documentCollections = [
-  "Chelsa",
-  "ChelsaMap",
-  "Climate",
-  "ClimateMap",
-  "Shapes",
-  "ShapeData",
-  "UnitShapes",
-  "WorldClim",
-  "WorldClimMap"
+	"Chelsa",
+	"ChelsaMap",
+	"Climate",
+	"ClimateMap",
+	"Shapes",
+	"ShapeData",
+	"UnitShapes",
+	"WorldClim",
+	"WorldClimMap"
 ];
+
+///
+// Edge collection names.
+///
 const edgeCollections = [];
 
+///
+// Create document collections.
+///
 for (const localName of documentCollections) {
-  const qualifiedName = context.collectionName(localName);
-  if (!db._collection(qualifiedName)) {
-    db._createDocumentCollection(qualifiedName);
-  } else if (context.isProduction) {
-    console.debug(`collection ${qualifiedName} already exists. Leaving it untouched.`)
-  }
+	if (!db._collection(localName)) {
+		db._createDocumentCollection(localName);
+	} else if (context.isProduction) {
+		console.debug(`collection ${localName} already exists. Leaving it untouched.`)
+	}
 }
 
+///
+// Create edge collections.
+///
 for (const localName of edgeCollections) {
-  const qualifiedName = context.collectionName(localName);
-  if (!db._collection(qualifiedName)) {
-    db._createEdgeCollection(qualifiedName);
-  } else if (context.isProduction) {
-    console.debug(`collection ${qualifiedName} already exists. Leaving it untouched.`)
-  }
+	if (!db._collection(localName)) {
+		db._createEdgeCollection(localName);
+	} else if (context.isProduction) {
+		console.debug(`collection ${localName} already exists. Leaving it untouched.`)
+	}
 }
