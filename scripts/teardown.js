@@ -4,26 +4,11 @@
 // Load modules.
 ///
 const {db} = require('@arangodb')
-const {context} = require('@arangodb/locals')
-
-///
-// Document collection names.
-///
-const collections = [
-	"Chelsa",
-	"ChelsaMap",
-	"Climate",
-	"ClimateMap",
-	"Shapes",
-	"ShapeData",
-	"UnitShapes",
-	"WorldClim",
-	"WorldClimMap"
-]
+const {documentCollections, edgeCollections} = require('../constants')
 
 ///
 // Drop collections.
 ///
-for (const localName of collections) {
-	db._drop(localName)
+for (const collection of documentCollections.concat(edgeCollections)) {
+	db._drop(collection)
 }
