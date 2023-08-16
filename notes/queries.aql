@@ -1,0 +1,194 @@
+///
+// Return all remote sensing data for GeometryID.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+    SORT doc.std_date
+
+    LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'descriptors', 'std_terms')
+
+    COLLECT resolution = doc.std_span INTO groups KEEP data
+
+RETURN {
+    std_span: resolution,
+    data: groups[*].data
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+
+
+///
+// Return remote sensing data by GeometryID and resolution.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+    FILTER doc.std_span IN @resolution
+    SORT doc.std_date
+
+    LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
+
+    COLLECT resolution = doc.std_span INTO groups KEEP data
+
+RETURN {
+    std_span: resolution,
+    data: groups[*].data
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+@resolution:	["std_date_span_year", "std_date_span_month"]
+
+
+///
+// Return remote sensing data by GeometryID and time interval.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+    FILTER doc.std_date >= @startDate
+    FILTER doc.std_date <= @endDate
+    SORT doc.std_date
+
+    LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
+
+    COLLECT resolution = doc.std_span INTO groups KEEP data
+
+RETURN {
+    std_span: resolution,
+    data: groups[*].data
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+@startDate:		"20100101"
+@endDate:		"20100202"
+
+
+///
+// Return remote sensing data by GeometryID, resolution and time interval.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+    FILTER doc.std_span IN @resolution
+    FILTER doc.std_date >= @startDate
+    FILTER doc.std_date <= @endDate
+    SORT doc.std_date
+
+    LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
+
+    COLLECT resolution = doc.std_span INTO groups KEEP data
+
+RETURN {
+    std_span: resolution,
+    data: groups[*].data
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+@resolution:	["std_date_span_day", "std_date_span_month"]
+@startDate:		"20100101"
+@endDate:		"20100202"
+
+
+///
+// Return remote sensing data by GeometryID and descriptors.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+    FILTER @descriptors ANY IN doc.std_terms
+    SORT doc.std_date
+
+    LET data = KEEP(doc, 'std_date', @descriptors)
+
+    COLLECT resolution = doc.std_span INTO groups KEEP data
+
+RETURN {
+    std_span: resolution,
+    data: groups[*].data
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+@descriptors:	["biomass_2010", "relative_humidity", "soil_temperature_0_7cm"]
+
+
+///
+// Return remote sensing data by GeometryID, descriptors and time interval.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+    FILTER @descriptors ANY IN doc.std_terms
+    FILTER doc.std_date >= @startDate
+    FILTER doc.std_date <= @endDate
+    SORT doc.std_date
+
+    LET data = KEEP(doc, 'std_date', @descriptors)
+
+    COLLECT resolution = doc.std_span INTO groups KEEP data
+
+RETURN {
+    std_span: resolution,
+    data: groups[*].data
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+@descriptors:	["biomass_2010", "relative_humidity", "soil_temperature_0_7cm"]
+@startDate:		"2010"
+@endDate:		"20100131"
+
+
+///
+// Return time resolution for GeometryID.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+
+    COLLECT resolution = doc.std_span WITH COUNT INTO count
+
+RETURN {
+    std_span: resolution,
+    count: count
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+
+
+///
+// Return start and end dates for GeometryID.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+
+    COLLECT resolution = doc.std_span
+    AGGREGATE startDate = MIN(doc.std_date), endDate = MAX(doc.std_date)
+
+RETURN {
+    std_span: resolution,
+    startDate: startDate,
+    endDate: endDate
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+
+
+///
+// Return remote sensing descriptors per time resolution for GeometryID.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+
+    COLLECT resolution = doc.std_span
+    AGGREGATE terms = UNIQUE(doc.std_terms)
+
+RETURN {
+    std_span: resolution,
+    descriptors: UNIQUE(FLATTEN(terms))
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+
+
+///
+// Return remote sensing descriptors per time resolution for GeometryID and time imterval.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+    FILTER doc.std_date >= @startDate
+    FILTER doc.std_date <= @endDate
+
+    COLLECT resolution = doc.std_span
+    AGGREGATE terms = UNIQUE(doc.std_terms)
+
+RETURN {
+    std_span: resolution,
+    descriptors: UNIQUE(FLATTEN(terms))
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+@startDate:		"2010"
+@endDate:		"20100131"
