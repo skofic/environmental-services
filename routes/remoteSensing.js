@@ -18,6 +18,10 @@ const collection = db._collection('ShapeData')
 const ModelData = require('../models/remoteSensingData')
 const keySchema = joi.string().required()
 	.description('The key of the unit shape record')
+const startDateSchema = joi.string().regex(/^[0-9]+$/).required()
+	.description('The start date expressed as a string in YYYYMMDD, YYYYMM or YYYY format.')
+const endDateSchema = joi.string().regex(/^[0-9]+$/).required()
+	.description('The end date expressed as a string in YYYYMMDD, YYYYMM or YYYY format.')
 
 ///
 // Errors.
@@ -41,6 +45,9 @@ router.tag('Remote Sensing')
 
 ///
 // Get all remote sensing data.
+//
+// Parameters:
+// - `:key`: The key of the unit shape.
 ///
 router.get(':key', function (req, res)
 {
@@ -101,4 +108,81 @@ router.get(':key', function (req, res)
 		This service will return *all* remote sensing data related to the *provided* unit *shape key*.
 The data will be grouped by *daily*, *monthly* and *annual* observations. Within these groups the data will be further subdivided by the *observation date*.
 *Use this service with caution: it may typically return around 5MB. of data*.
+	`);
+
+///
+// Get remote sensing data by GeometryID and time interval.
+//
+// Parameters:
+// - `:key`: The key of the unit shape.
+// - ':startDate': The start date.
+// - ':endDate': The end date
+///
+router.get(':key/:startDate/:endDate', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const key = req.pathParams.key
+	const startDate = req.pathParams.startDate
+	const endDate = req.pathParams.endDate
+
+	///
+	// Perform service.
+	///
+	let result;
+	try {
+		result = db._query(aql`
+			FOR doc IN ${collection}
+			    FILTER doc.GeometryID == ${key}
+                FILTER doc.std_date >= ${startDate}
+                FILTER doc.std_date <= ${endDate}
+                SORT doc.std_date
+            LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
+            COLLECT resolution = doc.std_span INTO groups KEEP data
+			RETURN {
+                std_span: resolution,
+                data: groups[*].data
+			}
+        `).toArray()
+	}
+
+	///
+	// Handle errors.
+	///
+	catch (error) {
+		if (error.isArangoError && error.errorNum === ARANGO_NOT_FOUND) {
+			throw httpError(HTTP_NOT_FOUND, error.message);
+		}
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+
+	.pathParam('key', keySchema)
+	.pathParam('startDate', startDateSchema)
+	.pathParam('endDate', endDateSchema)
+	.response([ModelData],
+		'Remote sensing data *combined* by *annual*, *monthly* and *daily* data.\n' +
+		'\n' +
+		'The `std_span` property represents the period, it can take the following values:\n' +
+		'\n' +
+		'- `std_date_span_day`: *Daily* data.\n' +
+		'- `std_date_span_month`: *Monthly* data.\n' +
+		'- `std_date_span_year`: *Yearly* data.\n' +
+		'\n' +
+		'The `data` property contains the remote sensing data for that *time span* and for that unit *shape*. Each element in the array will feature a series of remote sensing *measurements* and their relative *date*, recorded in the `std_date` property, expressed as a *string* in the `YYYY` format for *annual* data, `YYYYMM` for *monthly* data and `YYYYMMDD` for *daily* data.'
+	)
+	.summary('Get all remote sensing data for the requested unit shape and time period')
+	.description(dd`
+		This service will return remote sensing data related to the provided unit *shape key* and the *time interval* expressed by the provided *start* and *end dates*.
+
+The data will be grouped by *daily*, *monthly* and *annual* observations. Within these groups the data will be further subdivided by the *observation date*.
+
+Since the data returned may be *annual*, *monthly* and *daily*, it is important how you express the *start* and *end* dates: if you want to get all *yearly*, *monthly* and *daily* data for the year \`2010\` you should set the *start date* to \`2010\` and the *end date* to \`20101231\`.
 	`);
