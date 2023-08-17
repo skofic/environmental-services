@@ -18,6 +18,8 @@ const collection = db._collection('ShapeData')
 const ModelData = require('../models/remoteSensingData')
 const ModelDates = require('../models/remoteSensingDates')
 const ModelDescriptors = require('../models/remoteSensingDescriptors')
+const ModelBodySpan = require("../models/remoteSensingBodySpan")
+const ModelBodyDescriptors = require("../models/remoteSensingBodyDescriptors")
 const keySchema = joi.string().required()
 	.description('The key of the unit shape record')
 const startDateSchema = joi.string().regex(/^[0-9]+$/).required()
@@ -44,13 +46,12 @@ module.exports = router
 // Tag router.
 ///
 router.tag('Remote Sensing')
-
-///
-// Get all remote sensing data.
-//
-// Parameters:
-// - `:key`: The key of the unit shape.
-///
+/**
+ * Get all remote sensing data.
+ *
+ * Parameters:
+ * - `:key`: The key of the unit shape.
+ */
 router.get(':key', function (req, res)
 {
 	///
@@ -115,14 +116,12 @@ The data will be grouped by *daily*, *monthly* and *annual* observations. Within
 	`);
 
 /**
- * /
  * Get remote sensing data by GeometryID and time interval.
  *
  * Parameters:
  * - `:key`: The key of the unit shape.
  * - ':startDate': The start date.
  * - ':endDate': The end date
- * /
  */
 router.get(':key/:startDate/:endDate', function (req, res)
 {
@@ -193,12 +192,12 @@ The data will be grouped by *daily*, *monthly* and *annual* observations. Within
 Since the data returned may be *annual*, *monthly* and *daily*, it is important how you express the *start* and *end* dates: if you want to get all *yearly*, *monthly* and *daily* data for the year \`2010\` you should set the *start date* to \`2010\` and the *end date* to \`20101231\`.
 	`);
 
-///
-// Get start and end dates for unit shape remote sensing data.
-//
-// Parameters:
-// - `:key`: The key of the unit shape.
-///
+/**
+ * Get start and end dates for unit shape remote sensing data.
+ *
+ * Parameters:
+ * - `:key`: The key of the unit shape.
+ */
 router.get('dates/:key', function (req, res)
 {
 	///
@@ -258,12 +257,12 @@ router.get('dates/:key', function (req, res)
 		This service will return the *start* and *end dates* of remote sensing data for the provided unit *shape key*.
 	`);
 
-///
-// Get list of property identifiers for unit shape remote sensing data.
-//
-// Parameters:
-// - `:key`: The key of the unit shape.
-///
+/**
+ * Get list of property identifiers for unit shape remote sensing data.
+ *
+ * Parameters:
+ * - `:key`: The key of the unit shape.
+ */
 router.get('terms/:key', function (req, res)
 {
 	///
@@ -324,14 +323,12 @@ router.get('terms/:key', function (req, res)
 	`);
 
 /**
- * /
  * Get remote sensing data by GeometryID and time interval.
  *
  * Parameters:
  * - `:key`: The key of the unit shape.
  * - ':startDate': The start date.
  * - ':endDate': The end date
- * /
  */
 router.get('terms/:key/:startDate/:endDate', function (req, res)
 {
@@ -397,3 +394,229 @@ router.get('terms/:key/:startDate/:endDate', function (req, res)
 	.description(dd`
 		This service will return the *list of descriptors*, *grouped* by *observation time span*, that can be found for the *provided unit shape* within the *provided time interval*.
 	`);
+
+/**
+ * Get remote sensing data by GeometryID and time interval.
+ *
+ * Parameters:
+ * - `:key`: The key of the unit shape.
+ * - body: The list of spans.
+ */
+router.post('span/:key', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const key = req.pathParams.key
+	const spans = req.body;
+
+	///
+	// Perform service.
+	///
+	let result;
+	try {
+		result = db._query(aql`
+			FOR doc IN ${collection}
+			    FILTER doc.GeometryID ==${key}
+			    FILTER doc.std_span IN ${spans.std_span}
+			    SORT doc.std_date
+			    LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
+			    COLLECT resolution = doc.std_span INTO groups KEEP data
+			RETURN {
+			    std_span: resolution,
+			    data: groups[*].data
+			}
+        `).toArray()
+	}
+
+	///
+	// Handle errors.
+	///
+	catch (error) {
+		if (error.isArangoError && error.errorNum === ARANGO_NOT_FOUND) {
+			throw httpError(HTTP_NOT_FOUND, error.message);
+		}
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+	.pathParam('key', keySchema)
+	.body(ModelBodySpan, "The list of requested time spans.\n" +
+		"Provide one or more *time span codes*:\n" +
+		"- \`std_date_span_day\`: *Daily* data.\n" +
+		"- \`std_date_span_month\`: *Monthly* data.\n" +
+		"- \`std_date_span_year\`: *Yearly* data.")
+	.response([ModelData],
+		'Remote sensing data *combined* by *annual*, *monthly* and *daily* data.\n' +
+		'\n' +
+		'The `std_span` property represents the period, it can take the following values:\n' +
+		'\n' +
+		'- `std_date_span_day`: *Daily* data.\n' +
+		'- `std_date_span_month`: *Monthly* data.\n' +
+		'- `std_date_span_year`: *Yearly* data.\n' +
+		'\n' +
+		'The `data` property contains the remote sensing data for that *time span* and for that unit *shape*. Each element in the array will feature a series of remote sensing *measurements* and their relative *date*, recorded in the `std_date` property, expressed as a *string* in the `YYYY` format for *annual* data, `YYYYMM` for *monthly* data and `YYYYMMDD` for *daily* data.'
+	)
+	.summary('Get remote sensing data by unit shape and time spans')
+	.description(dd`
+  Retrieves remote sensing data for the provided *unit shape* and for the provided *time spans*.
+
+Provide the *geometry ID* of the *unit shape* and one or more *time span codes*.
+`)
+
+/**
+ * Get remote sensing data by GeometryID, start and end dates, and time interval.
+ *
+ * Parameters:
+ * - `:key`: The key of the unit shape.
+ * - ':startDate': The start date.
+ * - ':endDate': The end date.
+ * - body: The list of spans.
+ */
+router.post('terms/:key/:startDate/:endDate', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const key = req.pathParams.key
+	const startDate = req.pathParams.startDate
+	const endDate = req.pathParams.endDate
+	const spans = req.body;
+
+	///
+	// Perform service.
+	///
+	let result;
+	try {
+		result = db._query(aql`
+			FOR doc IN ${collection}
+			    FILTER doc.GeometryID == ${key}
+			    FILTER doc.std_span IN ${spans.std_span}
+			    FILTER doc.std_date >= ${startDate}
+			    FILTER doc.std_date <= ${endDate}
+			    SORT doc.std_date
+			    LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
+			    COLLECT resolution = doc.std_span INTO groups KEEP data
+			RETURN {
+			    std_span: resolution,
+			    data: groups[*].data
+			}
+        `).toArray()
+	}
+
+	///
+	// Handle errors.
+	///
+	catch (error) {
+		if (error.isArangoError && error.errorNum === ARANGO_NOT_FOUND) {
+			throw httpError(HTTP_NOT_FOUND, error.message);
+		}
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+	.pathParam('key', keySchema)
+	.pathParam('startDate', startDateSchema)
+	.pathParam('endDate', endDateSchema)
+	.body(ModelBodySpan, "The list of requested time spans.\n" +
+		"Provide one or more *time span codes*:\n" +
+		"- \`std_date_span_day\`: *Daily* data.\n" +
+		"- \`std_date_span_month\`: *Monthly* data.\n" +
+		"- \`std_date_span_year\`: *Yearly* data.")
+	.response([ModelData],
+		'Remote sensing data *combined* by *annual*, *monthly* and *daily* data.\n' +
+		'\n' +
+		'The `std_span` property represents the period, it can take the following values:\n' +
+		'\n' +
+		'- `std_date_span_day`: *Daily* data.\n' +
+		'- `std_date_span_month`: *Monthly* data.\n' +
+		'- `std_date_span_year`: *Yearly* data.\n' +
+		'\n' +
+		'The `data` property contains the remote sensing data for that *time span* and for that unit *shape*. Each element in the array will feature a series of remote sensing *measurements* and their relative *date*, recorded in the `std_date` property, expressed as a *string* in the `YYYY` format for *annual* data, `YYYYMM` for *monthly* data and `YYYYMMDD` for *daily* data.'
+	)
+	.summary('Get remote sensing data by unit shape, start and end dates, and time spans')
+	.description(dd`
+  Retrieves remote sensing data for the provided *unit shape*, for the provided time interval, and for the provided *time spans*.
+
+Provide the *geometry ID* of the *unit shape*, start and end dates, and one or more *time span codes*.
+`)
+
+/**
+ * Get remote sensing data by GeometryID and descriptors.
+ *
+ * Parameters:
+ * - `:key`: The key of the unit shape.
+ * - body: The list of descriptors.
+ */
+router.post('terms/:key', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const key = req.pathParams.key
+	const descriptors = req.body;
+
+	///
+	// Perform service.
+	///
+	let result;
+	try {
+		result = db._query(aql`
+			FOR doc IN ${collection}
+			    FILTER doc.GeometryID == ${key}
+			    FILTER @descriptors ANY IN doc.std_terms
+			    SORT doc.std_date
+			    LET data = KEEP(doc, 'std_date', ${descriptors.std_terms})
+			    COLLECT resolution = doc.std_span INTO groups KEEP data
+			RETURN {
+			    std_span: resolution,
+			    data: groups[*].data
+			}
+        `).toArray()
+	}
+
+		///
+		// Handle errors.
+		///
+	catch (error) {
+		if (error.isArangoError && error.errorNum === ARANGO_NOT_FOUND) {
+			throw httpError(HTTP_NOT_FOUND, error.message);
+		}
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+	.pathParam('key', keySchema)
+	.body(ModelBodyDescriptors, "The list of requested variable names.")
+	.response([ModelData],
+		'Remote sensing data *combined* by *annual*, *monthly* and *daily* data.\n' +
+		'\n' +
+		'The `std_span` property represents the period, it can take the following values:\n' +
+		'\n' +
+		'- `std_date_span_day`: *Daily* data.\n' +
+		'- `std_date_span_month`: *Monthly* data.\n' +
+		'- `std_date_span_year`: *Yearly* data.\n' +
+		'\n' +
+		'The `data` property contains the remote sensing data for that *time span* and for that unit *shape*. Each element in the array will feature a series of remote sensing *measurements* and their relative *date*, recorded in the `std_date` property, expressed as a *string* in the `YYYY` format for *annual* data, `YYYYMM` for *monthly* data and `YYYYMMDD` for *daily* data.'
+	)
+	.summary('Get remote sensing data by unit shape and list of descriptors')
+	.description(dd`
+  Retrieves remote sensing data for the provided *unit shape* and for the provided *list of ovservation variables*.
+
+Provide the *geometry ID* of the *unit shape* and one or more *observation variable names*.
+`)
