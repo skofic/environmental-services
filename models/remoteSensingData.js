@@ -6,7 +6,8 @@ const joi = require('joi')
 module.exports = {
 	schema: {
 		// Describe the attributes with joi here
-		_key: joi.string()
+		std_span: joi.string().valid('std_date_span_day', 'std_date_span_month', 'std_date_span_year'),
+		data: joi.array().items(joi.object({ std_date: joi.string() }))
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here
@@ -17,4 +18,4 @@ module.exports = {
 		// Implement incoming transformations here
 		return obj;
 	}
-}
+};
