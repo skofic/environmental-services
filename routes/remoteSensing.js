@@ -17,6 +17,7 @@ const createRouter = require('@arangodb/foxx/router')
 const collection = db._collection('ShapeData')
 const ModelData = require('../models/remoteSensingData')
 const ModelDates = require('../models/remoteSensingDates')
+const ModelDescriptors = require('../models/remoteSensingDescriptors')
 const keySchema = joi.string().required()
 	.description('The key of the unit shape record')
 const startDateSchema = joi.string().regex(/^[0-9]+$/).required()
@@ -113,14 +114,16 @@ The data will be grouped by *daily*, *monthly* and *annual* observations. Within
 *Use this service with caution: it may typically return more than 5MB. of data*.
 	`);
 
-///
-// Get remote sensing data by GeometryID and time interval.
-//
-// Parameters:
-// - `:key`: The key of the unit shape.
-// - ':startDate': The start date.
-// - ':endDate': The end date
-///
+/**
+ * /
+ * Get remote sensing data by GeometryID and time interval.
+ *
+ * Parameters:
+ * - `:key`: The key of the unit shape.
+ * - ':startDate': The start date.
+ * - ':endDate': The end date
+ * /
+ */
 router.get(':key/:startDate/:endDate', function (req, res)
 {
 	///
@@ -221,9 +224,9 @@ router.get('dates/:key', function (req, res)
         `).toArray()
 	}
 
-	///
-	// Handle errors.
-	///
+		///
+		// Handle errors.
+		///
 	catch (error) {
 		if (error.isArangoError && error.errorNum === ARANGO_NOT_FOUND) {
 			throw httpError(HTTP_NOT_FOUND, error.message);
@@ -253,4 +256,144 @@ router.get('dates/:key', function (req, res)
 	.summary('Get date range for the requested unit shape')
 	.description(dd`
 		This service will return the *start* and *end dates* of remote sensing data for the provided unit *shape key*.
+	`);
+
+///
+// Get list of property identifiers for unit shape remote sensing data.
+//
+// Parameters:
+// - `:key`: The key of the unit shape.
+///
+router.get('terms/:key', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const key = req.pathParams.key
+
+	///
+	// Perform service.
+	///
+	let result;
+	try {
+		result = db._query(aql`
+			FOR doc IN ${collection}
+			    FILTER doc.GeometryID == ${key}
+			    COLLECT resolution = doc.std_span
+			    AGGREGATE terms = UNIQUE(doc.std_terms)
+			RETURN {
+			    std_span: resolution,
+			    descriptors: UNIQUE(FLATTEN(terms))
+			}
+        `).toArray()
+	}
+
+	///
+	// Handle errors.
+	///
+	catch (error) {
+		if (error.isArangoError && error.errorNum === ARANGO_NOT_FOUND) {
+			throw httpError(HTTP_NOT_FOUND, error.message);
+		}
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+
+	.pathParam('key', keySchema)
+	.response([ModelDescriptors],
+		'Remote sensing observation *descriptors* grouped by *annual*, *monthly* and *daily* data.\n' +
+		'\n' +
+		'The `std_span` property represents the period, it can take the following values:\n' +
+		'\n' +
+		'- `std_date_span_day`: *Daily* data.\n' +
+		'- `std_date_span_month`: *Monthly* data.\n' +
+		'- `std_date_span_year`: *Yearly* data.\n' +
+		'\n' +
+		'The `descriptors` property contains the list of all observation *variables* that can be found in the *current time span*.\n' +
+		'Forward the list of descriptors to the data dictionary to retrieve their metadata.'
+	)
+	.summary('Get list of descriptors for the requested unit shape grouped by time span')
+	.description(dd`
+		This service will return the *list of descriptors*, *grouped* by *observation time span*, that can be found for the *provided unit shape*.
+	`);
+
+/**
+ * /
+ * Get remote sensing data by GeometryID and time interval.
+ *
+ * Parameters:
+ * - `:key`: The key of the unit shape.
+ * - ':startDate': The start date.
+ * - ':endDate': The end date
+ * /
+ */
+router.get('terms/:key/:startDate/:endDate', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const key = req.pathParams.key
+	const startDate = req.pathParams.startDate
+	const endDate = req.pathParams.endDate
+
+	///
+	// Perform service.
+	///
+	let result;
+	try {
+		result = db._query(aql`
+			FOR doc IN ${collection}
+			    FILTER doc.GeometryID == ${key}
+			    FILTER doc.std_date >= ${startDate}
+			    FILTER doc.std_date <= ${endDate}
+			    COLLECT resolution = doc.std_span
+			    AGGREGATE terms = UNIQUE(doc.std_terms)
+			RETURN {
+			    std_span: resolution,
+			    descriptors: UNIQUE(FLATTEN(terms))
+			}
+        `).toArray()
+	}
+
+		///
+		// Handle errors.
+		///
+	catch (error) {
+		if (error.isArangoError && error.errorNum === ARANGO_NOT_FOUND) {
+			throw httpError(HTTP_NOT_FOUND, error.message);
+		}
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+
+	.pathParam('key', keySchema)
+	.pathParam('startDate', startDateSchema)
+	.pathParam('endDate', endDateSchema)
+	.response([ModelDescriptors],
+		'Remote sensing observation *descriptors* grouped by *annual*, *monthly* and *daily* data.\n' +
+		'\n' +
+		'The `std_span` property represents the period, it can take the following values:\n' +
+		'\n' +
+		'- `std_date_span_day`: *Daily* data.\n' +
+		'- `std_date_span_month`: *Monthly* data.\n' +
+		'- `std_date_span_year`: *Yearly* data.\n' +
+		'\n' +
+		'The `descriptors` property contains the list of all observation *variables* that can be found in the *current time span*.\n' +
+		'Forward the list of descriptors to the data dictionary to retrieve their metadata.'
+	)
+	.summary('Get list of descriptors for the requested unit shape and time period grouped by time span')
+	.description(dd`
+		This service will return the *list of descriptors*, *grouped* by *observation time span*, that can be found for the *provided unit shape* within the *provided time interval*.
 	`);
