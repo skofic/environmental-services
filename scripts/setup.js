@@ -12,7 +12,51 @@ const {documentCollections, edgeCollections} = require('../constants')
 ///
 for (const [key, collection] of Object.entries(documentCollections)) {
 	if (!db._collection(collection)) {
-		db._createDocumentCollection(collection);
+		///
+		// Create collection.
+		///
+		const coll = db._createDocumentCollection(collection)
+
+		///
+		// Parse collections to ensure proper indexing.
+		///
+		switch(key) {
+			case 'chelsa':
+			case 'chelsa_map':
+			case 'climate':
+			case 'climate_map':
+			case 'worldclim':
+			case 'worldclim_map':
+			case 'shapes':
+				coll.ensureIndex({
+					type: 'geo',
+					fields: ['geometry'],
+					geoJson: true
+				})
+				break;
+
+			case 'unit_shapes':
+				coll.ensureIndex({
+					type: 'persistent',
+					fields: ['GeometryID']
+				})
+				break;
+
+			case 'shape_data':
+				coll.ensureIndex({
+					type: 'persistent',
+					fields: ['GeometryID', 'std_span']
+				})
+				coll.ensureIndex({
+					type: 'persistent',
+					fields: ['GeometryID', 'std_date']
+				})
+				coll.ensureIndex({
+					type: 'persistent',
+					fields: ['GeometryID', 'std_terms[*]']
+				})
+				break;
+		}
 	} else if (context.isProduction) {
 		console.debug(`collection ${collection} already exists. Leaving it untouched.`)
 	}

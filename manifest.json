@@ -1,7 +1,7 @@
 {
     "name": "Environmental-Services",
     "version": "0.0.0",
-    "description": "Provide remote sensing and climate data related to unit geometries.",
+    "description": "Remote sensing and climate data services related to geographic locations and regions.",
     "engines": {
         "arangodb": "^3.0.0"
     },
