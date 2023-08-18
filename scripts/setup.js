@@ -51,10 +51,6 @@ for (const [key, collection] of Object.entries(documentCollections)) {
 					type: 'persistent',
 					fields: ['GeometryID', 'std_date']
 				})
-				coll.ensureIndex({
-					type: 'persistent',
-					fields: ['std_terms[*]']
-				})
 				break;
 		}
 	} else if (context.isProduction) {
