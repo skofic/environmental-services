@@ -53,7 +53,7 @@ for (const [key, collection] of Object.entries(documentCollections)) {
 				})
 				coll.ensureIndex({
 					type: 'persistent',
-					fields: ['GeometryID', 'std_terms[*]']
+					fields: ['std_terms[*]']
 				})
 				break;
 		}
