@@ -6,7 +6,15 @@ const joi = require('joi')
 module.exports = {
 	schema: {
 		// Describe the attributes with joi here
-		std_terms: joi.array().items(joi.string()).required()
+		std_span: joi.array()
+			.items(
+				joi.string()
+					.valid('std_date_span_day', 'std_date_span_month', 'std_date_span_year')
+			)
+			.required(),
+		std_terms: joi.array()
+			.items(joi.string())
+			.required()
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here

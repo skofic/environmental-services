@@ -14,26 +14,7 @@ RETURN {
     data: groups[*].data
 }
 @geometry:		"001ce496b7c7e06fdd6d38312e33496d"
-
-
-///
-// Return remote sensing data by GeometryID and resolution.
-///
-FOR doc IN ShapeData
-    FILTER doc.GeometryID == @geometry
-    FILTER doc.std_span IN @resolution
-    SORT doc.std_date
-
-    LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
-
-    COLLECT resolution = doc.std_span INTO groups KEEP data
-
-RETURN {
-    std_span: resolution,
-    data: groups[*].data
-}
-@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
-@resolution:	["std_date_span_year", "std_date_span_month"]
+OK
 
 
 ///
@@ -56,6 +37,28 @@ RETURN {
 @geometry:		"001ce496b7c7e06fdd6d38312e33496d"
 @startDate:		"20100101"
 @endDate:		"20100202"
+OK
+
+
+///
+// Return remote sensing data by GeometryID and resolution.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+    FILTER doc.std_span IN @resolution
+    SORT doc.std_date
+
+    LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
+
+    COLLECT resolution = doc.std_span INTO groups KEEP data
+
+RETURN {
+    std_span: resolution,
+    data: groups[*].data
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+@resolution:	["std_date_span_year", "std_date_span_month"]
+OK
 
 
 ///
@@ -77,9 +80,10 @@ RETURN {
     data: groups[*].data
 }
 @geometry:		"001ce496b7c7e06fdd6d38312e33496d"
-@resolution:	["std_date_span_day", "std_date_span_month"]
 @startDate:		"20100101"
 @endDate:		"20100202"
+@resolution:	["std_date_span_day", "std_date_span_month"]
+OK
 
 
 ///
@@ -100,10 +104,11 @@ RETURN {
 }
 @geometry:		"001ce496b7c7e06fdd6d38312e33496d"
 @descriptors:	["biomass_2010", "relative_humidity", "soil_temperature_0_7cm"]
+OK
 
 
 ///
-// Return remote sensing data by GeometryID, descriptors and time interval.
+// Return remote sensing data by GeometryID, descriptors and date range.
 ///
 FOR doc IN ShapeData
     FILTER doc.GeometryID == @geometry
@@ -121,9 +126,37 @@ RETURN {
     data: groups[*].data
 }
 @geometry:		"001ce496b7c7e06fdd6d38312e33496d"
-@descriptors:	["biomass_2010", "relative_humidity", "soil_temperature_0_7cm"]
 @startDate:		"2010"
 @endDate:		"20100131"
+@descriptors:	["biomass_2010", "relative_humidity", "soil_temperature_0_7cm"]
+OK
+
+
+///
+// Return remote sensing data by GeometryID, time spans, descriptors and date range.
+///
+FOR doc IN ShapeData
+    FILTER doc.GeometryID == @geometry
+    FILTER doc.std_span IN @resolution
+    FILTER @descriptors ANY IN doc.std_terms
+    FILTER doc.std_date >= @startDate
+    FILTER doc.std_date <= @endDate
+    SORT doc.std_date
+
+    LET data = KEEP(doc, 'std_date', @descriptors)
+
+    COLLECT resolution = doc.std_span INTO groups KEEP data
+
+RETURN {
+    std_span: resolution,
+    data: groups[*].data
+}
+@geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+@startDate:		"2010"
+@endDate:		"20100131"
+@resolution:	["std_date_span_day", "std_date_span_year""]
+@descriptors:	["biomass_2010", "relative_humidity", "soil_temperature_0_7cm"]
+OK
 
 
 ///
@@ -139,6 +172,7 @@ RETURN {
     count: count
 }
 @geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+OK
 
 
 ///
@@ -156,6 +190,7 @@ RETURN {
     endDate: endDate
 }
 @geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+OK
 
 
 ///
@@ -172,6 +207,7 @@ RETURN {
     descriptors: UNIQUE(FLATTEN(terms))
 }
 @geometry:		"001ce496b7c7e06fdd6d38312e33496d"
+OK
 
 
 ///
@@ -192,3 +228,4 @@ RETURN {
 @geometry:		"001ce496b7c7e06fdd6d38312e33496d"
 @startDate:		"2010"
 @endDate:		"20100131"
+OK
