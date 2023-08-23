@@ -70,10 +70,10 @@ router.get('spans/:key', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.GeometryID == ${key}
-			    COLLECT resolution = doc.std_span WITH COUNT INTO count
+			    FILTER doc.geometry_hash == ${key}
+			    COLLECT resolution = doc.std_date_span WITH COUNT INTO count
 			RETURN {
-			    std_span: resolution,
+			    std_date_span: resolution,
 			    count: count
 			}
         `).toArray()
@@ -97,7 +97,7 @@ router.get('spans/:key', function (req, res)
 	.response([ModelSpans],
 		'Remote sensing observations *count* grouped by *annual*, *monthly* and *daily* time span.\n' +
 		'\n' +
-		'The `std_span` property represents the period, it can take the following values:\n' +
+		'The `std_date_span` property represents the period, it can take the following values:\n' +
 		'\n' +
 		'- `std_date_span_day`: *Daily* data.\n' +
 		'- `std_date_span_month`: *Monthly* data.\n' +
@@ -136,11 +136,11 @@ router.get('dates/:key', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.GeometryID == ${key}
-			    COLLECT resolution = doc.std_span
+			    FILTER doc.geometry_hash == ${key}
+			    COLLECT span = doc.std_date_span
 			    AGGREGATE startDate = MIN(doc.std_date), endDate = MAX(doc.std_date)
 			RETURN {
-			    std_span: resolution,
+			    std_date_span: span,
 			    startDate: startDate,
 			    endDate: endDate
 			}
@@ -165,7 +165,7 @@ router.get('dates/:key', function (req, res)
 	.response([ModelDates],
 		'Remote sensing observation *date ranges* grouped by *annual*, *monthly* and *daily* data.\n' +
 		'\n' +
-		'The `std_span` property represents the period, it can take the following values:\n' +
+		'The `std_date_span` property represents the period, it can take the following values:\n' +
 		'\n' +
 		'- `std_date_span_day`: *Daily* data.\n' +
 		'- `std_date_span_month`: *Monthly* data.\n' +
@@ -202,11 +202,11 @@ router.get('terms/:key', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.GeometryID == ${key}
-			    COLLECT resolution = doc.std_span
+			    FILTER doc.geometry_hash == ${key}
+			    COLLECT span = doc.std_date_span
 			    AGGREGATE terms = UNIQUE(doc.std_terms)
 			RETURN {
-			    std_span: resolution,
+			    std_date_span: span,
 			    std_terms: UNIQUE(FLATTEN(terms))
 			}
         `).toArray()
@@ -230,7 +230,7 @@ router.get('terms/:key', function (req, res)
 	.response([ModelDescriptors],
 		'Remote sensing observation *descriptors* grouped by *annual*, *monthly* and *daily* data.\n' +
 		'\n' +
-		'The `std_span` property represents the period, it can take the following values:\n' +
+		'The `std_date_span` property represents the period, it can take the following values:\n' +
 		'\n' +
 		'- `std_date_span_day`: *Daily* data.\n' +
 		'- `std_date_span_month`: *Monthly* data.\n' +
@@ -273,13 +273,13 @@ router.get('terms/:key/:startDate/:endDate', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.GeometryID == ${key}
+			    FILTER doc.geometry_hash == ${key}
 			    FILTER doc.std_date >= ${startDate}
 			    FILTER doc.std_date <= ${endDate}
-			    COLLECT resolution = doc.std_span
+			    COLLECT span = doc.std_date_span
 			    AGGREGATE terms = UNIQUE(doc.std_terms)
 			RETURN {
-			    std_span: resolution,
+			    std_date_span: span,
 			    std_terms: UNIQUE(FLATTEN(terms))
 			}
         `).toArray()
@@ -305,7 +305,7 @@ router.get('terms/:key/:startDate/:endDate', function (req, res)
 	.response([ModelDescriptors],
 		'Remote sensing observation *descriptors* grouped by *annual*, *monthly* and *daily* data.\n' +
 		'\n' +
-		'The `std_span` property represents the period, it can take the following values:\n' +
+		'The `std_date_span` property represents the period, it can take the following values:\n' +
 		'\n' +
 		'- `std_date_span_day`: *Daily* data.\n' +
 		'- `std_date_span_month`: *Monthly* data.\n' +

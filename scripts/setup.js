@@ -38,18 +38,18 @@ for (const [key, collection] of Object.entries(documentCollections)) {
 			case 'unit_shapes':
 				coll.ensureIndex({
 					type: 'persistent',
-					fields: ['GeometryID']
+					fields: ['geometry_hash']
 				})
 				break;
 
 			case 'shape_data':
 				coll.ensureIndex({
 					type: 'persistent',
-					fields: ['GeometryID', 'std_span']
+					fields: ['geometry_hash', 'std_date_span']
 				})
 				coll.ensureIndex({
 					type: 'persistent',
-					fields: ['GeometryID', 'std_date']
+					fields: ['geometry_hash', 'std_date']
 				})
 				coll.ensureIndex({
 					type: 'persistent',

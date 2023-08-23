@@ -33,7 +33,7 @@ const endDateSchema = joi.string().regex(/^[0-9]+$/).required()
 const ModelDataDescription =
 	'Remote sensing data *combined* by *annual*, *monthly* and *daily* time frame.\n' +
 	'\n' +
-	'The `std_span` property represents the time span, it can take the following values:\n' +
+	'The `std_date_span` property represents the time span, it can take the following values:\n' +
 	'\n' +
 	'- `std_date_span_day`: *Daily* data.\n' +
 	'- `std_date_span_month`: *Monthly* data.\n' +
@@ -82,13 +82,13 @@ router.get(':key', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-				FILTER doc.GeometryID == ${key}
+				FILTER doc.geometry_hash == ${key}
 				SORT doc.std_date
-				LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
-				COLLECT resolution = doc.std_span INTO groups KEEP data
+				LET data = { std_date: doc.std_date, properties: doc.properties }
+				COLLECT span = doc.std_date_span INTO groups KEEP data
 			RETURN {
-                std_span: resolution,
-                data: groups[*].data
+			    std_date_span: span,
+			    std_date_series: groups[*].data
 			}
         `).toArray()
 	}
@@ -119,7 +119,7 @@ The data will be grouped by *daily*, *monthly* and *annual* observations. Within
 	`);
 
 /**
- * Get remote sensing data by GeometryID and date range.
+ * Get remote sensing data by geometry_hash and date range.
  *
  * This service will return all observations of the provided unit shape
  * performed in the time interval defined by the provided start and end dates.
@@ -145,15 +145,15 @@ router.get(':key/:startDate/:endDate', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.GeometryID == ${key}
-                FILTER doc.std_date >= ${startDate}
-                FILTER doc.std_date <= ${endDate}
-                SORT doc.std_date
-            LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
-            COLLECT resolution = doc.std_span INTO groups KEEP data
+				FILTER doc.geometry_hash == ${key}
+				FILTER doc.std_date >= ${startDate}
+				FILTER doc.std_date <= ${endDate}
+				SORT doc.std_date
+				LET data = { std_date: doc.std_date, properties: doc.properties }
+				COLLECT span = doc.std_date_span INTO groups KEEP data
 			RETURN {
-                std_span: resolution,
-                data: groups[*].data
+				std_date_span: span,
+				std_date_series: groups[*].data
 			}
         `).toArray()
 	}
@@ -186,7 +186,7 @@ Since the data returned may be *annual*, *monthly* and *daily*, it is important 
 	`);
 
 /**
- * Get remote sensing data by GeometryID and time spans.
+ * Get remote sensing data by geometry_hash and time spans.
  *
  * This service will return all observations of the provided unit shape
  * for the provided time spans
@@ -209,16 +209,16 @@ router.post('span/:key', function (req, res)
 	let result;
 	try {
 		result = db._query(aql`
-			FOR doc IN ${collection}
-			    FILTER doc.GeometryID ==${key}
-			    FILTER doc.std_span IN ${spans.std_span}
-			    SORT doc.std_date
-			    LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
-			    COLLECT resolution = doc.std_span INTO groups KEEP data
-			RETURN {
-			    std_span: resolution,
-			    data: groups[*].data
-			}
+FOR doc IN ${collection}
+	FILTER doc.geometry_hash == ${key}
+	FILTER doc.std_date_span IN ${spans.std_date_span}
+	SORT doc.std_date
+	LET data = { std_date: doc.std_date, properties: doc.properties }
+	COLLECT span = doc.std_date_span INTO groups KEEP data
+RETURN {
+	std_date_span: span,
+	std_date_series: groups[*].data
+}
         `).toArray()
 	}
 
@@ -252,7 +252,7 @@ Note that this will return *all* data for the requested time spans, in case of d
 `)
 
 /**
- * Get remote sensing data by GeometryID, start and end dates, and time spans.
+ * Get remote sensing data by geometry_hash, start and end dates, and time spans.
  *
  * The service will return observations of the provided unit shape
  * for the time range defined by the provided start and end dates
@@ -281,16 +281,16 @@ router.post('span/:key/:startDate/:endDate', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.GeometryID == ${key}
-			    FILTER doc.std_span IN ${spans.std_span}
+			    FILTER doc.geometry_hash == ${key}
+			    FILTER doc.std_date_span IN ${spans.std_date_span}
 			    FILTER doc.std_date >= ${startDate}
 			    FILTER doc.std_date <= ${endDate}
 			    SORT doc.std_date
-			    LET data = UNSET(doc, '_id', '_key', '_rev', 'GeometryID', 'std_span', 'std_terms')
-			    COLLECT resolution = doc.std_span INTO groups KEEP data
+			    LET data = { std_date: doc.std_date, properties: doc.properties }
+			    COLLECT span = doc.std_date_span INTO groups KEEP data
 			RETURN {
-			    std_span: resolution,
-			    data: groups[*].data
+			    std_date_span: span,
+			    std_date_series: groups[*].data
 			}
         `).toArray()
 	}
@@ -325,7 +325,7 @@ Provide the *geometry ID* of the *unit shape*, *start* and *end* dates, and one 
 `)
 
 /**
- * Get remote sensing data by GeometryID and variable names.
+ * Get remote sensing data by geometry_hash and variable names.
  *
  * This service will return observations of the provided unit shape
  * where the provided observation variables are featured.
@@ -340,7 +340,7 @@ router.post('terms/:key', function (req, res)
 	// Parameters.
 	///
 	const key = req.pathParams.key
-	const terms = req.body;
+	const body = req.body;
 
 	///
 	// Perform service.
@@ -349,14 +349,14 @@ router.post('terms/:key', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.GeometryID == ${key}
-			    FILTER ${terms.std_terms} ANY IN doc.std_terms
+			    FILTER doc.geometry_hash == ${key}
+			    FILTER ${body.std_terms} ANY IN doc.std_terms
 			    SORT doc.std_date
-			    LET data = KEEP(doc, 'std_date', ${terms.std_terms})
-			    COLLECT resolution = doc.std_span INTO groups KEEP data
+			    LET data = { std_date: doc.std_date, properties: KEEP(doc.properties, ${body.std_terms}) }
+			    COLLECT span = doc.std_date_span INTO groups KEEP data
 			RETURN {
-			    std_span: resolution,
-			    data: groups[*].data
+			    std_date_span: span,
+			    std_date_series: groups[*].data
 			}
         `).toArray()
 	}
@@ -387,7 +387,7 @@ Note that requesting variables featured in *daily observations* may target large
 `)
 
 /**
- * Get remote sensing data by GeometryID, date range and variable names.
+ * Get remote sensing data by geometry_hash, date range and variable names.
  *
  * This service will return observations of the provided unit shape
  * where the provided observation variables are featured in observations
@@ -407,7 +407,7 @@ router.post('terms/:key/:startDate/:endDate', function (req, res)
 	const key = req.pathParams.key
 	const startDate = req.pathParams.startDate
 	const endDate = req.pathParams.endDate
-	const terms = req.body;
+	const body = req.body;
 
 	///
 	// Perform service.
@@ -416,16 +416,16 @@ router.post('terms/:key/:startDate/:endDate', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.GeometryID == ${key}
-			    FILTER ${terms.std_terms} ANY IN doc.std_terms
+			    FILTER doc.geometry_hash == ${key}
+			    FILTER ${body.std_terms} ANY IN doc.std_terms
 			    FILTER doc.std_date >= ${startDate}
 			    FILTER doc.std_date <= ${endDate}
 			    SORT doc.std_date
-			    LET data = KEEP(doc, 'std_date', ${terms.std_terms})
-			    COLLECT resolution = doc.std_span INTO groups KEEP data
+			    LET data = { std_date: doc.std_date, properties: KEEP(doc.properties, ${body.std_terms}) }
+			    COLLECT span = doc.std_date_span INTO groups KEEP data
 			RETURN {
-			    std_span: resolution,
-			    data: groups[*].data
+			    std_date_span: span,
+			    std_date_series: groups[*].data
 			}
         `).toArray()
 	}
@@ -458,7 +458,7 @@ The returned data will only feature the provided variables, if found.
 `)
 
 /**
- * Get remote sensing data by GeometryID, date range, spans and variable names.
+ * Get remote sensing data by geometry_hash, date range, spans and variable names.
  *
  * This service will return remote sensing data related to the provided unit shape,
  * the data
@@ -473,7 +473,7 @@ The returned data will only feature the provided variables, if found.
  * - `:key`: The key of the unit shape.
  * - ':startDate': The start date.
  * - ':endDate': The end date.
- * - body.std_span: The list of spans.
+ * - body.std_date_span: The list of spans.
  * - body.std_terms: The list of descriptors.
  */
 router.post('span/terms/:key/:startDate/:endDate', function (req, res)
@@ -484,7 +484,7 @@ router.post('span/terms/:key/:startDate/:endDate', function (req, res)
 	const key = req.pathParams.key
 	const startDate = req.pathParams.startDate
 	const endDate = req.pathParams.endDate
-	const spans = req.body.std_span
+	const spans = req.body.std_date_span
 	const terms = req.body.std_terms
 
 	///
@@ -494,17 +494,17 @@ router.post('span/terms/:key/:startDate/:endDate', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.GeometryID == ${key}
-			    FILTER doc.std_span IN ${spans}
+			    FILTER doc.geometry_hash == ${key}
+			    FILTER doc.std_date_span IN ${spans}
 			    FILTER ${terms} ANY IN doc.std_terms
 			    FILTER doc.std_date >= ${startDate}
 			    FILTER doc.std_date <= ${endDate}
 			    SORT doc.std_date
-			    LET data = KEEP(doc, 'std_date', ${terms})
-			    COLLECT resolution = doc.std_span INTO groups KEEP data
+			    LET data = { std_date: doc.std_date, properties: KEEP(doc.properties, ${terms}) }
+			    COLLECT span = doc.std_date_span INTO groups KEEP data
 			RETURN {
-			    std_span: resolution,
-			    data: groups[*].data
+			    std_date_span: span,
+			    std_date_series: groups[*].data
 			}
         `).toArray()
 	}
