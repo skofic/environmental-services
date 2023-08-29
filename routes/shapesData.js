@@ -34,7 +34,7 @@ const minSlopeSchema = joi.number().required()
 	.description('Minimum slope inclusive in degrees.')
 const maxSlopeSchema = joi.number().required()
 	.description('Maximum slope inclusive in degrees.')
-const miDistanceSchema = joi.number().required()
+const minDistanceSchema = joi.number().required()
 	.description('Minimum distance inclusive in meters.')
 const maxDistanceSchema = joi.number().required()
 	.description('Maximum distance inclusive in meters.')
@@ -53,13 +53,13 @@ const startLimitSchema = joi.number().required()
 const itemsLimitSchema = joi.number().required()
 	.description('Number of records.')
 const ShapeRecordDescription = `
-Genetic Conservation Unit Shape record.
+Unit Shape record.
 
 The record contains the following properties:
 
 - \`geometry_hash\`: The hash of the shape's GeoJSON *geometry*, which is also the *unique key* of the *shape* record.
 - \`geometry\`: The GeoJSON *geometry* of the *shape*.
-- \`geometry_bounds\`: The GeoJSON *geometry* that represents the *shape bounding box*.
+- \`geometry_bounds\`: The GeoJSON *geometry* that represents the shape's *bounding box*.
 - \`properties\`: An object containing properties related to the shape and not tied to a time frame.
 
 This schema reflects a *single record* in the *unit shapes collection*.
@@ -473,3 +473,81 @@ router.get('topo/aspect/:min/:max/:sort/:start/:limit', function (req, res)
 	.description(dd`
 		The service will return the *list* of *shape records* whose *aspect* is within the *provided range*.
 	`);
+
+/**
+ * Return all shapes within the provided distance range.
+ *
+ * This service will return the shape records whose distance to the provided reference
+ * geometry is larger or equal to the provided minimum distance and smaller or equal to
+ * the provided maximum distance.
+ *
+ * Parameters:
+ * - `:min`: The minimum distance inclusive.
+ * - `:max`: The maximum distance inclusive.
+ * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
+ * - `:start`: The start index.
+ * - `:limit`: The number of records.
+ **/
+router.post('dist/:min/:max/:sort/:start/:limit', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const min = req.pathParams.min
+	const max = req.pathParams.max
+	const sort = req.pathParams.sort
+	const start = req.pathParams.start
+	const limit = req.pathParams.limit
+
+	const reference = req.body.geometry
+
+	///
+	// Perform service.
+	///
+	let result
+	try {
+		result = db._query(aql`
+			FOR doc IN ${collection}
+			    LET target = ${reference}
+			    LET distance = GEO_DISTANCE(target, doc.geometry, "wgs84")
+			    FILTER distance >= ${min}
+			    FILTER distance <= ${max}
+			    SORT distance ${sort}
+			    LIMIT ${start}, ${limit}
+			RETURN MERGE(
+				{ geometry_hash: doc._key, distance: distance },
+				UNSET(doc, '_id', '_key', '_rev')
+			)
+        `).toArray()
+	}
+
+		///
+		// Handle errors.
+		///
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+
+	.pathParam('min', minDistanceSchema)
+	.pathParam('max', maxDistanceSchema)
+	.pathParam('sort', sortSchema)
+	.pathParam('start', startLimitSchema)
+	.pathParam('limit', itemsLimitSchema)
+
+	.body(ModelShape, "The *reference shape* for the operation: provide  a \
+		*GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, \
+		*MultiLineString*, *Polygon* or *MultiPolygon*."
+	)
+	.response([ModelRecord], ShapeRecordDescription)
+	.summary('Get all shapes within the provided distance range')
+	.description(dd`
+		The service will return the *list* of *shape records* whose *distance* to the *provided reference geometry* is within the *provided range*.
+		The distance is calculated the *wgs84 centroids* of both the provided reference geometry and the shape geometry.
+	`)
