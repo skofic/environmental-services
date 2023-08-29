@@ -136,7 +136,7 @@ router.get(':hash', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  */
-router.get('area/:min/:max/:sort/:start/:limit', function (req, res)
+router.get('topo/area/:min/:max/:sort/:start/:limit', function (req, res)
 {
 	///
 	// Parameters.
@@ -205,7 +205,7 @@ router.get('area/:min/:max/:sort/:start/:limit', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  */
-router.get('alt/:min/:max/:sort/:start/:limit', function (req, res)
+router.get('topo/alt/:min/:max/:sort/:start/:limit', function (req, res)
 {
 	///
 	// Parameters.
@@ -275,7 +275,7 @@ router.get('alt/:min/:max/:sort/:start/:limit', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  */
-router.get('altsd/:min/:max/:sort/:start/:limit', function (req, res)
+router.get('topo/altsd/:min/:max/:sort/:start/:limit', function (req, res)
 {
 	///
 	// Parameters.
@@ -344,7 +344,7 @@ router.get('altsd/:min/:max/:sort/:start/:limit', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  */
-router.get('slope/:min/:max/:sort/:start/:limit', function (req, res)
+router.get('topo/slope/:min/:max/:sort/:start/:limit', function (req, res)
 {
 	///
 	// Parameters.
@@ -413,7 +413,7 @@ router.get('slope/:min/:max/:sort/:start/:limit', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  */
-router.get('aspect/:min/:max/:sort/:start/:limit', function (req, res)
+router.get('topo/aspect/:min/:max/:sort/:start/:limit', function (req, res)
 {
 	///
 	// Parameters.
