@@ -21,12 +21,12 @@ const collection = db._collection('UnitShapes')
 const ModelRecord = require('../models/unitData')
 const ModelIdRecord = require('../models/unitIdData')
 const ModelNumberRecord = require('../models/unitNumberData')
-const unitIdSchema = joi.string().regex(/[A-Z]{3}[0-9]{9}/).required()
-	.description('Genetic Conservation Unit number identifier.')
-const unitNumberSchema = joi.string().regex(/[A-Z]{3}[0-9]{5}/).required()
-	.description('Genetic Conservation Unit number identifier.')
 const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()
-	.description('Genetic Conservation Unit shape record identifier.\nThe value is the `_key` of the `Shapes` collection record.')
+	.description('Unit shape geometry hash.\nThe value is the `_key` of the `Shapes` collection record.')
+const unitIdSchema = joi.string().regex(/[A-Z]{3}[0-9]{9}/).required()
+	.description('Unit number identifier.')
+const unitNumberSchema = joi.string().regex(/[A-Z]{3}[0-9]{5}/).required()
+	.description('Unit number identifier.')
 const UnitRecordDescription = `
 Genetic Conservation Unit record.
 
@@ -47,7 +47,7 @@ The record contains the *combination* of these three properties:
 
 - \`gcu_id_number\`: The *unit number*.
 - \`gcu_id_unit-id\`: The *unit ID*, which is the *unit number* postfixed with the *date* when the *data* was *collected in the field*.
-- \`geometry_hash\`: The *list* of *unit shape references* associated with the *unit ID*.
+- \`geometry_hash_list\`: The *list* of *unit shape references* associated with the *unit ID*.
 `
 const UnitNumberRecordDescription = `
 Genetic Conservation Unit number record.
@@ -55,7 +55,7 @@ Genetic Conservation Unit number record.
 The record contains the *combination* of these two properties:
 
 - \`gcu_id_number\`: The *unit number*.
-- \`gcu_id_unit-id\`: The list of *unit IDs* related to the provided *unit number*.
+- \`gcu_id_unit-id_list\`: The list of *unit IDs* related to the provided *unit number*.
 `
 
 ///
@@ -67,7 +67,7 @@ module.exports = router
 ///
 // Tag router.
 ///
-router.tag('Genetic Conservation Units')
+router.tag('Units')
 
 
 /**
@@ -118,15 +118,15 @@ router.get('id/:num', function (req, res)
 
 	.pathParam('num', unitNumberSchema)
 	.response([ModelNumberRecord], UnitNumberRecordDescription)
-	.summary('Get all IDs related to the provided unit number')
+	.summary('Get unit IDs related to provided unit number')
 	.description(dd`
 		The service will return all *unit IDs* related to the *provided unit number*.
 	`);
 
 /**
- * Given unit ID return corresponding unit shape hashes.
+ * Given unit ID return corresponding unit number and shape hashes.
  *
- * This service will return the unit ID and number,along with
+ * This service will return the unit ID and number, along with
  * an array of all the unit shape references related to the provided unit ID.
  *
  * Parameters:
@@ -172,9 +172,9 @@ router.get('shape/:id', function (req, res)
 
 	.pathParam('id', unitIdSchema)
 	.response([ModelIdRecord], UnitIdRecordDescription)
-	.summary('Get all data related to the provided unit ID')
+	.summary('Get unit number and shape references list for provided unit ID')
 	.description(dd`
-		The service will return all *data* related to the *provided unit ID*.
+		The service will return the *unit number* abd the *list* of *unit shape references* related to the *provided unit ID*.
 	`);
 
 /**
@@ -221,7 +221,7 @@ router.get('rec/:shape', function (req, res)
 
 	.pathParam('shape', geometryHashSchema)
 	.response([ModelRecord], UnitRecordDescription)
-	.summary('Get all data related to the provided unit shape reference')
+	.summary('Get unit data related to the provided shape reference')
 	.description(dd`
-		The service will return the *unit number* and *unit ID* related to the provided unit shape reference.
+		The service will return the *unit number* and *unit ID* related to the provided *unit shape reference*.
 	`);

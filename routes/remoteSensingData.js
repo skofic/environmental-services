@@ -24,8 +24,8 @@ const ModelData = require('../models/remoteSensingData')
 const ModelBodySpan = require("../models/remoteSensingBodySpan")
 const ModelBodyDescriptors = require("../models/remoteSensingBodyDescriptors")
 const ModelBodySpanDescriptors = require("../models/remoteSensingBodySpanDescriptors")
-const keySchema = joi.string().required()
-	.description('Unit shape record identifier.\nThe value is the `_key` of the `Shapes` collection record.')
+const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()
+	.description('Unit shape geometry hash.\nThe value is the `_key` of the `Shapes` collection record.')
 const startDateSchema = joi.string().regex(/^[0-9]+$/).required()
 	.description('The start date expressed as a string in `YYYYMMDD`, `YYYYMM` or `YYYY` format.')
 const endDateSchema = joi.string().regex(/^[0-9]+$/).required()
@@ -66,14 +66,14 @@ router.tag('Remote Sensing Data')
  * Use this service with care, since it will return more than 5MB. of data.
  *
  * Parameters:
- * - `:key`: The key of the unit shape.
+ * - `:shape`: The key of the unit shape.
  */
-router.get(':key', function (req, res)
+router.get(':shape', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const key = req.pathParams.key
+	const shape = req.pathParams.shape
 
 	///
 	// Perform service.
@@ -82,7 +82,7 @@ router.get(':key', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-				FILTER doc.geometry_hash == ${key}
+				FILTER doc.geometry_hash == ${shape}
 				SORT doc.std_date
 				LET data = { std_date: doc.std_date, properties: doc.properties }
 				COLLECT span = doc.std_date_span INTO groups KEEP data
@@ -107,11 +107,11 @@ router.get(':key', function (req, res)
 
 }, 'list')
 
-	.pathParam('key', keySchema)
+	.pathParam('shape', geometryHashSchema)
 	.response([ModelData], ModelDataDescription)
-	.summary('Get all remote sensing data for the provided unit shape grouped by time span')
+	.summary('Get *all* remote sensing data for the provided *unit geometry hash* grouped by *time span*')
 	.description(dd`
-		This service will return *all* remote sensing data related to the *provided* unit *shape key*.
+		This service will return *all* remote sensing data related to the *provided* unit *shape geometry hash*.
 		
 The data will be grouped by *daily*, *monthly* and *annual* observations. Within these groups the data will be further subdivided by the *observation date*.
 
@@ -125,16 +125,16 @@ The data will be grouped by *daily*, *monthly* and *annual* observations. Within
  * performed in the time interval defined by the provided start and end dates.
  *
  * Parameters:
- * - `:key`: The key of the unit shape.
+ * - `:shape`: The key of the unit shape.
  * - ':startDate': The start date.
  * - ':endDate': The end date
  */
-router.get(':key/:startDate/:endDate', function (req, res)
+router.get(':shape/:startDate/:endDate', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const key = req.pathParams.key
+	const shape = req.pathParams.shape
 	const startDate = req.pathParams.startDate
 	const endDate = req.pathParams.endDate
 
@@ -145,7 +145,7 @@ router.get(':key/:startDate/:endDate', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-				FILTER doc.geometry_hash == ${key}
+				FILTER doc.geometry_hash == ${shape}
 				FILTER doc.std_date >= ${startDate}
 				FILTER doc.std_date <= ${endDate}
 				SORT doc.std_date
@@ -172,11 +172,11 @@ router.get(':key/:startDate/:endDate', function (req, res)
 
 }, 'list')
 
-	.pathParam('key', keySchema)
+	.pathParam('shape', geometryHashSchema)
 	.pathParam('startDate', startDateSchema)
 	.pathParam('endDate', endDateSchema)
 	.response([ModelData], ModelDataDescription)
-	.summary('Get remote sensing data for the requested unit shape and date range grouped by time span')
+	.summary('Get remote sensing data for the requested *unit shape geometry hash* and *date range* grouped by *time span*')
 	.description(dd`
 		This service will return remote sensing data related to the provided unit *shape key* and the *time interval* expressed by the provided *start* and *end dates*.
 
@@ -192,15 +192,15 @@ Since the data returned may be *annual*, *monthly* and *daily*, it is important 
  * for the provided time spans
  *
  * Parameters:
- * - `:key`: The key of the unit shape.
+ * - `:shape`: The key of the unit shape.
  * - body: The list of spans.
  */
-router.post('span/:key', function (req, res)
+router.post('span/:shape', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const key = req.pathParams.key
+	const shape = req.pathParams.shape
 	const spans = req.body;
 
 	///
@@ -210,7 +210,7 @@ router.post('span/:key', function (req, res)
 	try {
 		result = db._query(aql`
 FOR doc IN ${collection}
-	FILTER doc.geometry_hash == ${key}
+	FILTER doc.geometry_hash == ${shape}
 	FILTER doc.std_date_span IN ${spans.std_date_span}
 	SORT doc.std_date
 	LET data = { std_date: doc.std_date, properties: doc.properties }
@@ -235,7 +235,7 @@ RETURN {
 	res.send(result);
 
 }, 'list')
-	.pathParam('key', keySchema)
+	.pathParam('shape', geometryHashSchema)
 	.body(ModelBodySpan, "The list of requested time spans.\n" +
 		"Provide one or more *time span codes*:\n" +
 		"- \`std_date_span_day\`: *Daily* data.\n" +
@@ -259,17 +259,17 @@ Note that this will return *all* data for the requested time spans, in case of d
  * and the requested time spans; the data will be grouped by time span.
  *
  * Parameters:
- * - `:key`: The key of the unit shape.
+ * - `:shape`: The key of the unit shape.
  * - ':startDate': The start date.
  * - ':endDate': The end date.
  * - body: The list of spans.
  */
-router.post('span/:key/:startDate/:endDate', function (req, res)
+router.post('span/:shape/:startDate/:endDate', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const key = req.pathParams.key
+	const shape = req.pathParams.shape
 	const startDate = req.pathParams.startDate
 	const endDate = req.pathParams.endDate
 	const spans = req.body;
@@ -281,7 +281,7 @@ router.post('span/:key/:startDate/:endDate', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.geometry_hash == ${key}
+			    FILTER doc.geometry_hash == ${shape}
 			    FILTER doc.std_date_span IN ${spans.std_date_span}
 			    FILTER doc.std_date >= ${startDate}
 			    FILTER doc.std_date <= ${endDate}
@@ -308,7 +308,7 @@ router.post('span/:key/:startDate/:endDate', function (req, res)
 	res.send(result);
 
 }, 'list')
-	.pathParam('key', keySchema)
+	.pathParam('shape', geometryHashSchema)
 	.pathParam('startDate', startDateSchema)
 	.pathParam('endDate', endDateSchema)
 	.body(ModelBodySpan, "The list of requested time spans.\n" +
@@ -334,12 +334,12 @@ Provide the *geometry ID* of the *unit shape*, *start* and *end* dates, and one 
  * - `:key`: The key of the unit shape.
  * - body: The list of descriptors.
  */
-router.post('terms/:key', function (req, res)
+router.post('terms/:shape', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const key = req.pathParams.key
+	const shape = req.pathParams.shape
 	const body = req.body;
 
 	///
@@ -349,7 +349,7 @@ router.post('terms/:key', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.geometry_hash == ${key}
+			    FILTER doc.geometry_hash == ${shape}
 			    FILTER ${body.std_terms} ANY IN doc.std_terms
 			    SORT doc.std_date
 			    LET data = { std_date: doc.std_date, properties: KEEP(doc.properties, ${body.std_terms}) }
@@ -374,7 +374,7 @@ router.post('terms/:key', function (req, res)
 	res.send(result);
 
 }, 'list')
-	.pathParam('key', keySchema)
+	.pathParam('shape', geometryHashSchema)
 	.body(ModelBodyDescriptors, "The list of requested *observation variable names*.")
 	.response([ModelData], ModelDataDescription)
 	.summary('Get remote sensing data by unit shape and observation variables, grouped by time span')
@@ -394,17 +394,17 @@ Note that requesting variables featured in *daily observations* may target large
  * spanning the time range between the provided start and end dates.
  *
  * Parameters:
- * - `:key`: The key of the unit shape.
+ * - `:shape`: The key of the unit shape.
  * - ':startDate': The start date.
  * - ':endDate': The end date.
  * - body: The list of descriptors.
  */
-router.post('terms/:key/:startDate/:endDate', function (req, res)
+router.post('terms/:shape/:startDate/:endDate', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const key = req.pathParams.key
+	const shape = req.pathParams.shape
 	const startDate = req.pathParams.startDate
 	const endDate = req.pathParams.endDate
 	const body = req.body;
@@ -416,7 +416,7 @@ router.post('terms/:key/:startDate/:endDate', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.geometry_hash == ${key}
+			    FILTER doc.geometry_hash == ${shape}
 			    FILTER ${body.std_terms} ANY IN doc.std_terms
 			    FILTER doc.std_date >= ${startDate}
 			    FILTER doc.std_date <= ${endDate}
@@ -443,7 +443,7 @@ router.post('terms/:key/:startDate/:endDate', function (req, res)
 	res.send(result);
 
 }, 'list')
-	.pathParam('key', keySchema)
+	.pathParam('shape', geometryHashSchema)
 	.pathParam('startDate', startDateSchema)
 	.pathParam('endDate', endDateSchema)
 	.body(ModelBodyDescriptors, "The list of requested *observation variable names*.")
@@ -470,18 +470,18 @@ The returned data will only feature the provided variables, if found.
  * the resulting data will be grouped by time span.
  *
  * Parameters:
- * - `:key`: The key of the unit shape.
+ * - `:shape`: The key of the unit shape.
  * - ':startDate': The start date.
  * - ':endDate': The end date.
  * - body.std_date_span: The list of spans.
  * - body.std_terms: The list of descriptors.
  */
-router.post('span/terms/:key/:startDate/:endDate', function (req, res)
+router.post('span/terms/:shape/:startDate/:endDate', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const key = req.pathParams.key
+	const shape = req.pathParams.key
 	const startDate = req.pathParams.startDate
 	const endDate = req.pathParams.endDate
 	const spans = req.body.std_date_span
@@ -494,7 +494,7 @@ router.post('span/terms/:key/:startDate/:endDate', function (req, res)
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
-			    FILTER doc.geometry_hash == ${key}
+			    FILTER doc.geometry_hash == ${shape}
 			    FILTER doc.std_date_span IN ${spans}
 			    FILTER ${terms} ANY IN doc.std_terms
 			    FILTER doc.std_date >= ${startDate}
@@ -522,7 +522,7 @@ router.post('span/terms/:key/:startDate/:endDate', function (req, res)
 	res.send(result);
 
 }, 'list')
-	.pathParam('key', keySchema)
+	.pathParam('shape', geometryHashSchema)
 	.pathParam('startDate', startDateSchema)
 	.pathParam('endDate', endDateSchema)
 	.body(ModelBodySpanDescriptors, "The list of requested *observation variable names* and the list of *requested time spans*.")

@@ -7,7 +7,7 @@ module.exports = {
 	schema: {
 		gcu_id_number: joi.string()
 			.regex(/[A-Z]{3}[0-9]{5}/),
-		'gcu_id_unit-id': joi.array()
+		'gcu_id_unit-id_list': joi.array()
 			.items(
 				joi.string()
 					.regex(/[A-Z]{3}[0-9]{9}/)

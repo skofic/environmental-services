@@ -9,7 +9,7 @@ module.exports = {
 			.regex(/[A-Z]{3}[0-9]{5}/),
 		'gcu_id_unit-id': joi.string()
 			.regex(/[A-Z]{3}[0-9]{9}/),
-		geometry_hash: joi.array()
+		geometry_hash_list: joi.array()
 			.items(
 				joi.string()
 					.regex(/^[0-9a-f]{32}$/)

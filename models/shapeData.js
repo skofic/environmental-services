@@ -5,6 +5,7 @@ const joi = require('joi')
 
 module.exports = {
 	schema: {
+		geometry_hash: joi.string().regex(/^[0-9a-f]{32}$/),
 		geometry: joi.object().required(),
 		geometry_bounds: joi.object(),
 		properties: joi.object({
