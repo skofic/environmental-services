@@ -11,89 +11,16 @@ RETURN MERGE(
 	UNSET(doc, '_id', '_key', '_rev')
 )
 
-
-
 ///
-// Return all shapes within area.
+// Return shapes within distance range.
 ///
 FOR doc IN Shapes
-    FILTER doc.properties.topography.geo_shape_area >= @min_area
-    FILTER doc.properties.topography.geo_shape_area <= @max_area
-    SORT doc.properties.topography.geo_shape_area @order
-    LIMIT @start, @count
-RETURN MERGE(
-	{ geometry_hash: doc._key },
-	UNSET(doc, '_id', '_key', '_rev')
-)
-
-///
-// Return all shapes within elevation.
-///
-FOR doc IN Shapes
-    FILTER doc.properties.topography.geo_shape_elevation >= @min_elevation
-    FILTER doc.properties.topography.geo_shape_elevation <= @max_elevation
-    SORT doc.properties.topography.geo_shape_elevation ASC
-    LIMIT @count
-RETURN MERGE(
-	{ geometry_hash: doc._key },
-	UNSET(doc, '_id', '_key', '_rev')
-)
-
-///
-// Return all shapes within elevation standard deviation.
-///
-FOR doc IN Shapes
-    FILTER doc.properties.topography.geo_shape_elevation_sd >= @min_elevation_sd
-    FILTER doc.properties.topography.geo_shape_elevation_sd <= @max_elevation_sd
-    SORT doc.properties.topography.geo_shape_elevation_sd DESC
-    LIMIT @count
-RETURN MERGE(
-	{ geometry_hash: doc._key },
-	UNSET(doc, '_id', '_key', '_rev')
-)
-
-///
-// Return all shapes within aspect.
-///
-FOR doc IN Shapes
-    FILTER doc.properties.topography.geo_shape_aspect >= @min_aspect
-    FILTER doc.properties.topography.geo_shape_aspect <= @max_aspect
-    SORT doc.properties.topography.geo_shape_aspect ASC
-    LIMIT @count
-RETURN MERGE(
-	{ geometry_hash: doc._key },
-	UNSET(doc, '_id', '_key', '_rev')
-)
-
-///
-// Return all shapes within slope.
-///
-FOR doc IN Shapes
-    FILTER doc.properties.topography.geo_shape_slope >= @min_slope
-    FILTER doc.properties.topography.geo_shape_slope <= @max_slope
-    SORT doc.properties.topography.geo_shape_aspect ASC
-    LIMIT @count
-RETURN MERGE(
-	{ geometry_hash: doc._key },
-	UNSET(doc, '_id', '_key', '_rev')
-)
-
-///
-// Return N shapes closest to target.
-///
-FOR doc IN Shapes
-    LET target = GEO_POINT(12.066435816868903, 42.090494081540236)
-    LET distance = GEO_DISTANCE(target, doc.geometry, "wgs84")
-    SORT distance ASC
-    LIMIT @count
-RETURN MERGE({distance: distance}, doc)
-
-///
-// Return all shapes closer than distance.
-///
-FOR doc IN Shapes
-    LET target = GEO_POINT(12.066435816868903, 42.090494081540236)
+    LET target = @target
     LET distance = GEO_DISTANCE(target, doc.geometry, "wgs84")
     FILTER distance < @closer
-    SORT distance ASC
-RETURN MERGE({distance: distance}, doc)
+    SORT distance @order
+    LIMIT @start, @count
+RETURN MERGE(
+	{ geometry_hash: doc._key, distance: distance },
+	UNSET(doc, '_id', '_key', '_rev')
+)

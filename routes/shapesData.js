@@ -18,6 +18,7 @@ const createRouter = require('@arangodb/foxx/router')
 // Collections and models.
 ///
 const collection = db._collection('Shapes')
+const ModelShape = require("../models/shapeTarget");
 const ModelRecord = require('../models/shapeData')
 const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()
 	.description('Unit shape geometry hash.\nThe value is the `_key` of the `Shapes` collection record.')
@@ -33,6 +34,10 @@ const minSlopeSchema = joi.number().required()
 	.description('Minimum slope inclusive in degrees.')
 const maxSlopeSchema = joi.number().required()
 	.description('Maximum slope inclusive in degrees.')
+const miDistanceSchema = joi.number().required()
+	.description('Minimum distance inclusive in meters.')
+const maxDistanceSchema = joi.number().required()
+	.description('Maximum distance inclusive in meters.')
 const minElevationSchema = joi.number().required()
 	.description('Minimum elevation inclusive in meters.')
 const maxElevationSchema = joi.number().required()
@@ -114,7 +119,7 @@ router.get(':hash', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'record')
 
 	.pathParam('hash', geometryHashSchema)
 	.response([ModelRecord], ShapeRecordDescription)
@@ -151,7 +156,7 @@ router.get('topo/area/:min/:max/:sort/:start/:limit', function (req, res)
 	///
 	// Perform service.
 	///
-	let result
+	let result;
 	try {
 		result = db._query(aql`
 			FOR doc IN ${collection}
