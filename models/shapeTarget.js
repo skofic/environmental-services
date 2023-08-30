@@ -13,7 +13,7 @@ module.exports = {
 						"LineString", "MultiLineString",
 						"Polygon", "MultiPolygon"
 					).required(),
-				geometry: joi.array().items(joi.number()).required()
+				coordinates: joi.array().required()
 			}).required()
 	},
 	forClient(obj) {
