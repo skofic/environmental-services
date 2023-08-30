@@ -5,20 +5,10 @@ const joi = require('joi')
 
 module.exports = {
 	schema: {
-		geometry:
-			joi.object({
-				type: joi.string()
-					.valid(
-						"Point", "MultiPoint",
-						"LineString", "MultiLineString",
-						"Polygon", "MultiPolygon"
-					).required(),
-				coordinates: joi.array()
-					.items(
-						joi.number(),
-						joi.array())
-					.required()
-			}).required()
+		// Describe the attributes with joi here
+		species_list: joi.array()
+			.items(joi.string())
+			.required()
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here

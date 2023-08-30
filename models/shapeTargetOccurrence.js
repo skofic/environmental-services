@@ -18,7 +18,10 @@ module.exports = {
 						joi.number(),
 						joi.array())
 					.required()
-			}).required()
+			}).required(),
+		species_list: joi.array()
+			.items(joi.string())
+			.required()
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here
