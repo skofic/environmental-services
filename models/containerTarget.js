@@ -9,8 +9,6 @@ module.exports = {
 			joi.object({
 				type: joi.string()
 					.valid(
-						"Point", "MultiPoint",
-						"LineString", "MultiLineString",
 						"Polygon", "MultiPolygon"
 					).required(),
 				coordinates: joi.array()
@@ -22,7 +20,7 @@ module.exports = {
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here
-		obj = _.omit(obj, ['_id', '_rev', '_oldRev'])
+		// obj = _.omit(obj, ['_id', '_rev', '_oldRev'])
 		return obj
 	},
 	fromClient(obj) {

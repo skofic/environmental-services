@@ -20,6 +20,7 @@ const createRouter = require('@arangodb/foxx/router')
 const collection = db._collection('Shapes')
 const ModelShape = require("../models/shapeTarget");
 const ModelRecord = require('../models/shapeData')
+const ModelContainer = require('../models/containerTarget')
 const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()
 	.description('Unit shape geometry hash.\nThe value is the `_key` of the `Shapes` collection record.')
 const minAreaSchema = joi.number().required()
@@ -49,9 +50,9 @@ const maxElevationSdSchema = joi.number().required()
 const sortSchema = joi.string().valid('ASC', 'DESC').required()
 	.description("Sort order: \`ASC\` for ascending, \`DESC\` for descending.")
 const startLimitSchema = joi.number().required()
-	.description('Start position, 0 is first.')
+	.description('Start index for results list, 0 is first.')
 const itemsLimitSchema = joi.number().required()
-	.description('Number of records.')
+	.description('Number of records to return, if found.')
 const ShapeRecordDescription = `
 Unit Shape record.
 
@@ -550,4 +551,133 @@ router.post('dist/:min/:max/:sort/:start/:limit', function (req, res)
 	.description(dd`
 		The service will return the *list* of *shape records* whose *distance* to the *provided reference geometry* is within the *provided range*.
 		The distance is calculated the *wgs84 centroids* of both the provided reference geometry and the shape geometry.
+	`)
+
+/**
+ * Return all shapes fully contained by the provided reference geometry.
+ *
+ * This service will return all the shape records which are fully contained
+ * by the provided reference geometry, the latter may be a Polygon or MultiPolugon.
+ *
+ * Parameters:
+ * - `:start`: The start index.
+ * - `:limit`: The number of records.
+ **/
+router.post('contain/:start/:limit', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const start = req.pathParams.start
+	const limit = req.pathParams.limit
+
+	const reference = req.body.geometry
+
+	///
+	// Perform service.
+	///
+	let result
+	try {
+		result = db._query(aql`
+			FOR doc IN ${collection}
+			    LET target = ${reference}
+			    FILTER GEO_CONTAINS(${reference}, doc.geometry)
+			    LIMIT ${start}, ${limit}
+			RETURN MERGE(
+				{ geometry_hash: doc._key },
+				UNSET(doc, '_id', '_key', '_rev')
+			)
+        `).toArray()
+	}
+
+		///
+		// Handle errors.
+		///
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+
+	.pathParam('start', startLimitSchema)
+	.pathParam('limit', itemsLimitSchema)
+
+	.body(ModelContainer, "The *reference shape* for the operation: provide  a \
+		*GeoJSON object* representing a *Polygon* or *MultiPolygon*."
+	)
+	.response([ModelRecord], ShapeRecordDescription)
+	.summary('Get all shapes fully contained by the provided reference geometry')
+	.description(dd`
+		The service will return the *list* of *shape records* contained by the provided reference geometry.
+		*Contained* is defined such that if the sphere is subdivided into faces (loops), every point is contained by exactly one face. This implies that linear rings do not necessarily contain their vertices.
+	`)
+
+/**
+ * Return all shapes that intersect with the provided reference geometry.
+ *
+ * This service will return all the shape records which intersect
+ * with the provided reference geometry.
+ *
+ * Parameters:
+ * - `:start`: The start index.
+ * - `:limit`: The number of records.
+ **/
+router.post('intersect/:start/:limit', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const start = req.pathParams.start
+	const limit = req.pathParams.limit
+
+	const reference = req.body.geometry
+
+	///
+	// Perform service.
+	///
+	let result
+	try {
+		result = db._query(aql`
+			FOR doc IN ${collection}
+			    LET target = ${reference}
+			    FILTER GEO_INTERSECTS(${reference}, doc.geometry)
+			    LIMIT ${start}, ${limit}
+			RETURN MERGE(
+				{ geometry_hash: doc._key },
+				UNSET(doc, '_id', '_key', '_rev')
+			)
+        `).toArray()
+	}
+
+		///
+		// Handle errors.
+		///
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+
+	.pathParam('start', startLimitSchema)
+	.pathParam('limit', itemsLimitSchema)
+
+	.body(ModelShape, "The *reference shape* for the operation: provide  a \
+		*GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, \
+		*MultiLineString*, *Polygon* or *MultiPolygon*."
+	)
+	.response([ModelRecord], ShapeRecordDescription)
+	.summary('Get all shapes that intersect the provided reference geometry')
+	.description(dd`
+		The service will return the *list* of *shape records* intersecting by the provided reference geometry.
+		*Intersecting* is defined such that at least one point in the reference geometry is also in the shape geometry or vice-versa.
 	`)
