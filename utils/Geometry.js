@@ -11,10 +11,10 @@
  * The function will not check for errors in parameters, it is expected to run fast.
  *
  * @param {Array} theCenter - The center point of the bounding box, expressed as a GeoJSON geometry
- * @param {Number} theArea - The area of the bounding box in square kilometers, defaults to 1.
+ * @param {Number} theArea - The area of the bounding box in square kilometers, defaults to 30 seconds arc.
  * @returns {Object} - The bounding box as a GeoJSON polygon.
  */
-function centerToBoundingBox(theCenter, theArea = 1.0) {
+function centerToBoundingBox(theCenter, theArea = 0.9266243887) {
 
 	///
 	// Conversion helpers.
