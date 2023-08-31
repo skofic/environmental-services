@@ -14,7 +14,7 @@
  * @param {Number} theArea - The area of the bounding box in square kilometers, defaults to 1.
  * @returns {Object} - The bounding box as a GeoJSON polygon.
  */
-export function centerToBoundingBox(theCenter, theArea = 1.0) {
+function centerToBoundingBox(theCenter, theArea = 1.0) {
 
 	///
 	// Conversion helpers.
@@ -96,4 +96,9 @@ export function centerToBoundingBox(theCenter, theArea = 1.0) {
 		]
 	}
 
+}
+
+
+module.exports = {
+	centerToBoundingBox
 }
