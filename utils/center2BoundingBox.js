@@ -10,11 +10,11 @@
  *
  * The function will not check for errors in parameters, it is expected to run fast.
  *
- * @param {Array} theCenter - The center point of the bounding box, expressed as a [longitude, latitude] array.
+ * @param {Array} theCenter - The center point of the bounding box, expressed as a GeoJSON geometry
  * @param {Number} theArea - The area of the bounding box in square kilometers, defaults to 1.
  * @returns {Object} - The bounding box as a GeoJSON polygon.
  */
-function getBoundingBox(theCenter, theArea = 1.0) {
+export function centerToBoundingBox(theCenter, theArea = 1.0) {
 
 	///
 	// Conversion helpers.
@@ -39,8 +39,8 @@ function getBoundingBox(theCenter, theArea = 1.0) {
 	const ldDistanceInRadius = theArea / ldEarthRadius;
 
 	// center point coordinates (rad)
-	const lsLatitudeInRadius = theCenter[1].degreeToRadius();
-	const lsLongitudeInRadius = theCenter[0].degreeToRadius();
+	const lsLatitudeInRadius = theCenter.coordinates[1].degreeToRadius();
+	const lsLongitudeInRadius = theCenter.coordinates[0].degreeToRadius();
 
 	// define deltaLon to help determine min and max longitudes
 	const deltaLon = Math.asin(Math.sin(ldDistanceInRadius) / Math.cos(lsLatitudeInRadius));
@@ -97,5 +97,3 @@ function getBoundingBox(theCenter, theArea = 1.0) {
 	}
 
 }
-
-export { getBoundingBox }
