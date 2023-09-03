@@ -270,7 +270,7 @@ router.post('dist/:min/:max/:sort/:which/:start/:limit', function (req, res)
 			result = db._query(aql`
 			    LET target = ${reference}
 				FOR doc IN ${collection}
-				    LET distance = GEO_DISTANCE(target, doc.geometry, "wgs84")
+				    LET distance = GEO_DISTANCE(target, doc.geometry)
 				    FILTER distance >= ${min}
 				    FILTER distance <= ${max}
 				    SORT distance ${sort}
@@ -290,7 +290,7 @@ router.post('dist/:min/:max/:sort/:which/:start/:limit', function (req, res)
 				result = db._query(aql`
 				    LET target = ${reference}
 					FOR doc IN ${collection}
-					    LET distance = GEO_DISTANCE(target, doc.geometry, "wgs84")
+					    LET distance = GEO_DISTANCE(target, doc.geometry)
 						FILTER ${species} ALL IN doc.properties.species_list
 					    FILTER distance >= ${min}
 					    FILTER distance <= ${max}
@@ -307,7 +307,7 @@ router.post('dist/:min/:max/:sort/:which/:start/:limit', function (req, res)
 				result = db._query(aql`
 				    LET target = ${reference}
 					FOR doc IN ${collection}
-					    LET distance = GEO_DISTANCE(target, doc.geometry, "wgs84")
+					    LET distance = GEO_DISTANCE(target, doc.geometry)
 						FILTER ${species} ANY IN doc.properties.species_list
 					    FILTER distance >= ${min}
 					    FILTER distance <= ${max}
