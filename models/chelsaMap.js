@@ -7,8 +7,9 @@ module.exports = {
 	schema: {
 		// Describe the attributes with joi here
 		geometry_hash: joi.string().regex(/^[0-9a-f]{32}$/),
+		distance: joi.number(),
 		geometry: joi.object(),
-		properties: joi.object()
+		geometry_point: joi.object()
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here
