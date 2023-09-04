@@ -11,10 +11,10 @@
  * The function will not check for errors in parameters, it is expected to run fast.
  *
  * @param {Array} theCenter - The center point of the bounding box, expressed as a GeoJSON geometry
- * @param {Number} theArea - The area of the bounding box in square kilometers, defaults to 30 seconds arc.
+ * @param {Number} theRadius - The radius of the bounding box in square kilometers, defaults to half of 0.9266243887.
  * @returns {Object} - The bounding box as a GeoJSON polygon.
  */
-function centerToBoundingBox(theCenter, theArea = 0.9266243887) {
+function centerToBoundingBox(theCenter, theRadius = 0.46331219435) {
 
 	///
 	// Conversion helpers.
@@ -36,7 +36,7 @@ function centerToBoundingBox(theCenter, theArea = 0.9266243887) {
 	const ldEarthRadius = 6378.1;
 
 	// angular distance in radians on a great circle
-	const ldDistanceInRadius = theArea / ldEarthRadius;
+	const ldDistanceInRadius = theRadius / ldEarthRadius;
 
 	// center point coordinates (rad)
 	const lsLatitudeInRadius = theCenter.coordinates[1].degreeToRadius();
