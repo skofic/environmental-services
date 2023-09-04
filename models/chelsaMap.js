@@ -5,11 +5,10 @@ const joi = require('joi')
 
 module.exports = {
 	schema: {
-		// Describe the attributes with joi here
-		geometry_hash: joi.string().regex(/^[0-9a-f]{32}$/),
+		geometry_hash: joi.string().regex(/^[0-9a-f]{32}$/).required(),
 		distance: joi.number(),
-		geometry: joi.object(),
-		geometry_point: joi.object()
+		geometry: joi.object().required(),
+		geometry_point: joi.object().required()
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here

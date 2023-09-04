@@ -31,6 +31,8 @@ const startLimitSchema = joi.number().required()
 	.description('Start index for results list, 0 is first.')
 const itemsLimitSchema = joi.number().required()
 	.description('Number of records to return, if found.')
+const allHashSchema = joi.string().valid('ALL', 'HASH').required()
+	.description("Select what data to return: \`ALL\` returns all data, \`HASH\` returns only the hash.")
 const ModelRecordDescription = `
 Chelsa location record.
 
@@ -89,7 +91,7 @@ router.post('dist/:min/:max/:sort/:start/:limit', function (req, res)
 	let result
 	try {
 		///
-		// All species.
+		// Make query.
 		///
 		result = db._query(aql`
 			    LET target = ${reference}
@@ -110,10 +112,12 @@ router.post('dist/:min/:max/:sort/:start/:limit', function (req, res)
 		//
 		result = result.map( item => {
 			return {
-				geometry_hash: item.geometry_hash,
-				distance: item.distance,
-				geometry: GeometryUtils.centerToBoundingBox(item.geometry, 0.46331219435),
-				geometry_point: item.geometry
+				data: {
+					geometry_hash: item.geometry_hash,
+					distance: item.distance,
+					geometry: GeometryUtils.centerToBoundingBox(item.geometry, 0.46331219435),
+					geometry_point: item.geometry
+				}
 			}
 		})
 	}
@@ -145,4 +149,156 @@ router.post('dist/:min/:max/:sort/:start/:limit', function (req, res)
 	.description(dd`
 		The service will return the *list* of *Chelsa data points* whose *distance* to the *provided reference geometry* is within the *provided range*.
 		The distance is calculated the *wgs84 centroids* of both the provided reference geometry and the shape geometry.
+	`)
+
+/**
+ * Return all Chelsa data points fully contained by the provided reference geometry.
+ *
+ * This service will return all the occurrence records which are fully contained
+ * by the provided reference geometry, the latter may be a Polygon or MultiPolugon.
+ *
+ * Parameters:
+ * - `:start`: The start index.
+ * - `:limit`: The number of records.
+ **/
+router.post('contain/:start/:limit', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const start = req.pathParams.start
+	const limit = req.pathParams.limit
+
+	const reference = req.body.geometry
+
+	///
+	// Perform service.
+	///
+	let result
+	try {
+		///
+		// Make query.
+		///
+		result = db._query(aql`
+			    LET target = ${reference}
+				FOR doc IN ${collection}
+				    FILTER GEO_CONTAINS(${reference}, doc.geometry)
+				    LIMIT ${start}, ${limit}
+				RETURN MERGE(
+					{ geometry_hash: doc._key },
+					UNSET(doc, '_id', '_key', '_rev')
+				)
+            `).toArray()
+
+		//
+		// Return bounding box geometry.
+		//
+		result = result.map( item => {
+			return {
+				geometry_hash: item.geometry_hash,
+				distance: item.distance,
+				geometry: GeometryUtils.centerToBoundingBox(item.geometry, 0.46331219435),
+				geometry_point: item.geometry
+			}
+		})
+	}
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+
+	.pathParam('start', startLimitSchema)
+	.pathParam('limit', itemsLimitSchema)
+
+	.body(ModelShape, "`geometry` represents the *reference shape* for the operation: " +
+		"provide  a *GeoJSON object* representing a *Polygon* or *MultiPolygon*."
+	)
+	.response([ModelRecord], ModelRecordDescription)
+	.summary('Get all Chelsa data point locations fully contained by the provided reference geometry')
+	.description(dd`
+		The service will return the *list* of *Chelsa data points* contained by the provided reference geometry.
+		*Contained* is defined such that if the sphere is subdivided into faces (loops), every point is contained by exactly one face.
+		This implies that linear rings do not necessarily contain their vertices.
+	`)
+
+/**
+ * Return all Chelsa data points that intersect with the provided reference geometry.
+ *
+ * This service will return all the Chelsa data points which intersect
+ * with the provided reference geometry.
+ *
+ * Parameters:
+ * - `:start`: The start index.
+ * - `:limit`: The number of records.
+ **/
+router.post('intersect/:start/:limit', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const start = req.pathParams.start
+	const limit = req.pathParams.limit
+
+	const reference = req.body.geometry
+
+	///
+	// Perform service.
+	///
+	let result
+	try {
+		///
+		// Make query.
+		///
+		result = db._query(aql`
+			    LET target = ${reference}
+				FOR doc IN ${collection}
+				    FILTER GEO_INTERSECTS(${reference}, doc.geometry)
+				    LIMIT ${start}, ${limit}
+				RETURN MERGE(
+					{ geometry_hash: doc._key },
+					UNSET(doc, '_id', '_key', '_rev')
+				)
+            `).toArray()
+
+		//
+		// Return bounding box geometry.
+		//
+		result = result.map( item => {
+			return {
+				geometry_hash: item.geometry_hash,
+				distance: item.distance,
+				geometry: GeometryUtils.centerToBoundingBox(item.geometry, 0.46331219435),
+				geometry_point: item.geometry
+			}
+		})
+	}
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+
+	.pathParam('start', startLimitSchema)
+	.pathParam('limit', itemsLimitSchema)
+
+	.body(ModelShape, "`geometry` represents the *reference shape* for the operation: " +
+		"provide  a *GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, " +
+		"*MultiLineString*, *Polygon* or *MultiPolygon*."
+	)
+	.response([ModelRecord], ModelRecordDescription)
+	.summary('Get all Chelsa data points that intersect the provided reference geometry')
+	.description(dd`
+		The service will return the *list* of *Chelsa data points* intersecting with the provided reference geometry.
+		*Intersecting* is defined such that at least one point in the reference geometry is also in the shape geometry or vice-versa.
 	`)
