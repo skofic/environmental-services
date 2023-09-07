@@ -25,14 +25,16 @@ const minDistanceSchema = joi.number().required()
 	.description('Minimum distance inclusive in meters.')
 const maxDistanceSchema = joi.number().required()
 	.description('Maximum distance inclusive in meters.')
-const sortSchema = joi.string().valid('ASC', 'DESC').required()
-	.description("Sort order: \`ASC\` for ascending, \`DESC\` for descending.")
+const sortSchema = joi.string().valid('NO', 'ASC', 'DESC').required()
+	.description("Sort order: \`NO\` to ignore sorting, \`ASC\` for ascending, \`DESC\` for descending.")
+const whatSchema = joi.string().valid('ALL', 'HASH').required()
+	.description("Result type: \`ALL\` all data, \`HASH\` only geometry hash.")
 const startLimitSchema = joi.number().required()
 	.description('Start index for results list, 0 is first.')
 const itemsLimitSchema = joi.number().required()
 	.description('Number of records to return, if found.')
-const allHashSchema = joi.string().valid('ALL', 'HASH').required()
-	.description("Select what data to return: \`ALL\` returns all data, \`HASH\` returns only the hash.")
+const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()
+	.description('Unit shape geometry hash.\nThe value is the `_key` of the `Shapes` collection record.')
 const ModelRecordDescription = `
 Chelsa location record.
 
@@ -44,6 +46,8 @@ The record contains the following properties:
 - \`geometry_point\`: The GeoJSON *centroid* of the *data record*, a *Point*.
 
 This schema reflects a *single record* in the *Chelsa map collection*.
+
+When \`HASH\` is set in the \`what\` parameter, *only* the *geometry hash* will be returned.
 `
 
 ///
@@ -66,13 +70,181 @@ router.tag('Chelsa Map')
  * the provided maximum distance.
  *
  * Parameters:
+ * - `:what`: The result type, `ALL` all data, `HASH` only geometry hash.
  * - `:min`: The minimum distance inclusive.
  * - `:max`: The maximum distance inclusive.
  * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  **/
-router.post('dist/:min/:max/:sort/:start/:limit', function (req, res)
+router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const what = req.pathParams.what
+	const min = req.pathParams.min
+	const max = req.pathParams.max
+	const sort = req.pathParams.sort
+	const start = req.pathParams.start
+	const limit = req.pathParams.limit
+
+	const reference = req.body.geometry
+
+	///
+	// Perform service.
+	///
+	try
+	{
+		///
+		// Return geometries.
+		///
+		if(what == 'ALL')
+		{
+			let result
+
+			///
+			// Ignore sort.
+			///
+			if(sort === 'NO')
+			{
+				result = db._query(aql`
+				    LET target = ${reference}
+					FOR doc IN ${collection}
+					    LET distance = GEO_DISTANCE(target, doc.geometry)
+					    FILTER distance >= ${min}
+					    FILTER distance <= ${max}
+					    LIMIT ${start}, ${limit}
+					RETURN MERGE(
+						{ geometry_hash: doc._key, distance: distance },
+						UNSET(doc, '_id', '_key', '_rev')
+					)
+	            `).toArray()
+
+			} // No sorting.
+
+			///
+			// Sort data.
+			///
+			else
+			{
+				result = db._query(aql`
+				    LET target = ${reference}
+					FOR doc IN ${collection}
+					    LET distance = GEO_DISTANCE(target, doc.geometry)
+					    FILTER distance >= ${min}
+					    FILTER distance <= ${max}
+					    SORT distance ${sort}
+					    LIMIT ${start}, ${limit}
+					RETURN MERGE(
+						{ geometry_hash: doc._key, distance: distance },
+						UNSET(doc, '_id', '_key', '_rev')
+					)
+	            `).toArray()
+			}
+
+			///
+			// Add bounding box and return.
+			///
+			res.send(
+				result.map( item => {
+					return {
+						geometry_hash: item.geometry_hash,
+						distance: item.distance,
+						geometry: GeometryUtils.centerToBoundingBox(item.geometry, 0.46331219435),
+						geometry_point: item.geometry
+					}
+				})
+			)
+
+		} // Return geometries.
+
+		///
+		// Return geometry hash.
+		///
+		else
+		{
+			///
+			// Ignore sort.
+			///
+			if(sort === 'NO')
+			{
+				res.send(
+					db._query(aql`
+						LET target = ${reference}
+						FOR doc IN ${collection}
+							LET distance = GEO_DISTANCE(target, doc.geometry)
+							FILTER distance >= ${min}
+							FILTER distance <= ${max}
+							LIMIT ${start}, ${limit}
+						RETURN doc._key
+					`).toArray()
+				)
+
+			} // Ignore sorting.
+
+			///
+			// Sort data.
+			///
+			else
+			{
+				res.send(
+					db._query(aql`
+						LET target = ${reference}
+						FOR doc IN ${collection}
+							LET distance = GEO_DISTANCE(target, doc.geometry)
+							FILTER distance >= ${min}
+							FILTER distance <= ${max}
+							SORT distance ${sort}
+							LIMIT ${start}, ${limit}
+						RETURN doc._key
+					`).toArray()
+				)
+
+			} // Sort results.
+
+		} // Return geometry hash.
+	}
+	catch (error) {
+		throw error;
+	}
+
+}, 'list')
+
+	.pathParam('what', whatSchema)
+	.pathParam('min', minDistanceSchema)
+	.pathParam('max', maxDistanceSchema)
+	.pathParam('sort', sortSchema)
+	.pathParam('start', startLimitSchema)
+	.pathParam('limit', itemsLimitSchema)
+
+	.body(ModelShape, "`geometry` represents the *reference shape* for the operation: " +
+		"provide  a *GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, " +
+		"*MultiLineString*, *Polygon* or *MultiPolygon*."
+	)
+	.response([ModelRecord], ModelRecordDescription)
+	.summary('Get all Chelsa data point locations within the provided distance range')
+	.description(dd`
+		The service will return the *list* of *Chelsa data points* whose *distance* to the *provided reference geometry* is within the *provided range*.
+		The distance is calculated the *wgs84 centroids* of both the provided reference geometry and the shape geometry.
+		If you provide \`ALL\` in the \`what\` paraneter, the service will return the geometries of the Chelsa data location; if you provide \`HASH\`, it will only return the geometry *hash*, or data record primary key.
+	`)
+
+/**
+ * Return all Chelsa data keys within the provided distance range.
+ *
+ * This service will return the Chelsa data keys whose distance to the provided reference
+ * geometry is larger or equal to the provided minimum distance and smaller or equal to
+ * the provided maximum distance.
+ *
+ * Parameters:
+ * - `:min`: The minimum distance inclusive.
+ * - `:max`: The maximum distance inclusive.
+ * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
+ * - `:start`: The start index.
+ * - `:limit`: The number of records.
+ **/
+router.post('dist/key/:min/:max/:sort/:start/:limit', function (req, res)
 {
 	///
 	// Parameters.
@@ -107,9 +279,9 @@ router.post('dist/:min/:max/:sort/:start/:limit', function (req, res)
 				)
             `).toArray()
 
-		//
+		///
 		// Return bounding box geometry.
-		//
+		///
 		result = result.map( item => {
 			return {
 				data: {
@@ -140,15 +312,14 @@ router.post('dist/:min/:max/:sort/:start/:limit', function (req, res)
 
 	.body(ModelShape, "`geometry` represents the *reference shape* for the operation: " +
 		"provide  a *GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, " +
-		"*MultiLineString*, *Polygon* or *MultiPolygon*. The `species_list` property " +
-		"should contain the list of species that should be filtered; if you provide an " +
-		"empty list, all species will be returned."
+		"*MultiLineString*, *Polygon* or *MultiPolygon*."
 	)
 	.response([ModelRecord], ModelRecordDescription)
 	.summary('Get all Chelsa data point locations within the provided distance range')
 	.description(dd`
 		The service will return the *list* of *Chelsa data points* whose *distance* to the *provided reference geometry* is within the *provided range*.
 		The distance is calculated the *wgs84 centroids* of both the provided reference geometry and the shape geometry.
+		If you provide \`ALL\` in the \`what\` paraneter, the service will return the geometries of the Chelsa data location; if you provide \`HASH\`, it will only return the geometry *hash*, or data record primary key.
 	`)
 
 /**

@@ -10,8 +10,8 @@ module.exports = {
 				type: joi.string()
 					.valid(
 						"Point", "MultiPoint",
-						"LineString", "MultiLineString",
-						"Polygon", "MultiPolygon"
+						"Polygon", "MultiPolygon",
+						"LineString", "MultiLineString"
 					).required(),
 				coordinates: joi.array()
 					.items(
