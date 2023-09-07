@@ -231,112 +231,22 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 	`)
 
 /**
- * Return all Chelsa data keys within the provided distance range.
- *
- * This service will return the Chelsa data keys whose distance to the provided reference
- * geometry is larger or equal to the provided minimum distance and smaller or equal to
- * the provided maximum distance.
- *
- * Parameters:
- * - `:min`: The minimum distance inclusive.
- * - `:max`: The maximum distance inclusive.
- * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
- * - `:start`: The start index.
- * - `:limit`: The number of records.
- **/
-router.post('dist/key/:min/:max/:sort/:start/:limit', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const min = req.pathParams.min
-	const max = req.pathParams.max
-	const sort = req.pathParams.sort
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
-
-	const reference = req.body.geometry
-
-	///
-	// Perform service.
-	///
-	let result
-	try {
-		///
-		// Make query.
-		///
-		result = db._query(aql`
-			    LET target = ${reference}
-				FOR doc IN ${collection}
-				    LET distance = GEO_DISTANCE(target, doc.geometry)
-				    FILTER distance >= ${min}
-				    FILTER distance <= ${max}
-				    SORT distance ${sort}
-				    LIMIT ${start}, ${limit}
-				RETURN MERGE(
-					{ geometry_hash: doc._key, distance: distance },
-					UNSET(doc, '_id', '_key', '_rev')
-				)
-            `).toArray()
-
-		///
-		// Return bounding box geometry.
-		///
-		result = result.map( item => {
-			return {
-				data: {
-					geometry_hash: item.geometry_hash,
-					distance: item.distance,
-					geometry: GeometryUtils.centerToBoundingBox(item.geometry, 0.46331219435),
-					geometry_point: item.geometry
-				}
-			}
-		})
-	}
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'list')
-
-	.pathParam('min', minDistanceSchema)
-	.pathParam('max', maxDistanceSchema)
-	.pathParam('sort', sortSchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
-
-	.body(ModelShape, "`geometry` represents the *reference shape* for the operation: " +
-		"provide  a *GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, " +
-		"*MultiLineString*, *Polygon* or *MultiPolygon*."
-	)
-	.response([ModelRecord], ModelRecordDescription)
-	.summary('Get all Chelsa data point locations within the provided distance range')
-	.description(dd`
-		The service will return the *list* of *Chelsa data points* whose *distance* to the *provided reference geometry* is within the *provided range*.
-		The distance is calculated the *wgs84 centroids* of both the provided reference geometry and the shape geometry.
-		If you provide \`ALL\` in the \`what\` paraneter, the service will return the geometries of the Chelsa data location; if you provide \`HASH\`, it will only return the geometry *hash*, or data record primary key.
-	`)
-
-/**
  * Return all Chelsa data points fully contained by the provided reference geometry.
  *
  * This service will return all the occurrence records which are fully contained
  * by the provided reference geometry, the latter may be a Polygon or MultiPolugon.
  *
  * Parameters:
+ * - `:what`: The result type, `ALL` all data, `HASH` only geometry hash.
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  **/
-router.post('contain/:start/:limit', function (req, res)
+router.post('contain/:what/:start/:limit', function (req, res)
 {
 	///
 	// Parameters.
 	///
+	const what = req.pathParams.what
 	const start = req.pathParams.start
 	const limit = req.pathParams.limit
 
@@ -345,45 +255,69 @@ router.post('contain/:start/:limit', function (req, res)
 	///
 	// Perform service.
 	///
-	let result
-	try {
+	try
+	{
 		///
-		// Make query.
+		// Return geometries.
 		///
-		result = db._query(aql`
-			    LET target = ${reference}
+		if(what == 'ALL')
+		{
+			let result
+
+			///
+			// Ignore sort.
+			///
+			result = db._query(aql`
+				LET target = ${reference}
 				FOR doc IN ${collection}
-				    FILTER GEO_CONTAINS(${reference}, doc.geometry)
-				    LIMIT ${start}, ${limit}
+					FILTER GEO_CONTAINS(${reference}, doc.geometry)
+					LIMIT ${start}, ${limit}
 				RETURN MERGE(
 					{ geometry_hash: doc._key },
 					UNSET(doc, '_id', '_key', '_rev')
 				)
-            `).toArray()
+			`).toArray()
 
-		//
-		// Return bounding box geometry.
-		//
-		result = result.map( item => {
-			return {
-				geometry_hash: item.geometry_hash,
-				distance: item.distance,
-				geometry: GeometryUtils.centerToBoundingBox(item.geometry, 0.46331219435),
-				geometry_point: item.geometry
-			}
-		})
+			///
+			// Add bounding box and return.
+			///
+			res.send(
+				result.map( item => {
+					return {
+						geometry_hash: item.geometry_hash,
+						distance: item.distance,
+						geometry: GeometryUtils.centerToBoundingBox(item.geometry, 0.46331219435),
+						geometry_point: item.geometry
+					}
+				})
+			)
+
+		} // Return geometries.
+
+		///
+		// Return geometry hash.
+		///
+		else
+		{
+			res.send(
+				db._query(aql`
+					LET target = ${reference}
+					FOR doc IN ${collection}
+						FILTER GEO_CONTAINS(${reference}, doc.geometry)
+						LIMIT ${start}, ${limit}
+					RETURN doc._key
+				`).toArray()
+			)
+
+		} // Return geometry hash.
 	}
 	catch (error) {
-		throw error;
+		throw error
 	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
 
 }, 'list')
 
+	.pathParam('what', whatSchema)
 	.pathParam('start', startLimitSchema)
 	.pathParam('limit', itemsLimitSchema)
 
@@ -405,14 +339,16 @@ router.post('contain/:start/:limit', function (req, res)
  * with the provided reference geometry.
  *
  * Parameters:
+ * - `:what`: The result type, `ALL` all data, `HASH` only geometry hash.
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  **/
-router.post('intersect/:start/:limit', function (req, res)
+router.post('intersect/:what/:start/:limit', function (req, res)
 {
 	///
 	// Parameters.
 	///
+	const what = req.pathParams.what
 	const start = req.pathParams.start
 	const limit = req.pathParams.limit
 
@@ -421,12 +357,19 @@ router.post('intersect/:start/:limit', function (req, res)
 	///
 	// Perform service.
 	///
-	let result
-	try {
+	try
+	{
 		///
-		// Make query.
+		// Return geometries.
 		///
-		result = db._query(aql`
+		if(what == 'ALL')
+		{
+			let result
+
+			///
+			// Ignore sort.
+			///
+			result = db._query(aql`
 			    LET target = ${reference}
 				FOR doc IN ${collection}
 				    FILTER GEO_INTERSECTS(${reference}, doc.geometry)
@@ -437,29 +380,46 @@ router.post('intersect/:start/:limit', function (req, res)
 				)
             `).toArray()
 
-		//
-		// Return bounding box geometry.
-		//
-		result = result.map( item => {
-			return {
-				geometry_hash: item.geometry_hash,
-				distance: item.distance,
-				geometry: GeometryUtils.centerToBoundingBox(item.geometry, 0.46331219435),
-				geometry_point: item.geometry
-			}
-		})
+			///
+			// Add bounding box and return.
+			///
+			res.send(
+				result.map( item => {
+					return {
+						geometry_hash: item.geometry_hash,
+						distance: item.distance,
+						geometry: GeometryUtils.centerToBoundingBox(item.geometry, 0.46331219435),
+						geometry_point: item.geometry
+					}
+				})
+			)
+
+		} // Return geometries.
+
+			///
+			// Return geometry hash.
+		///
+		else
+		{
+			res.send(
+				db._query(aql`
+					LET target = ${reference}
+					FOR doc IN ${collection}
+						FILTER GEO_INTERSECTS(${reference}, doc.geometry)
+						LIMIT ${start}, ${limit}
+					RETURN doc._key
+				`).toArray()
+			)
+
+		} // Return geometry hash.
 	}
 	catch (error) {
-		throw error;
+		throw error
 	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
 
 }, 'list')
 
+	.pathParam('what', whatSchema)
 	.pathParam('start', startLimitSchema)
 	.pathParam('limit', itemsLimitSchema)
 
