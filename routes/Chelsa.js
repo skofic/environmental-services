@@ -93,10 +93,18 @@ router.get('click/:what/:lat/:lon', function (req, res)
 	switch(what) {
 		case 'KEY':
 			query = aql`
+				LET radius = 0.004167
+				LET box = GEO_POLYGON([
+				    [ ${lon}-radius, ${lat}-radius ],
+				    [ ${lon}+radius, ${lat}-radius ],
+				    [ ${lon}+radius, ${lat}+radius ],
+				    [ ${lon}-radius, ${lat}+radius ],
+				    [ ${lon}-radius, ${lat}-radius ]
+				])
 				FOR doc IN ${collection_map}
 					FILTER GEO_CONTAINS(
-						doc.geometry,
-						GEO_POINT(${lon}, ${lat})
+						box,
+						doc.geometry
 					)
 				RETURN doc._key
 			`
@@ -104,14 +112,21 @@ router.get('click/:what/:lat/:lon', function (req, res)
 
 		case 'SHAPE':
 			query = aql`
+				LET radius = 0.004167
+				LET box = GEO_POLYGON([
+				    [ ${lon}-radius, ${lat}-radius ],
+				    [ ${lon}+radius, ${lat}-radius ],
+				    [ ${lon}+radius, ${lat}+radius ],
+				    [ ${lon}-radius, ${lat}+radius ],
+				    [ ${lon}-radius, ${lat}-radius ]
+				])
 				FOR doc IN ${collection_map}
 					FILTER GEO_CONTAINS(
-						doc.geometry,
-						GEO_POINT(${lon}, ${lat})
+						box,
+						doc.geometry
 					)
 				RETURN {
 					geometry_hash: doc._key,
-					distance: distance,
 					geometry_point: doc.geometry_point,
 					geometry_bounds: doc.geometry
 				}
@@ -120,14 +135,23 @@ router.get('click/:what/:lat/:lon', function (req, res)
 
 		case 'DATA':
 			query = aql`
+				LET radius = 0.004167
+				LET box = GEO_POLYGON([
+				    [ ${lon}-radius, ${lat}-radius ],
+				    [ ${lon}+radius, ${lat}-radius ],
+				    [ ${lon}+radius, ${lat}+radius ],
+				    [ ${lon}-radius, ${lat}+radius ],
+				    [ ${lon}-radius, ${lat}-radius ]
+				])
 				FOR doc IN ${collection_map}
-					FILTER GEO_CONTAINS(
-						doc.geometry,
-						GEO_POINT(${lon}, ${lat})
-					)
+					FOR dat IN ${collection_data}
+						FILTER dat._key == doc._key
+						FILTER GEO_CONTAINS(
+							box,
+							doc.geometry
+						)
 				RETURN {
 					geometry_hash: doc._key,
-					distance: distance,
 					geometry_point: doc.geometry_point,
 					geometry_bounds: doc.geometry,
 					properties: dat.properties
@@ -280,6 +304,7 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 				    LET target = ${reference}
 					FOR doc IN ${collection_map}
 						FOR dat IN ${collection_data}
+							FILTER dat._key == doc._key
 							LET distance = GEO_DISTANCE(target, doc.geometry)
 							FILTER distance >= ${min}
 							FILTER distance <= ${max}
@@ -296,6 +321,7 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 				    LET target = ${reference}
 					FOR doc IN ${collection_map}
 						FOR dat IN ${collection_data}
+							FILTER dat._key == doc._key
 							LET distance = GEO_DISTANCE(target, doc.geometry)
 							FILTER distance >= ${min}
 							FILTER distance <= ${max}
@@ -416,7 +442,6 @@ router.post('contain/:what/:start/:limit', function (req, res)
 					LIMIT ${start}, ${limit}
 				RETURN {
 					geometry_hash: doc._key,
-					distance: distance,
 					geometry_point: doc.geometry_point,
 					geometry_bounds: doc.geometry
 				}
@@ -427,11 +452,12 @@ router.post('contain/:what/:start/:limit', function (req, res)
 			query = aql`
 				LET target = ${reference}
 				FOR doc IN ${collection_map}
+					FOR dat IN ${collection_data}
+						FILTER dat._key == doc._key
 					FILTER GEO_CONTAINS(${reference}, doc.geometry)
 					LIMIT ${start}, ${limit}
 				RETURN {
 					geometry_hash: doc._key,
-					distance: distance,
 					geometry_point: doc.geometry_point,
 					geometry_bounds: doc.geometry,
 					properties: dat.properties
@@ -482,7 +508,7 @@ router.post('contain/:what/:start/:limit', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get all Chelsa data point locations within the provided distance range')
+	.summary('Get all Chelsa data point locations fully contained by the provided reference geometry')
 
 	///
 	// Description.
@@ -541,7 +567,6 @@ router.post('intersect/:what/:start/:limit', function (req, res)
 				    LIMIT ${start}, ${limit}
 				RETURN {
 					geometry_hash: doc._key,
-					distance: distance,
 					geometry_point: doc.geometry_point,
 					geometry_bounds: doc.geometry
 				}
@@ -552,11 +577,12 @@ router.post('intersect/:what/:start/:limit', function (req, res)
 			query = aql`
 			    LET target = ${reference}
 				FOR doc IN ${collection_map}
+					FOR dat IN ${collection_data}
+						FILTER dat._key == doc._key
 				    FILTER GEO_INTERSECTS(${reference}, doc.geometry)
 				    LIMIT ${start}, ${limit}
 				RETURN {
 					geometry_hash: doc._key,
-					distance: distance,
 					geometry_point: doc.geometry_point,
 					geometry_bounds: doc.geometry,
 					properties: dat.properties
