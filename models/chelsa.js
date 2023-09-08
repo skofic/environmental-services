@@ -8,8 +8,9 @@ module.exports =
 			joi.object({
 				geometry_hash: joi.string().regex(/^[0-9a-f]{32}$/).required(),
 				distance: joi.number(),
-				geometry: joi.object().required(),
-				geometry_point: joi.object().required()
+				geometry_point: joi.object(),
+				geometry_bounds: joi.object(),
+				properties: joi.object()
 			}),
 			joi.string().regex(/^[0-9a-f]{32}$/)
 		)
