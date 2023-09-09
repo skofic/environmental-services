@@ -127,8 +127,8 @@ router.get('click/:what/:lat/:lon', function (req, res)
 					)
 				RETURN {
 					geometry_hash: doc._key,
-					geometry_point: doc.geometry_point,
-					geometry_bounds: doc.geometry
+					geometry_point: doc.geometry,
+					geometry_bounds: doc.geometry_bounds
 				}
 			`
 			break
@@ -152,8 +152,8 @@ router.get('click/:what/:lat/:lon', function (req, res)
 						)
 				RETURN {
 					geometry_hash: doc._key,
-					geometry_point: doc.geometry_point,
-					geometry_bounds: doc.geometry,
+					geometry_point: doc.geometry,
+					geometry_bounds: doc.geometry_bounds,
 					properties: dat.properties
 				}
 			`
@@ -277,8 +277,8 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 					RETURN {
 						geometry_hash: doc._key,
 						distance: distance,
-						geometry_point: doc.geometry_point,
-						geometry_bounds: doc.geometry
+						geometry_point: doc.geometry,
+						geometry_bounds: doc.geometry_bounds
 					}
 				` :
 				aql`
@@ -292,8 +292,8 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 					RETURN {
 						geometry_hash: doc._key,
 						distance: distance,
-						geometry_point: doc.geometry_point,
-						geometry_bounds: doc.geometry
+						geometry_point: doc.geometry,
+						geometry_bounds: doc.geometry_bounds
 					}
 				`
 			break
@@ -312,8 +312,8 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 					RETURN {
 						geometry_hash: doc._key,
 						distance: distance,
-						geometry_point: doc.geometry_point,
-						geometry_bounds: doc.geometry,
+						geometry_point: doc.geometry,
+						geometry_bounds: doc.geometry_bounds,
 						properties: dat.properties
 					}
 				` :
@@ -330,8 +330,8 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 					RETURN {
 						geometry_hash: doc._key,
 						distance: distance,
-						geometry_point: doc.geometry_point,
-						geometry_bounds: doc.geometry,
+						geometry_point: doc.geometry,
+						geometry_bounds: doc.geometry_bounds,
 						properties: dat.properties
 					}
 				`
@@ -442,8 +442,8 @@ router.post('contain/:what/:start/:limit', function (req, res)
 					LIMIT ${start}, ${limit}
 				RETURN {
 					geometry_hash: doc._key,
-					geometry_point: doc.geometry_point,
-					geometry_bounds: doc.geometry
+					geometry_point: doc.geometry,
+					geometry_bounds: doc.geometry_bounds
 				}
 			`
 			break
@@ -458,8 +458,8 @@ router.post('contain/:what/:start/:limit', function (req, res)
 					LIMIT ${start}, ${limit}
 				RETURN {
 					geometry_hash: doc._key,
-					geometry_point: doc.geometry_point,
-					geometry_bounds: doc.geometry,
+					geometry_point: doc.geometry,
+					geometry_bounds: doc.geometry_bounds,
 					properties: dat.properties
 				}
 				`
@@ -567,8 +567,8 @@ router.post('intersect/:what/:start/:limit', function (req, res)
 				    LIMIT ${start}, ${limit}
 				RETURN {
 					geometry_hash: doc._key,
-					geometry_point: doc.geometry_point,
-					geometry_bounds: doc.geometry
+					geometry_point: doc.geometry,
+					geometry_bounds: doc.geometry_bounds
 				}
 			`
 			break
@@ -583,8 +583,8 @@ router.post('intersect/:what/:start/:limit', function (req, res)
 				    LIMIT ${start}, ${limit}
 				RETURN {
 					geometry_hash: doc._key,
-					geometry_point: doc.geometry_point,
-					geometry_bounds: doc.geometry,
+					geometry_point: doc.geometry,
+					geometry_bounds: doc.geometry_bounds,
 					properties: dat.properties
 				}
 				`
