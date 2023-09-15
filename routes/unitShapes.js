@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * shapesData.js
+ * unitShapes.js
  *
  * This script contains the routes for the Genetic Conservation Unit Shapes data services.
  */

@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * chelsa.js
+ * chelsaClimate.js
  *
  * This script contains the routes for the Chelsa climate services.
  */

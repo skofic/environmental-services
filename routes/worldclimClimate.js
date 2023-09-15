@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * worldClim.js
+ * worldclimClimate.js
  *
  * This script contains the routes for the WorldClim climate services.
  */
