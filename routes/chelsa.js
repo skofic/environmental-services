@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * chelsaClimate.js
+ * chelsa.js
  *
  * This script contains the routes for the Chelsa climate services.
  */
@@ -41,8 +41,6 @@ const startLimitSchema = joi.number().required()
 	.description('Start index for results list, 0 is first.')
 const itemsLimitSchema = joi.number().required()
 	.description('Number of records to return, if found.')
-const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()
-	.description('Unit shape geometry hash.\nThe value is the `_key` of the `Shapes` collection record.')
 const ModelRecordDescription = `
 Chelsa location record.
 
