@@ -53,6 +53,10 @@ const startLimitSchema = joi.number().required()
 	.description('Start index for results list, 0 is first.')
 const itemsLimitSchema = joi.number().required()
 	.description('Number of records to return, if found.')
+const latSchema = joi.number().min(-90).max(90).required()
+	.description('Coordinate decimal latitude.')
+const lonSchema = joi.number().min(-180).max(180).required()
+	.description('Coordinate decimal longitude.')
 const ShapeRecordDescription = `
 Unit Shape record.
 
@@ -128,6 +132,82 @@ router.get(':hash', function (req, res)
 	.description(dd`
 		The service will return the *shape record* identified by the provided *geometry hash*.
 	`);
+
+/**
+ * Return the shape record that contains the provided point.
+ *
+ * This service will return the shape record that contains the provided coordinate..
+ *
+ * Parameters:
+ * - `:lat`: The latitude.
+ * - `:lon`: The longitude.
+ **/
+router.get('click/:lat/:lon', function (req, res)
+{
+	///
+	// Path parameters.
+	///
+	const lat = req.pathParams.lat
+	const lon = req.pathParams.lon
+
+	///
+	// Build query.
+	//
+	const query = aql`
+		FOR doc IN ${collection}
+			FILTER GEO_INTERSECTS(
+				GEO_POINT(${lon}, ${lat}),
+				doc.geometry
+			)
+		RETURN {
+			geometry_hash: doc._key,
+			geometry_point: doc.geometry,
+			geometry_bounds: doc.geometry_bounds,
+			properties: doc.properties
+		}
+	`
+
+	///
+	// Perform service.
+	///
+	try
+	{
+		///
+		// Perform query.
+		///
+		res.send(
+			db._query(query)
+				.toArray()
+		)
+	}
+	catch (error) {
+		throw error;
+	}
+
+}, 'list')
+
+	///
+	// Path parameter schemas.
+	///
+	.pathParam('lat', latSchema)
+	.pathParam('lon', lonSchema)
+
+	///
+	// Response schema.
+	///
+	.response([ModelRecord], ShapeRecordDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get shape record containing the provided coordinate')
+
+	///
+	// Description.
+	///
+	.description(dd`
+		The service will return the shape record that contains the provided coordinate.
+	`)
 
 /**
  * Return all shapes within the provided area range.
