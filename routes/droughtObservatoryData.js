@@ -306,9 +306,9 @@ router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
         `).toArray()
 	}
 
-		///
-		// Handle errors.
-		///
+	///
+	// Handle errors.
+	///
 	catch (error) {
 		throw error;
 	}
@@ -331,7 +331,7 @@ router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
 	///
 	// Response schema.
 	///
-	.response([ModelDataDate], ModelDataDateDescription)
+	.response([ModelDataArea], ModelDataAreaDescription)
 
 	///
 	// Summary.
@@ -348,6 +348,9 @@ router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
 The data will be grouped by *area* sorted in descending radius order. Each element \
 holds the observation date and a \`properties\` object containing the data \
 sorted by date in ascending order.
+
+Note that all areas pertaining to the provided coordinates will be returned, \
+regardless whether there is any data in the date range.
 	`);
 
 /**
@@ -443,10 +446,157 @@ holds the observation date and a \`properties\` object containing the data.
 	`);
 
 /**
- * Get drought related data by date range and descriptors.
+ * Get drought related data by date range and descriptors by area.
  *
  * This service will return all drought data associated to the provided
- * coordinates, date range and containing all or any of the provided descriptors.
+ * coordinates, date range and containing all or any of the provided descriptors,
+ * returning data grouped by observation area.
+ *
+ * Parameters:
+ * - `:lat`: The latitude.
+ * - `:lon`: The longitude.
+ * - ':startDate': The start date.
+ * - `:endDate`: The end date.
+ * - `:which`: `ANY` or `ALL` species in the provided list should be matched.
+ */
+router.post('area/:lat/:lon/:startDate/:endDate/:which', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const lat = req.pathParams.lat
+	const lon = req.pathParams.lon
+	const startDate = req.pathParams.startDate
+	const endDate = req.pathParams.endDate
+	const which = req.pathParams.which.toLowerCase()
+
+	const descriptors = req.body.std_terms
+
+	///
+	// Perform service.
+	///
+	let query;
+	if(which.toLowerCase() === 'all') {
+		query = aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    SORT shape.geometry_point_radius DESC
+			
+			RETURN {
+			    geometry: shape.geometry,
+			    geometry_point: shape.geometry_point,
+			    geometry_point_radius: shape.geometry_point_radius,
+			    properties: (
+			        FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+			               data.std_date >= ${startDate} AND
+			               data.std_date <= ${endDate} AND
+			               ${descriptors} ALL IN data.std_terms
+			        SORT data.std_date ASC
+			        RETURN MERGE_RECURSIVE(
+			            { std_date: data.std_date },
+			            data.properties
+			        )
+			    )
+			}
+		`
+	} else {
+		query = aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    SORT shape.geometry_point_radius DESC
+			
+			RETURN {
+			    geometry: shape.geometry,
+			    geometry_point: shape.geometry_point,
+			    geometry_point_radius: shape.geometry_point_radius,
+			    properties: (
+			        FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+			               data.std_date >= ${startDate} AND
+			               data.std_date <= ${endDate} AND
+			               ${descriptors} ANY IN data.std_terms
+			        SORT data.std_date ASC
+			        RETURN MERGE_RECURSIVE(
+			            { std_date: data.std_date },
+			            data.properties
+			        )
+			    )
+			}
+		`
+	}
+
+	///
+	// Perform service.
+	///
+	try
+	{
+		///
+		// Perform query.
+		///
+		res.send(
+			db._query(query)
+				.toArray()
+		)
+	}
+	catch (error) {
+		throw error;
+	}
+
+}, 'list')
+
+	///
+	// Path parameter schemas.
+	///
+	.pathParam('lat', latSchema)
+	.pathParam('lon', lonSchema)
+	.pathParam('startDate', startDateSchema)
+	.pathParam('endDate', endDateSchema)
+	.pathParam('which', allAnySchema)
+
+	///
+	// Body parameters.
+	///
+	.body(ModelBodyDescriptors, "The list of requested *observation variable names*.")
+
+	///
+	// Response schema.
+	///
+	.response([ModelDataArea], ModelDataAreaDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get drought data in date range and featuring selected descriptors by area')
+
+	///
+	// Description.
+	///
+	.description(dd`
+		This service will return  drought data covering the *provided* coordinates, date range \
+		and featuring *any* or *all* of the provided descriptors.
+		
+The data will be grouped by *observation area* sorted in descending order order. Each element \
+holds the observation date and a \`properties\` object containing the data.
+
+Note that all areas pertaining to the provided coordinates will be returned, \
+regardless whether there is any data in the date range.
+	`);
+
+/**
+ * Get drought related data by date range and descriptors by date.
+ *
+ * This service will return all drought data associated to the provided
+ * coordinates, date range and containing all or any of the provided descriptors,
+ * returning data grouped by date.
  *
  * Parameters:
  * - `:lat`: The latitude.
@@ -569,7 +719,7 @@ router.post('date/:lat/:lon/:startDate/:endDate/:which/:start/:limit', function 
 	///
 	// Summary.
 	///
-	.summary('Get drought data in date range and featuring selected descriptors')
+	.summary('Get drought data in date range and featuring selected descriptors by date')
 
 	///
 	// Description.
