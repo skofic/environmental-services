@@ -27,8 +27,6 @@ const latSchema = joi.number().min(-90).max(90).required()
 	.description('Coordinate decimal latitude.')
 const lonSchema = joi.number().min(-180).max(180).required()
 	.description('Coordinate decimal longitude.')
-const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()
-	.description('Unit shape geometry hash.\nThe value is the `_key` of the `Shapes` collection record.')
 const startDateSchema = joi.string().regex(/^[0-9]+$/).required()
 	.description('The start date expressed as a string in `YYYYMMDD`, `YYYYMM` or `YYYY` format.')
 const endDateSchema = joi.string().regex(/^[0-9]+$/).required()
@@ -462,7 +460,7 @@ holds the observation date and a \`properties\` object containing the data.
 router.post('area/:lat/:lon/:startDate/:endDate/:which', function (req, res)
 {
 	///
-	// Parameters.
+	// Path parameters.
 	///
 	const lat = req.pathParams.lat
 	const lon = req.pathParams.lon
@@ -470,6 +468,9 @@ router.post('area/:lat/:lon/:startDate/:endDate/:which', function (req, res)
 	const endDate = req.pathParams.endDate
 	const which = req.pathParams.which.toLowerCase()
 
+	///
+	// Body parameters.
+	///
 	const descriptors = req.body.std_terms
 
 	///

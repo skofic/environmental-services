@@ -1,14 +1,10 @@
 'use strict'
 
 /**
- * remoteSensingMeta.js
+ * droughtObservatoryData.js
  *
- * This script contains the routes for the remote sensing metadata services.
- * By metadata we mean here services that return information on the time frame
- * of the remote sensing data, and the variables measured in the unit shapes.
- *
- * For getting the actual metadata refer to the
- * https://github.com/skofic/data-dictionary-service service.
+ * This script contains the routes for the drought observatory data services.
+ * All routes expect a reference point and return observation data.
  */
 
 ///
@@ -20,18 +16,44 @@ const {aql, db} = require('@arangodb')
 const createRouter = require('@arangodb/foxx/router')
 
 ///
-// Collections and models.
+// Collections.
 ///
-const collection = db._collection('ShapeData')
-const ModelDates = require('../models/remoteSensingDates')
-const ModelSpans = require('../models/remoteSensingSpans')
-const ModelDescriptors = require('../models/remoteSensingDescriptors')
-const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()
-	.description('Unit shape geometry hash.\nThe value is the `_key` of the `Shapes` collection record.')
+const collection_dat = db._collection('DroughtObservatory')
+const collection_map = db._collection('DroughtObservatoryMap')
+
+///
+// Models.
+///
+const ModelDateRangeTerms = require('../models/dateRangeTerms')
+const ModelDateRangeTermsDescription =
+	'Drought metadata.\n\n' +
+	'The returned data is grouped as follows:\n\n' +
+	'- `count`: Number of data points or dates.\n' +
+	'- `std_date_start`: The start date for the observations date range.\n' +
+	'- `std_date_end`: The end date for the observations date range.\n' +
+	'- `std_terms`: The list of available variables in the date range.'
+const ModelGeometryCounts = require('../models/geometryDateRangeTerms')
+const ModelGeometryCountsDescription =
+	'Drought observation counts.\n\n' +
+	'The returned data is grouped as follows:\n\n' +
+	'- `geometry`: The GeoJSON polygon describing the area from which the data was extracted.\n' +
+	'- `geometry_point`: GeoJSON centroid of the observation area.\n' +
+	'- `geometry_point_radius`: The radius of the observation area from the centroid.\n' +
+	'- `count`: Number of data points or dates.\n' +
+	'- `std_date_start`: The start date for the observations date range.\n' +
+	'- `std_date_end`: The end date for the observations date range.\n' +
+	'- `std_terms`: The list of available variables in the date range.'
+const ModelBodyDescriptors = require("../models/bodyDescriptors");
+const latSchema = joi.number().min(-90).max(90).required()
+	.description('Coordinate decimal latitude.')
+const lonSchema = joi.number().min(-180).max(180).required()
+	.description('Coordinate decimal longitude.')
 const startDateSchema = joi.string().regex(/^[0-9]+$/).required()
 	.description('The start date expressed as a string in `YYYYMMDD`, `YYYYMM` or `YYYY` format.')
 const endDateSchema = joi.string().regex(/^[0-9]+$/).required()
 	.description('The end date expressed as a string in `YYYYMMDD`, `YYYYMM` or `YYYY` format.')
+const allAnySchema = joi.string().valid('ALL', 'ANY').required()
+	.description("Select data featuring \`all\` or \`any\` of the provided descriptors.")
 
 ///
 // Create and export router.
@@ -46,22 +68,22 @@ router.tag('Drought Observatory Metadata')
 
 
 /**
- * Get time spans for provided unit shape.
+ * Get metadata for provided coordinates.
  *
- * This service will return the time spans and observation counts for
- * the unit shape identified by the provided path variable.
- *
- * The service will return one record per time span.
+ * This service will return the dates range and list of variable names
+ * associated with the provided coordinate.
  *
  * Parameters:
- * - `:shape`: The key of the unit shape.
+ * - `:lat`: The latitude.
+ * - `:lon`: The longitude.
  */
-router.get('spans/:shape', function (req, res)
+router.get(':lat/:lon', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const shape = req.pathParams.shape
+	const lat = req.pathParams.lat
+	const lon = req.pathParams.lon
 
 	///
 	// Perform service.
@@ -69,13 +91,26 @@ router.get('spans/:shape', function (req, res)
 	let result;
 	try {
 		result = db._query(aql`
-			FOR doc IN ${collection}
-			    FILTER doc.geometry_hash == ${shape}
-			    COLLECT resolution = doc.std_date_span WITH COUNT INTO count
-			RETURN {
-			    std_date_span: resolution,
-			    count: count
-			}
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key
+			        
+			        COLLECT AGGREGATE start = MIN(data.std_date),
+			                          end   = MAX(data.std_date),
+			                          terms = UNIQUE(data.std_terms),
+			                          count = COUNT()
+			
+			    RETURN {
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
         `).toArray()
 	}
 
@@ -89,180 +124,61 @@ router.get('spans/:shape', function (req, res)
 	///
 	// Return result.
 	///
-	res.send(result);
+	if(result.length > 0) {
+		if(result[0].std_terms.length > 0) {
+			res.send(result)
+		} else {
+			res.send([])
+		}
+	} else {
+		res.send([])
+	}
 
 }, 'list')
 
-	.pathParam('shape', geometryHashSchema)
-	.response([ModelSpans],
-		'Remote sensing observations *count* grouped by *annual*, *monthly* and *daily* time span.\n' +
-		'\n' +
-		'The `std_date_span` property represents the period, it can take the following values:\n' +
-		'\n' +
-		'- `std_date_span_day`: *Daily* data.\n' +
-		'- `std_date_span_month`: *Monthly* data.\n' +
-		'- `std_date_span_year`: *Yearly* data.\n' +
-		'\n' +
-		'The `count` property represents the number of observations in the relative time span.'
-	)
-	.summary('Get observations count for provided unit shape grouped by time span')
+	///
+	// Path parameter schemas.
+	///
+	.pathParam('lat', latSchema)
+	.pathParam('lon', lonSchema)
+
+	///
+	// Response schema.
+	///
+	.response([ModelDateRangeTerms], ModelDateRangeTermsDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get drought metadata for provided coordinate')
+
+	///
+	// Description.
+	///
 	.description(dd`
-		This service will return the *number of observations*, related to the provided *unit shape identifier*, grouped by *annual*, *monthly* and *daily* time spans.
-	`);
+		This service will return the dates range and list of variables \
+		associated with the provided coordinate.
+		`);
 
 /**
- * Get dates range for provided unit shape.
+ * Get metadata for provided coordinates and date range.
  *
- * This service will return the start and end dates for all
- * time spans, annual, monthly and daily, related to the
- * unit shape indicated in the path argument.
- *
- * The service will return one record per time span.
+ * This service will return the dates range and list of variable names
+ * associated with the provided coordinate and date range.
  *
  * Parameters:
- * - `:shape`: The key of the unit shape.
- */
-router.get('dates/:shape', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const shape = req.pathParams.shape
-
-	///
-	// Perform service.
-	///
-	let result;
-	try {
-		result = db._query(aql`
-			FOR doc IN ${collection}
-			    FILTER doc.geometry_hash == ${shape}
-			    COLLECT span = doc.std_date_span
-			    AGGREGATE startDate = MIN(doc.std_date), endDate = MAX(doc.std_date)
-			RETURN {
-			    std_date_span: span,
-			    startDate: startDate,
-			    endDate: endDate
-			}
-        `).toArray()
-	}
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'list')
-
-	.pathParam('shape', geometryHashSchema)
-	.response([ModelDates],
-		'Remote sensing observation *date ranges* grouped by *annual*, *monthly* and *daily* data.\n' +
-		'\n' +
-		'The `std_date_span` property represents the period, it can take the following values:\n' +
-		'\n' +
-		'- `std_date_span_day`: *Daily* data.\n' +
-		'- `std_date_span_month`: *Monthly* data.\n' +
-		'- `std_date_span_year`: *Yearly* data.\n' +
-		'\n' +
-		'The `startDate` and `endDate` properties contain respectively the *start* and *end dates* for observations in the *current time span*. These dates will have the `YYYY`, `YYYYMM` or `YYYYMMDD` formats when referring respectively to *annual*, *monthly* and *daily data*.'
-	)
-	.summary('Get observation date ranges for the requested unit shape grouped by time span')
-	.description(dd`
-		This service will return the *start* and *end dates* of remote sensing data for the provided unit *shape key*, grouped by *annual*, *monthly* and *daily* time span.
-	`);
-
-/**
- * Get list of observation variable names for provided unit shape.
- *
- * This service will return the list of observation variable names
- * associated with the unit shape provided as the path variable,
- * grouped by time span.
- *
- * Parameters:
- * - `:shape`: The key of the unit shape.
- */
-router.get('terms/:shape', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const shape = req.pathParams.shape
-
-	///
-	// Perform service.
-	///
-	let result;
-	try {
-		result = db._query(aql`
-			FOR doc IN ${collection}
-			    FILTER doc.geometry_hash == ${shape}
-			    COLLECT span = doc.std_date_span
-			    AGGREGATE terms = UNIQUE(doc.std_terms)
-			RETURN {
-			    std_date_span: span,
-			    std_terms: UNIQUE(FLATTEN(terms))
-			}
-        `).toArray()
-	}
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'list')
-
-	.pathParam('shape', geometryHashSchema)
-	.response([ModelDescriptors],
-		'Remote sensing observation *descriptors* grouped by *annual*, *monthly* and *daily* data.\n' +
-		'\n' +
-		'The `std_date_span` property represents the period, it can take the following values:\n' +
-		'\n' +
-		'- `std_date_span_day`: *Daily* data.\n' +
-		'- `std_date_span_month`: *Monthly* data.\n' +
-		'- `std_date_span_year`: *Yearly* data.\n' +
-		'\n' +
-		'The `std_terms` property contains the list of all observation *variables* that can be found in the *current time span* for the provided *unit shape*.\n\n' +
-		'Forward the list of descriptors to the [data dictionary](https://github.com/skofic/data-dictionary-service.git) to retrieve their metadata.'
-	)
-	.summary('Get list of descriptors for the requested unit shape grouped by time span')
-	.description(dd`
-		This service will return the list of *variable names*, associated with the *provided unit shape*, that can be found in *observations* grouped by *time span*.\n\nIt will return a list of *descriptor names* for each *daily*, *monthly* and *yearly* time span, that can be found in *remote sensing data* of the provided *unit shape*.
-	`);
-
-/**
- * Get list of observation variable names for provided unit shape in provided date range.
- *
- * This service will return the list of observation variable names
- * associated with the unit shape provided as the path variable,
- * grouped by time span, for the provided date range indicated in the start
- * and end date path parameters.
- *
- * Parameters:
- * - `:shape`: The key of the unit shape.
+ * - `:lat`: The latitude.
+ * - `:lon`: The longitude.
  * - ':startDate': The start date.
- * - ':endDate': The end date.
+ * - `:endDate`: The end date.
  */
-router.get('terms/:shape/:startDate/:endDate', function (req, res)
+router.get(':lat/:lon/:startDate/:endDate', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const shape = req.pathParams.shape
+	const lat = req.pathParams.lat
+	const lon = req.pathParams.lon
 	const startDate = req.pathParams.startDate
 	const endDate = req.pathParams.endDate
 
@@ -272,22 +188,34 @@ router.get('terms/:shape/:startDate/:endDate', function (req, res)
 	let result;
 	try {
 		result = db._query(aql`
-			FOR doc IN ${collection}
-			    FILTER doc.geometry_hash == ${shape}
-			    FILTER doc.std_date >= ${startDate}
-			    FILTER doc.std_date <= ${endDate}
-			    COLLECT span = doc.std_date_span
-			    AGGREGATE terms = UNIQUE(doc.std_terms)
-			RETURN {
-			    std_date_span: span,
-			    std_terms: UNIQUE(FLATTEN(terms))
-			}
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+				           data.std_date >= ${startDate} AND
+				           data.std_date <= ${endDate}
+				           
+			        COLLECT AGGREGATE start = MIN(data.std_date),
+			                          end   = MAX(data.std_date),
+			                          terms = UNIQUE(data.std_terms),
+			                          count = COUNT()
+			
+			    RETURN {
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
         `).toArray()
 	}
 
-		///
-		// Handle errors.
-		///
+	///
+	// Handle errors.
+	///
 	catch (error) {
 		throw error;
 	}
@@ -295,26 +223,825 @@ router.get('terms/:shape/:startDate/:endDate', function (req, res)
 	///
 	// Return result.
 	///
-	res.send(result);
+	if(result.length > 0) {
+		if(result[0].std_terms.length > 0) {
+			res.send(result)
+		} else {
+			res.send([])
+		}
+	} else {
+		res.send([])
+	}
 
 }, 'list')
 
-	.pathParam('shape', geometryHashSchema)
+	///
+	// Path parameter schemas.
+	///
+	.pathParam('lat', latSchema)
+	.pathParam('lon', lonSchema)
+
+	///
+	// Response schema.
+	///
+	.response([ModelDateRangeTerms], ModelDateRangeTermsDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get drought metadata for provided coordinate and date range')
+
+	///
+	// Description.
+	///
+	.description(dd`
+		This service will return the dates range and list of variables \
+		associated with the provided coordinate for the provided date range.
+		`);
+
+/**
+ * Get dates range and variable names for provided coordinates and variables selection.
+ *
+ * This service will return the dates range and list of variable names
+ * associated with the provided coordinate for the provided variables selection.
+ *
+ * Parameters:
+ * - `:lat`: The latitude.
+ * - `:lon`: The longitude.
+ * - `:which`: `ANY` or `ALL` species in the provided list should be matched.
+ */
+router.post(':lat/:lon/:which', function (req, res)
+{
+	///
+	// Path parameters.
+	///
+	const lat = req.pathParams.lat
+	const lon = req.pathParams.lon
+	const which = req.pathParams.which.toLowerCase()
+
+	///
+	// Body parameters.
+	///
+	const descriptors = req.body.std_terms
+
+	///
+	// Perform service.
+	///
+	let query;
+	if(which.toLowerCase() === 'all') {
+		query = aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+			               ${descriptors} ALL IN data.std_terms
+			               
+			        COLLECT AGGREGATE start = MIN(data.std_date),
+			                          end   = MAX(data.std_date),
+			                          terms = UNIQUE(data.std_terms),
+			                          count = COUNT()
+			
+			    RETURN {
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
+		`
+	} else {
+		query = aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+			               ${descriptors} ANY IN data.std_terms
+			               
+			        COLLECT AGGREGATE start = MIN(data.std_date),
+			                          end   = MAX(data.std_date),
+			                          terms = UNIQUE(data.std_terms),
+			                          count = COUNT()
+			
+			    RETURN {
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
+		`
+	}
+
+	///
+	// Perform service.
+	///
+	let result
+	try
+	{
+		///
+		// Perform query.
+		///
+		result = db._query(query).toArray()
+	}
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return response.
+	///
+	if(result.length > 0) {
+		if(result[0].std_terms.length > 0) {
+			res.send(result)
+		} else {
+			res.send([])
+		}
+	} else {
+		res.send([])
+	}
+
+}, 'list')
+
+	///
+	// Path parameter schemas.
+	///
+	.pathParam('lat', latSchema)
+	.pathParam('lon', lonSchema)
+	.pathParam('which', allAnySchema)
+
+	///
+	// Body parameters.
+	///
+	.body(ModelBodyDescriptors, "The list of requested *observation variable names*.")
+
+	///
+	// Response schema.
+	///
+	.response([ModelDateRangeTerms], ModelDateRangeTermsDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get drought metadata for provided coordinate and variables selection')
+
+	///
+	// Description.
+	///
+	.description(dd`
+		This service will return the dates range and list of variables \
+		associated with the provided coordinate for the provided variables selection.
+		`);
+
+/**
+ * Get dates range and variable names for provided coordinate, date range and variables.
+ *
+ * This service will return the dates range and list of variable names
+ * associated with the provided coordinate for the provided dates range
+ * featuring the provided variables selection.
+ *
+ * Parameters:
+ * - `:lat`: The latitude.
+ * - `:lon`: The longitude.
+ * - ':startDate': The start date.
+ * - `:endDate`: The end date.
+ * - `:which`: `ANY` or `ALL` species in the provided list should be matched.
+ */
+router.post(':lat/:lon/:startDate/:endDate/:which', function (req, res)
+{
+	///
+	// Path parameters.
+	///
+	const lat = req.pathParams.lat
+	const lon = req.pathParams.lon
+	const startDate = req.pathParams.startDate
+	const endDate = req.pathParams.endDate
+	const which = req.pathParams.which.toLowerCase()
+
+	///
+	// Body parameters.
+	///
+	const descriptors = req.body.std_terms
+
+	///
+	// Perform service.
+	///
+	let query;
+	if(which.toLowerCase() === 'all') {
+		query = aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+				           data.std_date >= ${startDate} AND
+				           data.std_date <= ${endDate} AND
+			               ${descriptors} ALL IN data.std_terms
+			               
+			        COLLECT AGGREGATE start = MIN(data.std_date),
+			                          end   = MAX(data.std_date),
+			                          terms = UNIQUE(data.std_terms),
+			                          count = COUNT()
+			
+			    RETURN {
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
+		`
+	} else {
+		query = aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+				           data.std_date >= ${startDate} AND
+				           data.std_date <= ${endDate} AND
+			               ${descriptors} ANY IN data.std_terms
+			               
+			        COLLECT AGGREGATE start = MIN(data.std_date),
+			                          end   = MAX(data.std_date),
+			                          terms = UNIQUE(data.std_terms),
+			                          count = COUNT()
+			
+			    RETURN {
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
+		`
+	}
+
+	///
+	// Perform service.
+	///
+	let result
+	try
+	{
+		///
+		// Perform query.
+		///
+		result = db._query(query).toArray()
+	}
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return response.
+	///
+	if(result.length > 0) {
+		if(result[0].std_terms.length > 0) {
+			res.send(result)
+		} else {
+			res.send([])
+		}
+	} else {
+		res.send([])
+	}
+
+}, 'list')
+
+	///
+	// Path parameter schemas.
+	///
+	.pathParam('lat', latSchema)
+	.pathParam('lon', lonSchema)
 	.pathParam('startDate', startDateSchema)
 	.pathParam('endDate', endDateSchema)
-	.response([ModelDescriptors],
-		'Remote sensing observation *descriptors* grouped by *annual*, *monthly* and *daily* data.\n' +
-		'\n' +
-		'The `std_date_span` property represents the period, it can take the following values:\n' +
-		'\n' +
-		'- `std_date_span_day`: *Daily* data.\n' +
-		'- `std_date_span_month`: *Monthly* data.\n' +
-		'- `std_date_span_year`: *Yearly* data.\n' +
-		'\n' +
-		'The `std_terms` property contains the list of all observation *variables* that can be found in the *current time span* for the provided *unit shape*.\n\n' +
-		'Forward the list of descriptors to the [data dictionary](https://github.com/skofic/data-dictionary-service.git) to retrieve their metadata.'
-	)
-	.summary('Get list of descriptors for the requested unit shape and dates range grouped by time span')
+	.pathParam('which', allAnySchema)
+
+	///
+	// Body parameters.
+	///
+	.body(ModelBodyDescriptors, "The list of requested *observation variable names*.")
+
+	///
+	// Response schema.
+	///
+	.response([ModelDateRangeTerms], ModelDateRangeTermsDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get drought metadata for provided coordinate, date range and variables selection')
+
+	///
+	// Description.
+	///
 	.description(dd`
-		This service will return the list of *variable names*, associated with the *provided unit shape*, that can be found in *observations* performed in the *time range* defined by the provided *start* and *end* dates: the result will be a list of *descriptor names* for each *daily*, *monthly* and *yearly* time span.
-	`);
+		This service will return the dates range and list of variables \
+		associated with the provided coordinate in the provided date range \
+		for the variables selection.
+		`);
+
+/**
+ * Get metadata for provided coordinates by area.
+ *
+ * This service will return the dates range and list of variable names
+ * associated with the provided coordinate grouped by area.
+ *
+ * Parameters:
+ * - `:lat`: The latitude.
+ * - `:lon`: The longitude.
+ */
+router.get('area/:lat/:lon', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const lat = req.pathParams.lat
+	const lon = req.pathParams.lon
+
+	///
+	// Perform service.
+	///
+	let result;
+	try {
+		result = db._query(aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key
+			        
+			        COLLECT geo = shape.geometry,
+			                point = shape.geometry_point,
+			                radius = shape.geometry_point_radius
+			        
+			        AGGREGATE start = MIN(data.std_date),
+			                  end   = MAX(data.std_date),
+			                  terms = UNIQUE(data.std_terms),
+			                  count = COUNT()
+			
+			    RETURN {
+			        geometry: geo,
+					geometry_point: point,
+					geometry_point_radius: radius,
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
+        `).toArray()
+	}
+
+	///
+	// Handle errors.
+	///
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result)
+
+}, 'list')
+
+	///
+	// Path parameter schemas.
+	///
+	.pathParam('lat', latSchema)
+	.pathParam('lon', lonSchema)
+
+	///
+	// Response schema.
+	///
+	.response([ModelGeometryCounts], ModelGeometryCountsDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get drought metadata for provided coordinate by area')
+
+	///
+	// Description.
+	///
+	.description(dd`
+		This service will return the dates range and list of variables \
+		associated with the provided coordinate by area.
+		`);
+
+/**
+ * Get metadata for provided coordinates and date range by area.
+ *
+ * This service will return the dates range and list of variable names
+ * associated with the provided coordinate and date range grouped by area.
+ *
+ * Parameters:
+ * - `:lat`: The latitude.
+ * - `:lon`: The longitude.
+ * - ':startDate': The start date.
+ * - `:endDate`: The end date.
+ */
+router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const lat = req.pathParams.lat
+	const lon = req.pathParams.lon
+	const startDate = req.pathParams.startDate
+	const endDate = req.pathParams.endDate
+
+	///
+	// Perform service.
+	///
+	let result;
+	try {
+		result = db._query(aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+				           data.std_date >= ${startDate} AND
+				           data.std_date <= ${endDate}
+			        
+			        COLLECT geo = shape.geometry,
+			                point = shape.geometry_point,
+			                radius = shape.geometry_point_radius
+			        
+			        AGGREGATE start = MIN(data.std_date),
+			                  end   = MAX(data.std_date),
+			                  terms = UNIQUE(data.std_terms),
+			                  count = COUNT()
+			
+			    RETURN {
+			        geometry: geo,
+					geometry_point: point,
+					geometry_point_radius: radius,
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
+        `).toArray()
+	}
+
+	///
+	// Handle errors.
+	///
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result)
+
+}, 'list')
+
+	///
+	// Path parameter schemas.
+	///
+	.pathParam('lat', latSchema)
+	.pathParam('lon', lonSchema)
+
+	///
+	// Response schema.
+	///
+	.response([ModelGeometryCounts], ModelGeometryCountsDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get drought metadata for provided coordinate and date range grouped by area')
+
+	///
+	// Description.
+	///
+	.description(dd`
+		This service will return the dates range and list of variables \
+		associated with the provided coordinate for the provided date range \
+		grouped by observation area.
+		`);
+
+/**
+ * Get dates range and variable names for provided coordinates and variables selection,
+ * grouped by observation area.
+ *
+ * This service will return the dates range and list of variable names
+ * associated with the provided coordinate for the provided variables selection,
+ * grouped by observation area.
+ *
+ * Parameters:
+ * - `:lat`: The latitude.
+ * - `:lon`: The longitude.
+ * - `:which`: `ANY` or `ALL` species in the provided list should be matched.
+ */
+router.post('area/:lat/:lon/:which', function (req, res)
+{
+	///
+	// Path parameters.
+	///
+	const lat = req.pathParams.lat
+	const lon = req.pathParams.lon
+	const which = req.pathParams.which.toLowerCase()
+
+	///
+	// Body parameters.
+	///
+	const descriptors = req.body.std_terms
+
+	///
+	// Perform service.
+	///
+	let query;
+	if(which.toLowerCase() === 'all') {
+		query = aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+			               ${descriptors} ALL IN data.std_terms
+			        
+			        COLLECT geo = shape.geometry,
+			                point = shape.geometry_point,
+			                radius = shape.geometry_point_radius
+			        
+			        AGGREGATE start = MIN(data.std_date),
+			                  end   = MAX(data.std_date),
+			                  terms = UNIQUE(data.std_terms),
+			                  count = COUNT()
+			
+			    RETURN {
+			        geometry: geo,
+					geometry_point: point,
+					geometry_point_radius: radius,
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
+		`
+	} else {
+		query = aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+			               ${descriptors} ANY IN data.std_terms
+			        
+			        COLLECT geo = shape.geometry,
+			                point = shape.geometry_point,
+			                radius = shape.geometry_point_radius
+			        
+			        AGGREGATE start = MIN(data.std_date),
+			                  end   = MAX(data.std_date),
+			                  terms = UNIQUE(data.std_terms),
+			                  count = COUNT()
+			
+			    RETURN {
+			        geometry: geo,
+					geometry_point: point,
+					geometry_point_radius: radius,
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
+		`
+	}
+
+	///
+	// Perform service.
+	///
+	let result
+	try
+	{
+		///
+		// Perform query.
+		///
+		result = db._query(query).toArray()
+	}
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return response.
+	///
+	res.send(result)
+
+}, 'list')
+
+	///
+	// Path parameter schemas.
+	///
+	.pathParam('lat', latSchema)
+	.pathParam('lon', lonSchema)
+	.pathParam('which', allAnySchema)
+
+	///
+	// Body parameters.
+	///
+	.body(ModelBodyDescriptors, "The list of requested *observation variable names*.")
+
+	///
+	// Response schema.
+	///
+	.response([ModelGeometryCounts], ModelGeometryCountsDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get drought metadata for provided coordinate and variables selection by area')
+
+	///
+	// Description.
+	///
+	.description(dd`
+		This service will return the dates range and list of variables \
+		associated with the provided coordinate for the provided variables selection, \
+		grouped by observation area.
+		`);
+
+/**
+ * Get dates range and variable names for provided coordinate, date range and variables,
+ * grouped by area.
+ *
+ * This service will return the dates range and list of variable names
+ * associated with the provided coordinate for the provided dates range
+ * featuring the provided variables selection, grouped by observation area.
+ *
+ * Parameters:
+ * - `:lat`: The latitude.
+ * - `:lon`: The longitude.
+ * - ':startDate': The start date.
+ * - `:endDate`: The end date.
+ * - `:which`: `ANY` or `ALL` species in the provided list should be matched.
+ */
+router.post('area/:lat/:lon/:startDate/:endDate/:which', function (req, res)
+{
+	///
+	// Path parameters.
+	///
+	const lat = req.pathParams.lat
+	const lon = req.pathParams.lon
+	const startDate = req.pathParams.startDate
+	const endDate = req.pathParams.endDate
+	const which = req.pathParams.which.toLowerCase()
+
+	///
+	// Body parameters.
+	///
+	const descriptors = req.body.std_terms
+
+	///
+	// Perform service.
+	///
+	let query;
+	if(which.toLowerCase() === 'all') {
+		query = aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+				           data.std_date >= ${startDate} AND
+				           data.std_date <= ${endDate} AND
+			               ${descriptors} ALL IN data.std_terms
+			        
+			        COLLECT geo = shape.geometry,
+			                point = shape.geometry_point,
+			                radius = shape.geometry_point_radius
+			        
+			        AGGREGATE start = MIN(data.std_date),
+			                  end   = MAX(data.std_date),
+			                  terms = UNIQUE(data.std_terms),
+			                  count = COUNT()
+			
+			    RETURN {
+			        geometry: geo,
+					geometry_point: point,
+					geometry_point_radius: radius,
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
+		`
+	} else {
+		query = aql`
+			FOR shape IN ${collection_map}
+			    FILTER GEO_INTERSECTS(
+			        GEO_POINT(${lon}, ${lat}),
+			        shape.geometry
+			    )
+			    
+			    FOR data IN ${collection_dat}
+			        FILTER data.geometry_hash == shape._key AND
+				           data.std_date >= ${startDate} AND
+				           data.std_date <= ${endDate} AND
+			               ${descriptors} ANY IN data.std_terms
+			        
+			        COLLECT geo = shape.geometry,
+			                point = shape.geometry_point,
+			                radius = shape.geometry_point_radius
+			        
+			        AGGREGATE start = MIN(data.std_date),
+			                  end   = MAX(data.std_date),
+			                  terms = UNIQUE(data.std_terms),
+			                  count = COUNT()
+			
+			    RETURN {
+			        geometry: geo,
+					geometry_point: point,
+					geometry_point_radius: radius,
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: FLATTEN(terms)
+			    }
+		`
+	}
+
+	///
+	// Perform service.
+	///
+	let result
+	try
+	{
+		///
+		// Perform query.
+		///
+		result = db._query(query).toArray()
+	}
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return response.
+	///
+		res.send(result)
+
+}, 'list')
+
+	///
+	// Path parameter schemas.
+	///
+	.pathParam('lat', latSchema)
+	.pathParam('lon', lonSchema)
+	.pathParam('startDate', startDateSchema)
+	.pathParam('endDate', endDateSchema)
+	.pathParam('which', allAnySchema)
+
+	///
+	// Body parameters.
+	///
+	.body(ModelBodyDescriptors, "The list of requested *observation variable names*.")
+
+	///
+	// Response schema.
+	///
+	.response([ModelGeometryCounts], ModelGeometryCountsDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get drought metadata for provided coordinate, date range and variables selection by area')
+
+	///
+	// Description.
+	///
+	.description(dd`
+		This service will return the dates range and list of variables \
+		associated with the provided coordinate in the provided date range \
+		for the variables selection, grouped by observation area.
+		`);
