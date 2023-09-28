@@ -29,6 +29,10 @@ Currently we only feature the remote sensing data scripts, this is a work in pro
 
 The services are divided into the following sections:
 
+### Shape hash
+
+This set of services can be used to generate shape hashes. A shape hash is an MD5 hash of a geometry. All GCU polygons have a unique identifier that is the MD5 hash of the polygon geometry. Use these services to retrieve the GeoJSON geometry and its hash when creating GCU shapes.
+
 ### Units
 
 This set of services can be used to query EUFGIS Conservation Units and relate them to the set of geometric shapes that comprise them. You can retrieve all unit IDs related to the provided unit number, retrieve all shape references related to the provided unit ID, or retrieve the unit information related to the provided shape reference.

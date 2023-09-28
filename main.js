@@ -8,6 +8,7 @@ const { context } = require('@arangodb/locals')
 ///
 // Set routes.
 ///
+context.use('/hash', require('./routes/shapeHashes'), 'Shape hashes')
 context.use('/gcu', require('./routes/unitsData'), 'Units')
 context.use('/shape', require('./routes/unitShapes'), 'Unit shapes')
 context.use('/occur', require('./routes/speciesOccurrences'), 'Species occurrences')
