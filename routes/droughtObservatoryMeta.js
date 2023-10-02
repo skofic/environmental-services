@@ -109,7 +109,7 @@ router.get(':lat/:lon', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
         `).toArray()
 	}

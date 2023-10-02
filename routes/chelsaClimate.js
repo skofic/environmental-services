@@ -69,7 +69,7 @@ router.tag('Chelsa')
 /**
  * Return the Chelsa data record that contains the provided point.
  *
- * This service will return the Chelsa record that contains the provided coordinate..
+ * This service will return the Chelsa record that contains the provided coordinate.
  *
  * Parameters:
  * - `:what`: The result type, `KEY` only geometry key, `SHAPE` key and geometry, `DATA` all.
@@ -193,7 +193,7 @@ router.get('click/:what/:lat/:lon', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get chelsa record containing the provided coordinate')
+	.summary('Get Chelsa record containing the provided coordinate')
 
 	///
 	// Description.
@@ -201,15 +201,18 @@ router.get('click/:what/:lat/:lon', function (req, res)
 	.description(dd`
 		The service will return the Chelsa data record that contains the provided coordinate.
 		Provide \`KEY\` in the \`:what\` path paraneter to return just the geometry hash, \
-		\`SHAPE\` to return the record geomnetries, or \`DATA\` to return all properties.
+		\`SHAPE\` to return the record geometries, or \`DATA\` to return all properties.
 	`)
 
 /**
- * Return the Chelsa data record that contains the provided point.
+ * Return the Chelsa data records found within the provided distance.
  *
- * This service will return the Chelsa map points whose distance to the provided reference
+ * This service will return the Chelsa records whose distance to the provided reference
  * geometry is larger or equal to the provided minimum distance and smaller or equal to
  * the provided maximum distance.
+ *
+ * The distance is calculated from the centroid of the provided reference geometry to the
+ * centroids of the Chelsa records.
  *
  * Parameters:
  * - `:what`: The result type, `KEY` only geometry key, `SHAPE` key and geometry, `DATA` all.
@@ -388,15 +391,18 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 	// Description.
 	///
 	.description(dd`
-		The service will return the *list* of *Chelsa data points* whose *distance* to the *provided reference geometry* is within the *provided range*.
-		The distance is calculated the *wgs84 centroids* of both the provided reference geometry and the shape geometry.
-		If you provide \`ALL\` in the \`what\` paraneter, the service will return the geometries of the Chelsa data location; if you provide \`HASH\`, it will only return the geometry *hash*, or data record primary key.
+		The service will return the *list* of *Chelsa data points* whose *distance* to the \
+		*provided reference geometry* is within the *provided range*.
+		The distance is calculated from the *wgs84 centroids* of both the provided reference \
+		geometry and the shape geometry.
+		Provide \`KEY\` in the \`:what\` path paraneter to return just the geometry hash, \
+		\`SHAPE\` to return the record geometries, or \`DATA\` to return all properties.
 	`)
 
 /**
  * Return all Chelsa data points fully contained by the provided reference geometry.
  *
- * This service will return all the occurrence records which are fully contained
+ * This service will return all the occurrence records whose centroids are fully contained
  * by the provided reference geometry, the latter may be a Polygon or MultiPolugon.
  *
  * Parameters:
@@ -513,8 +519,10 @@ router.post('contain/:what/:start/:limit', function (req, res)
 	// Description.
 	///
 	.description(dd`
-		The service will return the *list* of *Chelsa data points* that are *contained* in the *provided reference geometry*.
-		If you provide \`ALL\` in the \`what\` paraneter, the service will return the geometries of the Chelsa data location; if you provide \`HASH\`, it will only return the geometry *hash*, or data record primary key.
+		The service will return the *list* of *Chelsa data points* that are *contained* in \
+		the *provided reference geometry*.
+		Provide \`KEY\` in the \`:what\` path paraneter to return just the geometry hash, \
+		\`SHAPE\` to return the record geometries, or \`DATA\` to return all properties.
 	`)
 
 /**
