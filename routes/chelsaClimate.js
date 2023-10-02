@@ -25,7 +25,7 @@ const collection_data = db._collection('Chelsa')
 ///
 const ModelShape = require("../models/shapeTarget");
 const ModelShapeContains = require("../models/shapeContains");
-const ModelRecord = require('../models/chelsa')
+const ModelRecord = require('../models/climate')
 const minDistanceSchema = joi.number().required()
 	.description('Minimum distance inclusive in meters.')
 const maxDistanceSchema = joi.number().required()

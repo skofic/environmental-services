@@ -24,15 +24,16 @@ const collection_data = db._collection('WorldClim')
 // Models.
 ///
 const ModelShape = require("../models/shapeTarget");
-const ModelRecord = require('../models/worldClim')
+const ModelShapeContains = require("../models/shapeContains");
+const ModelRecord = require('../models/climate')
 const minDistanceSchema = joi.number().required()
 	.description('Minimum distance inclusive in meters.')
 const maxDistanceSchema = joi.number().required()
 	.description('Maximum distance inclusive in meters.')
 const sortSchema = joi.string().valid('NO', 'ASC', 'DESC').required()
 	.description("Sort order: \`NO\` to ignore sorting, \`ASC\` for ascending, \`DESC\` for descending.")
-const whatSchema = joi.string().valid('KEY', 'SHAPE', 'DATA').required()
-	.description("Result type: \`KEY\` return geometry hash, \`SHAPE\` return geometry, \`DATA\` return properties.")
+const whatSchema = joi.string().valid('KEY', 'SHAPE', 'DATA', 'MIN', 'AVG', 'MAX', 'STD', 'VAR').required()
+	.description("Result type: \`KEY\` return geometry hash, \`SHAPE\` return geometry, \`DATA\` return properties, \`MIN\` return minimum, \`AVG\` return average, \`MAX\` return maximum, \`STD\` return standard deviation, \`VAR\` return variance")
 const latSchema = joi.number().min(-90).max(90).required()
 	.description('Coordinate decimal latitude.')
 const lonSchema = joi.number().min(-180).max(180).required()
@@ -54,6 +55,15 @@ Depending on the value of the \`what\` parameter:
 `
 
 ///
+// Utils.
+///
+const {
+	WorldClimDistanceAQL,
+	WorldClimContainsAQL,
+	WorldClimIntersectsAQL
+} = require('../utils/worldclimAggregateAQL')
+
+///
 // Create and export router.
 //
 const router = createRouter()
@@ -71,7 +81,6 @@ router.tag('WorldClim')
  * This service will return the WorldClim record that contains the provided coordinate.
  *
  * Parameters:
- * - `:what`: The result type, `KEY` only geometry key, `SHAPE` key and geometry, `DATA` all.
  * - `:lat`: The latitude.
  * - `:lon`: The longitude.
  **/
@@ -143,7 +152,7 @@ router.get('click/:lat/:lon', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get chelsa record containing the provided coordinate')
+	.summary('Get WorldClim record containing the provided coordinate')
 
 	///
 	// Description.
@@ -153,14 +162,17 @@ router.get('click/:lat/:lon', function (req, res)
 	`)
 
 /**
- * Return the WorldClim data record that contains the provided point.
+ * Return the WorldClim data records found within the provided distance.
  *
- * This service will return the WorldClim map points whose distance to the provided reference
+ * This service will return the WorldClim records whose distance to the provided reference
  * geometry is larger or equal to the provided minimum distance and smaller or equal to
  * the provided maximum distance.
  *
+ * The distance is calculated from the centroid of the provided reference geometry to the
+ * centroids of the WorldClim records.
+ *
  * Parameters:
- * - `:what`: The result type, `KEY` only geometry key, `SHAPE` key and geometry, `DATA` all.
+ * - `:what`: The result type, `KEY` only geometry key, `SHAPE` key and geometry, `DATA` properties, `MIN` minimum, `AVG` average, `MAX` maximum, `STD` standard deviation, `VAR` variance.
  * - `:min`: The minimum distance inclusive.
  * - `:max`: The maximum distance inclusive.
  * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
@@ -187,103 +199,18 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 	///
 	// Build query.
 	//
-	let query
-	switch(what) {
-		case 'KEY':
-			query = (sort === 'NO') ?
-				aql`
-				    LET target = ${reference}
-					FOR doc IN ${collection_map}
-						LET distance = GEO_DISTANCE(target, doc.geometry)
-						FILTER distance >= ${min}
-						FILTER distance <= ${max}
-						LIMIT ${start}, ${limit}
-					RETURN doc._key
-				` :
-				aql`
-				    LET target = ${reference}
-					FOR doc IN ${collection_map}
-						LET distance = GEO_DISTANCE(target, doc.geometry)
-						FILTER distance >= ${min}
-						FILTER distance <= ${max}
-						SORT distance ${sort}
-						LIMIT ${start}, ${limit}
-					RETURN doc._key
-				`
-			break
-
-		case 'SHAPE':
-			query = (sort === 'NO') ?
-				aql`
-				    LET target = ${reference}
-					FOR doc IN ${collection_map}
-						LET distance = GEO_DISTANCE(target, doc.geometry)
-						FILTER distance >= ${min}
-						FILTER distance <= ${max}
-						LIMIT ${start}, ${limit}
-					RETURN {
-						geometry_hash: doc._key,
-						distance: distance,
-						geometry_point: doc.geometry,
-						geometry_bounds: doc.geometry_bounds
-					}
-				` :
-				aql`
-				    LET target = ${reference}
-					FOR doc IN ${collection_map}
-						LET distance = GEO_DISTANCE(target, doc.geometry)
-						FILTER distance >= ${min}
-						FILTER distance <= ${max}
-						SORT distance ${sort}
-						LIMIT ${start}, ${limit}
-					RETURN {
-						geometry_hash: doc._key,
-						distance: distance,
-						geometry_point: doc.geometry,
-						geometry_bounds: doc.geometry_bounds
-					}
-				`
-			break
-
-		case 'DATA':
-			query = (sort === 'NO') ?
-				aql`
-				    LET target = ${reference}
-					FOR doc IN ${collection_map}
-						FOR dat IN ${collection_data}
-							FILTER dat._key == doc._key
-							LET distance = GEO_DISTANCE(target, doc.geometry)
-							FILTER distance >= ${min}
-							FILTER distance <= ${max}
-							LIMIT ${start}, ${limit}
-					RETURN {
-						geometry_hash: doc._key,
-						distance: distance,
-						geometry_point: doc.geometry,
-						geometry_bounds: doc.geometry_bounds,
-						properties: dat.properties
-					}
-				` :
-				aql`
-				    LET target = ${reference}
-					FOR doc IN ${collection_map}
-						FOR dat IN ${collection_data}
-							FILTER dat._key == doc._key
-							LET distance = GEO_DISTANCE(target, doc.geometry)
-							FILTER distance >= ${min}
-							FILTER distance <= ${max}
-							SORT distance ${sort}
-							LIMIT ${start}, ${limit}
-					RETURN {
-						geometry_hash: doc._key,
-						distance: distance,
-						geometry_point: doc.geometry,
-						geometry_bounds: doc.geometry_bounds,
-						properties: dat.properties
-					}
-				`
-			break
-	}
+	let query =
+		WorldClimDistanceAQL(
+			collection_data,
+			collection_map,
+			reference,
+			what,
+			min,
+			max,
+			sort,
+			start,
+			limit
+		)
 
 	///
 	// Perform service.
@@ -330,21 +257,26 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get all WorldClim data point locations within the provided distance range')
+	.summary('Get or stat all WorldClim data points within the provided distance range')
 
 	///
 	// Description.
 	///
 	.description(dd`
-		The service will return the *list* of *WorldClim data points* whose *distance* to the *provided reference geometry* is within the *provided range*.
-		The distance is calculated the *wgs84 centroids* of both the provided reference geometry and the shape geometry.
-		If you provide \`ALL\` in the \`what\` paraneter, the service will return the geometries of the WorldClim data location; if you provide \`HASH\`, it will only return the geometry *hash*, or data record primary key.
+		The service will return the *list* of *WorldClim data points* whose *distance* to the \
+		*provided reference geometry* is within the *provided range*.
+		The distance is calculated from the *wgs84 centroids* of both the provided reference \
+		geometry and the shape geometry.
+		Provide \`KEY\` in the \`:what\` path paraneter to return just the geometry hash, \
+		\`SHAPE\` to return the record geometries, \`DATA\` to return all properties, or \
+		\`MIN\` for minimum, \`AVG\` for average, \`MAX\` for maximum, \`STD\` for standard \
+		deviation and \`VAR\` for variance of quantitative properties.
 	`)
 
 /**
  * Return all WorldClim data points fully contained by the provided reference geometry.
  *
- * This service will return all the occurrence records which are fully contained
+ * This service will return all the occurrence records whose centroids are fully contained
  * by the provided reference geometry, the latter may be a Polygon or MultiPolugon.
  *
  * Parameters:
@@ -369,49 +301,15 @@ router.post('contain/:what/:start/:limit', function (req, res)
 	///
 	// Build query.
 	//
-	let query
-	switch(what) {
-		case 'KEY':
-			query = aql`
-				LET target = ${reference}
-				FOR doc IN ${collection_map}
-					FILTER GEO_CONTAINS(${reference}, doc.geometry)
-					LIMIT ${start}, ${limit}
-				RETURN doc._key
-			`
-			break
-
-		case 'SHAPE':
-			query = aql`
-				LET target = ${reference}
-				FOR doc IN ${collection_map}
-					FILTER GEO_CONTAINS(${reference}, doc.geometry)
-					LIMIT ${start}, ${limit}
-				RETURN {
-					geometry_hash: doc._key,
-					geometry_point: doc.geometry,
-					geometry_bounds: doc.geometry_bounds
-				}
-			`
-			break
-
-		case 'DATA':
-			query = aql`
-				LET target = ${reference}
-				FOR doc IN ${collection_map}
-					FOR dat IN ${collection_data}
-						FILTER dat._key == doc._key
-					FILTER GEO_CONTAINS(${reference}, doc.geometry)
-					LIMIT ${start}, ${limit}
-				RETURN {
-					geometry_hash: doc._key,
-					geometry_point: doc.geometry,
-					geometry_bounds: doc.geometry_bounds,
-					properties: dat.properties
-				}
-				`
-			break
-	}
+	let query =
+		WorldClimContainsAQL(
+			collection_data,
+			collection_map,
+			reference,
+			what,
+			start,
+			limit
+		)
 
 	///
 	// Perform service.
@@ -442,9 +340,8 @@ router.post('contain/:what/:start/:limit', function (req, res)
 	///
 	// Body parameters schema.
 	///
-	.body(ModelShape, "`geometry` represents the *reference shape* for the operation: " +
-		"provide  a *GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, " +
-		"*MultiLineString*, *Polygon* or *MultiPolygon*."
+	.body(ModelShapeContains, "`geometry` represents the *reference shape* for the operation: " +
+		"provide  a *GeoJSON object* representing a *Polygon* or *MultiPolygon*."
 	)
 
 	///
@@ -455,16 +352,18 @@ router.post('contain/:what/:start/:limit', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get all WorldClim data point locations fully contained by the provided reference geometry')
+	.summary('Get or stat all WorldClim data points contained by the provided reference geometry')
 
 	///
 	// Description.
 	///
 	.description(dd`
-		The service will return the *list* of *WorldClim data points* whose *distance* to the *provided reference geometry* is within the *provided range*.
-		The distance is calculated the *wgs84 centroids* of both the provided reference geometry and the shape geometry.
-		If you provide \`ALL\` in the \`what\` paraneter, the service will return the geometries of the WorldClim data location; if you provide \`HASH\`, it will only return the geometry *hash*, or data record primary key.
-	`)
+The service will return the *list* of *WorldClim data points* that are *contained* in the *provided reference geometry*, that should be either a GeoJSON Polygon or MultiPolygon.
+
+Provide **KEY** in the \`:what\` path paraneter to return just the geometry hash, **SHAPE** to return the record geometries, **DATA** to return all properties, or **MIN** for minimum, **AVG** for average, **MAX** for maximum, **STD** for standard deviation and **VAR** for variance of quantitative properties.
+
+*Containing* means that the *centroids* of the WorldClim data points must be *fully contained* by the provided *reference gepmetry*, this means that WorldClim areas intersecting less than 50% will not be considered.
+`)
 
 /**
  * Return all WorldClim data points that intersect with the provided reference geometry.
@@ -494,49 +393,15 @@ router.post('intersect/:what/:start/:limit', function (req, res)
 	///
 	// Build query.
 	//
-	let query
-	switch(what) {
-		case 'KEY':
-			query = aql`
-			    LET target = ${reference}
-				FOR doc IN ${collection_map}
-				    FILTER GEO_INTERSECTS(${reference}, doc.geometry)
-				    LIMIT ${start}, ${limit}
-				RETURN doc._key
-			`
-			break
-
-		case 'SHAPE':
-			query = aql`
-			    LET target = ${reference}
-				FOR doc IN ${collection_map}
-				    FILTER GEO_INTERSECTS(${reference}, doc.geometry)
-				    LIMIT ${start}, ${limit}
-				RETURN {
-					geometry_hash: doc._key,
-					geometry_point: doc.geometry,
-					geometry_bounds: doc.geometry_bounds
-				}
-			`
-			break
-
-		case 'DATA':
-			query = aql`
-			    LET target = ${reference}
-				FOR doc IN ${collection_map}
-					FOR dat IN ${collection_data}
-						FILTER dat._key == doc._key
-				    FILTER GEO_INTERSECTS(${reference}, doc.geometry)
-				    LIMIT ${start}, ${limit}
-				RETURN {
-					geometry_hash: doc._key,
-					geometry_point: doc.geometry,
-					geometry_bounds: doc.geometry_bounds,
-					properties: dat.properties
-				}
-				`
-			break
-	}
+	let query =
+		WorldClimIntersectsAQL(
+			collection_data,
+			collection_map,
+			reference,
+			what,
+			start,
+			limit
+		)
 
 	///
 	// Perform service.
@@ -580,12 +445,15 @@ router.post('intersect/:what/:start/:limit', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get all WorldClim data points that intersect the provided reference geometry')
+	.summary('Get or stat all WorldClim data points that intersect with the provided reference geometry')
 
 	///
 	// Description.
 	///
 	.description(dd`
-		The service will return the *list* of *WorldClim data points* intersecting with the provided reference geometry.
-		*Intersecting* is defined such that at least one point in the reference geometry is also in the shape geometry or vice-versa.
+		The service will return the *list* of WorldClim records that *intersect* with the *provided reference geometry*, that can be a GeoJSON *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
+
+Provide **KEY** in the \`:what\` path paraneter to return just the geometry hash, **SHAPE** to return the record geometries, **DATA** to return all properties, or **MIN** for minimum, **AVG** for average, **MAX** for maximum, **STD** for standard deviation and **VAR** for variance of quantitative properties.
+
+*Intersecting* means that elements will be selected if *any part* of the WorldClim data area *intersects* with *any part* of the provided *reference geometry*.
 	`)
