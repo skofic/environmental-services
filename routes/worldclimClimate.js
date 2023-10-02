@@ -68,95 +68,47 @@ router.tag('WorldClim')
 /**
  * Return the WorldClim data record that contains the provided point.
  *
- * This service will return the WorldClim record that contains the provided coordinate..
+ * This service will return the WorldClim record that contains the provided coordinate.
  *
  * Parameters:
  * - `:what`: The result type, `KEY` only geometry key, `SHAPE` key and geometry, `DATA` all.
  * - `:lat`: The latitude.
  * - `:lon`: The longitude.
  **/
-router.get('click/:what/:lat/:lon', function (req, res)
+router.get('click/:lat/:lon', function (req, res)
 {
 	///
 	// Path parameters.
 	///
-	const what = req.pathParams.what
 	const lat = req.pathParams.lat
 	const lon = req.pathParams.lon
 
 	///
 	// Build query.
 	//
-	let query
-	switch(what) {
-		case 'KEY':
-			query = aql`
-				LET radius = 0.004167
-				LET box = GEO_POLYGON([
-				    [ ${lon}-radius, ${lat}-radius ],
-				    [ ${lon}+radius, ${lat}-radius ],
-				    [ ${lon}+radius, ${lat}+radius ],
-				    [ ${lon}-radius, ${lat}+radius ],
-				    [ ${lon}-radius, ${lat}-radius ]
-				])
-				FOR doc IN ${collection_map}
-					FILTER GEO_CONTAINS(
-						box,
-						doc.geometry
-					)
-				RETURN doc._key
-			`
-			break
-
-		case 'SHAPE':
-			query = aql`
-				LET radius = 0.004167
-				LET box = GEO_POLYGON([
-				    [ ${lon}-radius, ${lat}-radius ],
-				    [ ${lon}+radius, ${lat}-radius ],
-				    [ ${lon}+radius, ${lat}+radius ],
-				    [ ${lon}-radius, ${lat}+radius ],
-				    [ ${lon}-radius, ${lat}-radius ]
-				])
-				FOR doc IN ${collection_map}
-					FILTER GEO_CONTAINS(
-						box,
-						doc.geometry
-					)
-				RETURN {
-					geometry_hash: doc._key,
-					geometry_point: doc.geometry,
-					geometry_bounds: doc.geometry_bounds
-				}
-			`
-			break
-
-		case 'DATA':
-			query = aql`
-				LET radius = 0.004167
-				LET box = GEO_POLYGON([
-				    [ ${lon}-radius, ${lat}-radius ],
-				    [ ${lon}+radius, ${lat}-radius ],
-				    [ ${lon}+radius, ${lat}+radius ],
-				    [ ${lon}-radius, ${lat}+radius ],
-				    [ ${lon}-radius, ${lat}-radius ]
-				])
-				FOR doc IN ${collection_map}
-					FOR dat IN ${collection_data}
-						FILTER dat._key == doc._key
-						FILTER GEO_CONTAINS(
-							box,
-							doc.geometry
-						)
-				RETURN {
-					geometry_hash: doc._key,
-					geometry_point: doc.geometry,
-					geometry_bounds: doc.geometry_bounds,
-					properties: dat.properties
-				}
-			`
-			break
-	}
+	let query = aql`
+		LET radius = 0.004166665
+		LET box = GEO_POLYGON([
+		    [ ${lon}-radius, ${lat}-radius ],
+		    [ ${lon}+radius, ${lat}-radius ],
+		    [ ${lon}+radius, ${lat}+radius ],
+		    [ ${lon}-radius, ${lat}+radius ],
+		    [ ${lon}-radius, ${lat}-radius ]
+		])
+		FOR doc IN ${collection_map}
+			FOR dat IN ${collection_data}
+				FILTER dat._key == doc._key
+				FILTER GEO_CONTAINS(
+					box,
+					doc.geometry
+				)
+		RETURN {
+			geometry_hash: doc._key,
+			geometry_point: doc.geometry,
+			geometry_bounds: doc.geometry_bounds,
+			properties: dat.properties
+		}
+	`
 
 	///
 	// Perform service.
@@ -180,14 +132,13 @@ router.get('click/:what/:lat/:lon', function (req, res)
 	///
 	// Path parameter schemas.
 	///
-	.pathParam('what', whatSchema)
 	.pathParam('lat', latSchema)
 	.pathParam('lon', lonSchema)
 
 	///
 	// Response schema.
 	///
-	.response([ModelRecord], ModelRecordDescription)
+	.response([ModelRecord], "The service will return the WorldClim data record that contains the provided coordinate.")
 
 	///
 	// Summary.
@@ -199,8 +150,6 @@ router.get('click/:what/:lat/:lon', function (req, res)
 	///
 	.description(dd`
 		The service will return the WorldClim data record that contains the provided coordinate.
-		Provide \`KEY\` in the \`:what\` path paraneter to return just the geometry hash, \
-		\`SHAPE\` to return the record geomnetries, or \`DATA\` to return all properties.
 	`)
 
 /**
