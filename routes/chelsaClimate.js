@@ -257,7 +257,7 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get all Chelsa data point locations within the provided distance range')
+	.summary('Get or stat all Chelsa data points within the provided distance range')
 
 	///
 	// Description.
@@ -352,7 +352,7 @@ router.post('contain/:what/:start/:limit', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get all Chelsa data points contained by the provided reference geometry')
+	.summary('Get or stat all Chelsa data points contained by the provided reference geometry')
 
 	///
 	// Description.
@@ -445,7 +445,7 @@ router.post('intersect/:what/:start/:limit', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get all Chelsa data points that intersect with the provided reference geometry')
+	.summary('Get or stat all Chelsa data points that intersect with the provided reference geometry')
 
 	///
 	// Description.
