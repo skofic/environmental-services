@@ -10748,7 +10748,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 							env_climate_vpd_mean: period1_vpd_mean,
 							env_climate_vpd_min: period1_vpd_min,
 							env_climate_vpd_range: period1_vpd_range,
-							monthly: [
+							std_date_span_month: [
 								{
 									std_month: 1,
 									env_climate_pr: 	period1_01_pr,
@@ -10868,7 +10868,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 									env_climate_ngd5: period2_ngd5,
 									env_climate_npp: period2_npp,
 									env_climate_scd: period2_scd,
-									monthly: [
+									std_date_span_month: [
 										{
 											std_month: 1,
 											env_climate_pr: 	period2_01_pr,
@@ -10990,7 +10990,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 									env_climate_ngd5: period3_ngd5,
 									env_climate_npp: period3_npp,
 									env_climate_scd: period3_scd,
-									monthly: [
+									std_date_span_month: [
 										{
 											std_month: 1,
 											env_climate_pr: 	period3_01_pr,
@@ -11112,7 +11112,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 									env_climate_ngd5: period4_ngd5,
 									env_climate_npp: period4_npp,
 									env_climate_scd: period4_scd,
-									monthly: [
+									std_date_span_month: [
 										{
 											std_month: 1,
 											env_climate_pr: 	period4_01_pr,
@@ -11587,7 +11587,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 							env_climate_vpd_mean: period1_vpd_mean,
 							env_climate_vpd_min: period1_vpd_min,
 							env_climate_vpd_range: period1_vpd_range,
-							monthly: [
+							std_date_span_month: [
 								{
 									std_month: 1,
 									env_climate_pr: 	period1_01_pr,
@@ -11707,7 +11707,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 									env_climate_ngd5: period2_ngd5,
 									env_climate_npp: period2_npp,
 									env_climate_scd: period2_scd,
-									monthly: [
+									std_date_span_month: [
 										{
 											std_month: 1,
 											env_climate_pr: 	period2_01_pr,
@@ -11829,7 +11829,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 									env_climate_ngd5: period3_ngd5,
 									env_climate_npp: period3_npp,
 									env_climate_scd: period3_scd,
-									monthly: [
+									std_date_span_month: [
 										{
 											std_month: 1,
 											env_climate_pr: 	period3_01_pr,
@@ -11951,7 +11951,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 									env_climate_ngd5: period4_ngd5,
 									env_climate_npp: period4_npp,
 									env_climate_scd: period4_scd,
-									monthly: [
+									std_date_span_month: [
 										{
 											std_month: 1,
 											env_climate_pr: 	period4_01_pr,
@@ -12426,7 +12426,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 							env_climate_vpd_mean: period1_vpd_mean,
 							env_climate_vpd_min: period1_vpd_min,
 							env_climate_vpd_range: period1_vpd_range,
-							monthly: [
+							std_date_span_month: [
 								{
 									std_month: 1,
 									env_climate_pr: 	period1_01_pr,
@@ -12546,7 +12546,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 									env_climate_ngd5: period2_ngd5,
 									env_climate_npp: period2_npp,
 									env_climate_scd: period2_scd,
-									monthly: [
+									std_date_span_month: [
 										{
 											std_month: 1,
 											env_climate_pr: 	period2_01_pr,
@@ -12668,7 +12668,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 									env_climate_ngd5: period3_ngd5,
 									env_climate_npp: period3_npp,
 									env_climate_scd: period3_scd,
-									monthly: [
+									std_date_span_month: [
 										{
 											std_month: 1,
 											env_climate_pr: 	period3_01_pr,
@@ -12790,7 +12790,7 @@ function ChelsaIntersectsAQL(theCollection, theCollectionMap, theGeometry, theWh
 									env_climate_ngd5: period4_ngd5,
 									env_climate_npp: period4_npp,
 									env_climate_scd: period4_scd,
-									monthly: [
+									std_date_span_month: [
 										{
 											std_month: 1,
 											env_climate_pr: 	period4_01_pr,
