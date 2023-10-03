@@ -63,11 +63,11 @@ This set of services can be used to assess what date ranges, time spans and vari
 
 ### Chelsa
 
-This set of services can be used to retrieve [Chelsa](https://chelsa-climate.org) [2.1 data](https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf) for the provided latitude and longitude or reference shape. Currently the database is [populated](https://github.com/skofic/ClimateService) with historical data of the 1981 to 2010 period. For future data we have used the MPI- ESM1-2- HR model from Max Planck Institute for Meteorology using the SSP3-RCP7 climate scenario as simulated by the GCMs. Future data covers the 2011-2040, 2041-2070 and 2071-2100 forecasted periods.
+This set of services can be used to retrieve [Chelsa](https://chelsa-climate.org) [2.1 data](https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf). Currently the database is [populated](https://github.com/skofic/ClimateService) with historical data of the 1981 to 2010 period. For future data we have used the MPI- ESM1-2- HR model from Max Planck Institute for Meteorology using the SSP3-RCP7 climate scenario as simulated by the GCMs. Future data covers the 2011-2040, 2041-2070 and 2071-2100 forecasted periods. It is possible to retrieve the record corresponding to a provided coordinate, retrieve records or aggregated statistics on data points based on distance and retrieve records or aggregated statistics for records contained or intersecting with the provided reference geometry.
 
 ### Worldclim
 
-This set of services provides the same access to [Worldclim](https://worldclim.org) climate data as the Chelsa services do. Historical climate data covers the 1970-2000 period, future scenarios use the same models as for the Chelsa data and cover the 2021-2040, 2041-2060, 2061-2080 and 2081-2100 periods.
+This set of services provides the same access to [Worldclim](https://worldclim.org) climate data as the *Chelsa* services do. Historical climate data covers the 1970-2000 period, future scenarios use the same models as for the Chelsa data and cover the 2021-2040, 2041-2060, 2061-2080 and 2081-2100 periods.
 
 ## Progress
 
