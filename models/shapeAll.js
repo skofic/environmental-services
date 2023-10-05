@@ -9,15 +9,18 @@ module.exports = {
 			joi.object({
 				type: joi.string()
 					.valid(
-						"Polygon", "MultiPolygon"
+						"Point", "MultiPoint",
+						"Polygon", "MultiPolygon",
+						"LineString", "MultiLineString"
 					).required(),
 				coordinates: joi.array()
 					.items(
 						joi.number(),
-						joi.array()
-					)
+						joi.array())
 					.required()
-			}).required()
+			}).required(),
+		start: joi.number().default(0),
+		limit: joi.number().default(10)
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here

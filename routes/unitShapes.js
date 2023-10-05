@@ -18,7 +18,7 @@ const createRouter = require('@arangodb/foxx/router')
 // Collections and models.
 ///
 const collection = db._collection('Shapes')
-const ModelShape = require("../models/shapeTarget");
+const ModelShape = require("../models/shapeAll");
 const ModelRecord = require('../models/shapeData')
 const ModelContainer = require('../models/containerTarget')
 const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()

@@ -23,36 +23,148 @@ const collection_data = db._collection('Chelsa')
 ///
 // Models.
 ///
-const ModelShape = require("../models/shapeTarget");
-const ModelShapeContains = require("../models/shapeContains");
+const ModelShape = require("../models/shapeAll");
+const ModelShapeContains = require("../models/shapePoly");
+const ModelClick = require('../models/click')
 const ModelRecord = require('../models/climate')
-const minDistanceSchema = joi.number().required()
-	.description('Minimum distance inclusive in meters.')
-const maxDistanceSchema = joi.number().required()
-	.description('Maximum distance inclusive in meters.')
-const sortSchema = joi.string().valid('NO', 'ASC', 'DESC').required()
-	.description("Sort order: \`NO\` to ignore sorting, \`ASC\` for ascending, \`DESC\` for descending.")
+
 const whatSchema = joi.string().valid('KEY', 'SHAPE', 'DATA', 'MIN', 'AVG', 'MAX', 'STD', 'VAR').required()
-	.description("Result type: \`KEY\` return geometry hash, \`SHAPE\` return geometry, \`DATA\` return properties, \`MIN\` return minimum, \`AVG\` return average, \`MAX\` return maximum, \`STD\` return standard deviation, \`VAR\` return variance")
+	.description(`
+Return a *selection* of records:
+
+- \`KEY\`: Return the record *primary keys*.
+- \`SHAPE\`: Return the record *primary keys* and *geometries*.
+- \`DATA\`: Return the record *primary keys*, *geometries* and *data properties*.
+
+Return selection's quantitative data *aggregation*:
+
+- \`MIN\`: *Minimum*.
+- \`AVG\`: *Mean*.
+- \`MAX\`: *Maximum*.
+- \`STD\`: *Standard deviation*.
+- \`VAR\`: *Variance*.
+`)
+const minDistanceSchema = joi.number().required()
+	.description('*Minimum* distance *inclusive* in *meters*.')
+const maxDistanceSchema = joi.number().required()
+	.description('*Maximum* distance *inclusive* in *meters*.')
+const sortSchema = joi.string().valid('NO', 'ASC', 'DESC').required()
+	.description(`
+Results selection *sort* order:
+
+- \`NO\`: *No sorting*
+- \`ASC\`: Sort in *ascending* order.
+- \`DESC\`: Sort in *descending* order.
+
+This parameter is only relevant for *selection of records* result, you can ignore it when *aggregating*.
+	`)
 const latSchema = joi.number().min(-90).max(90).required()
 	.description('Coordinate decimal latitude.')
 const lonSchema = joi.number().min(-180).max(180).required()
 	.description('Coordinate decimal longitude.')
-const startLimitSchema = joi.number().required()
-	.description('Start index for results list, 0 is first.')
-const itemsLimitSchema = joi.number().required()
-	.description('Number of records to return, if found.')
-const ModelRecordDescription = `
-Chelsa location record.
 
-Depending on the value of the \`what\` parameter:
+///
+// Descriptions.
+///
+const DescriptionModelClick = `
+The service returns the following data record:
 
-- \`KEY\`: The service will only return the \`geometry_hash\` which is the hash of the point geometry and key of the record.
-- \`SHAPE\`: The service will return, in addition of the above, \`geometry_point\` representing the data point and \
- \`geometry_bounds\` representing the data bounding box. If the query involves a distance, the \`distance\` property \
- will also be returned.
-- \`DATA\`: The service will return, in addition of the above, all properties of the data point.
+- \`geometry_hash\`: The record primary key.
+- \`geometry_point\`: The GeoJSON point corresponding to the center of the data bounding box.
+- \`geometry_bounds\`: The data bounding box as a GeoJSON polygon.
+- \`properties\`: The data properties.
 `
+const DescriptionModelContains = `
+The service body record contains the following properties:
+
+- \`geometry\`: The *GeoJSON geometry* compared with the Chelsa records. It may be a *Polygon* or *MultiPolygon*. This parameter is required.
+- \`start\`: The zero-based *start index* of the returned *selection*. This parameter is ignored for aggregated results.
+- \`limit\`: The *number of records* to return. This parameter is ignored for aggregated results.
+`
+const DescriptionModelIntersects = `
+The service body record contains the following properties:
+
+- \`geometry\`: The *GeoJSON geometry* compared with the Chelsa records. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*. This parameter is required.
+- \`start\`: The zero-based *start index* of the returned *selection*. This parameter is ignored for aggregated results.
+- \`limit\`: The *number of records* to return. This parameter is ignored for aggregated results.
+`
+const DescriptionModelRecord = `
+Chelsa records.
+
+The service will return *one* or *more* records structured as follows:
+
+- \`count\`: The *number of records* in the current *selection*, only provided for *aggregated data requests*.
+- \`geometry_hash\`: The record *primary key*, which corresponds to the *MD5 hash* of the *GeoJSON point geometry*, \`geometry_point\`.
+- \`distance\`: The distance, in *meters*, between the *provided reference geometry* and the *selected Chelsa records*. This property is only provided by services that *select records* based on a *distance range*.
+- \`geometry_point\`: The *GeoJSON point geometry* corresponding to the *centroid* of the *data bounding box*.
+- \`geometry_bounds\`: The *GeoJSON polygon geometry* corresponding the *data bounding box*.
+- \`properties\`: The Chelsa *data properties*.
+
+The \`what\` path parameter defines what *type of result* the service should return. This can be a *selection of records*, or a *single record* containing the selection values aggregate.
+
+*Selection of records*:
+
+- \`KEY\`: The service will return the selection's \`geometry_hash\` values.
+- \`SHAPE\`: The service will return the selection's \`geometry_hash\`, \`geometry_point\` and \`geometry_bounds\`.
+- \`DATA\`: The service will return the selection's \`geometry_hash\`, \`geometry_point\`, \`geometry_bounds\`, and \`properties\`.
+
+*Aggregated data requests* return a *single record* containing the selection's element \`count\`, and \`properties\` that contains the *aggregation* of the selection's *quantitative values*:
+
+- \`MIN\`: The *minimum*.
+- \`AVG\`: The *average*.
+- \`MAX\`: The *maximum*.
+- \`STD\`: The *standard deviation*.
+- \`VAR\`: The *variance*.
+`
+const DescriptionDistance = `
+The service will select all Chelsa records that lie in the *provided distance range* from the *provided reference geometry*. The distance is calculated from the *wgs84 centroids* of both the provided *reference geometry* and the *shape geometry*.
+
+The service expects the following *path parameters*:
+
+- \`what\`: This parameter determines the *type* of *service result*: \`KEY\`, \`SHAPE\` and \`DATA\` for a selection of records, and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` and \`VAR\` for the selection's quantitative data aggregation.
+- \`min\`: This parameter represents the range's *minimum distance*. The value is inclusive.
+- \`max\`: This parameter represents the range's *maximum distance*. The value is inclusive.
+- \`sort\`: This parameter determines whether results should be *sorted* and in what *order*.
+
+And the following body parameters:
+
+- \`geometry\`: This parameter represents the *reference geometry* whose *centroid* will be used to select all Chelsa records within the provided distance range.
+- \`start\`: *Initial record index*, zero based, for returned selection of records.
+- \`limit\`: *Number of records* to return.
+`
+const DescriptionContains = `
+The service will select all Chelsa records whose *data bounds centroid* is *fully contained* by the *provided reference geometry*. Since the data bounds extend for a *radius* of *0.004166665* decimal degrees from the bounds *centroid*, this means that the service will *not* select *all* records that intersect with the provided reference geometry.
+
+The service expects the following *path parameters*:
+
+- \`what\`: This parameter determines the *type* of *service result*: \`KEY\`, \`SHAPE\` and \`DATA\` for a selection of records, and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` and \`VAR\` for the selection's quantitative data aggregation.
+- \`min\`: This parameter represents the range's *minimum distance*. The value is inclusive.
+- \`max\`: This parameter represents the range's *maximum distance*. The value is inclusive.
+- \`sort\`: This parameter determines whether results should be *sorted* and in what *order*.
+
+And the following body parameters:
+
+- \`geometry\`: This parameter represents the *reference geometry* whose *centroid* will be used to select all Chelsa records within the provided distance range.
+- \`start\`: *Initial record index*, zero based, for returned selection of records.
+- \`limit\`: *Number of records* to return.
+`
+const DescriptionIntersects = `
+The service will select all Chelsa records whose *data bounds* is intersect the *provided reference geometry*. Since the data bounds extend for a *radius* of *0.004166665* decimal degrees from the bounds *centroid*, this means that the service will select *all* records whose data bounds intersect with the provided reference geometry.
+
+The service expects the following *path parameters*:
+
+- \`what\`: This parameter determines the *type* of *service result*: \`KEY\`, \`SHAPE\` and \`DATA\` for a selection of records, and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` and \`VAR\` for the selection's quantitative data aggregation.
+- \`min\`: This parameter represents the range's *minimum distance*. The value is inclusive.
+- \`max\`: This parameter represents the range's *maximum distance*. The value is inclusive.
+- \`sort\`: This parameter determines whether results should be *sorted* and in what *order*.
+
+And the following body parameters:
+
+- \`geometry\`: This parameter represents the *reference geometry* whose *centroid* will be used to select all Chelsa records within the provided distance range.
+- \`start\`: *Initial record index*, zero based, for returned selection of records.
+- \`limit\`: *Number of records* to return.
+`
+
 
 ///
 // Utils.
@@ -96,6 +208,20 @@ router.get('click/:lat/:lon', function (req, res)
 	// Build query.
 	//
 	let query = aql`
+		FOR dat IN ${collection_data}
+			FILTER GEO_INTERSECTS(
+				GEO_POINT(${lon}, ${lat}),
+				dat.geometry_bounds
+			)
+		RETURN {
+			geometry_hash: dat._key,
+			geometry_point: dat.geometry_point,
+			geometry_bounds: dat.geometry_bounds,
+			properties: dat.properties
+		}
+	`
+
+	/*
 		LET radius = 0.004166665
 		LET box = GEO_POLYGON([
 		    [ ${lon}-radius, ${lat}-radius ],
@@ -117,7 +243,7 @@ router.get('click/:lat/:lon', function (req, res)
 			geometry_bounds: doc.geometry_bounds,
 			properties: dat.properties
 		}
-	`
+	 */
 
 	///
 	// Perform service.
@@ -147,12 +273,12 @@ router.get('click/:lat/:lon', function (req, res)
 	///
 	// Response schema.
 	///
-	.response([ModelRecord], "The service will return the WorldClim data record that contains the provided coordinate.")
+	.response([ModelClick], DescriptionModelClick)
 
 	///
 	// Summary.
 	///
-	.summary('Get Chelsa record containing the provided coordinate')
+	.summary('Return record that contains the provided point')
 
 	///
 	// Description.
@@ -179,7 +305,7 @@ router.get('click/:lat/:lon', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  **/
-router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
+router.post('dist/:what/:min/:max/:sort', function (req, res)
 {
 	///
 	// Path parameters.
@@ -188,13 +314,13 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 	const min = req.pathParams.min
 	const max = req.pathParams.max
 	const sort = req.pathParams.sort
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
 
 	///
 	// Body parameters.
 	///
 	const reference = req.body.geometry
+	const start = req.body.start
+	const limit = req.body.limit
 
 	///
 	// Build query.
@@ -238,40 +364,26 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
 	.pathParam('min', minDistanceSchema)
 	.pathParam('max', maxDistanceSchema)
 	.pathParam('sort', sortSchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
 
 	///
 	// Body parameters schema.
 	///
-	.body(ModelShape, "`geometry` represents the *reference shape* for the operation: " +
-		"provide  a *GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, " +
-		"*MultiLineString*, *Polygon* or *MultiPolygon*."
-	)
+	.body(ModelShape, DescriptionModelIntersects)
 
 	///
 	// Response schema.
 	///
-	.response([ModelRecord], ModelRecordDescription)
+	.response([ModelRecord], DescriptionModelRecord)
 
 	///
 	// Summary.
 	///
-	.summary('Get or stat all Chelsa data points within the provided distance range')
+	.summary('Return selection or aggregation of records within a distance range')
 
 	///
 	// Description.
 	///
-	.description(dd`
-		The service will return the *list* of *Chelsa data points* whose *distance* to the \
-		*provided reference geometry* is within the *provided range*.
-		The distance is calculated from the *wgs84 centroids* of both the provided reference \
-		geometry and the shape geometry.
-		Provide \`KEY\` in the \`:what\` path paraneter to return just the geometry hash, \
-		\`SHAPE\` to return the record geometries, \`DATA\` to return all properties, or \
-		\`MIN\` for minimum, \`AVG\` for average, \`MAX\` for maximum, \`STD\` for standard \
-		deviation and \`VAR\` for variance of quantitative properties.
-	`)
+	.description(DescriptionDistance)
 
 /**
  * Return all Chelsa data points fully contained by the provided reference geometry.
@@ -284,19 +396,19 @@ router.post('dist/:what/:min/:max/:sort/:start/:limit', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  **/
-router.post('contain/:what/:start/:limit', function (req, res)
+router.post('contain/:what', function (req, res)
 {
 	///
 	// Path parameters.
 	///
 	const what = req.pathParams.what
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
 
 	///
 	// Body parameters.
 	///
 	const reference = req.body.geometry
+	const start = req.body.start
+	const limit = req.body.limit
 
 	///
 	// Build query.
@@ -334,36 +446,26 @@ router.post('contain/:what/:start/:limit', function (req, res)
 	// Path parameter schemas.
 	///
 	.pathParam('what', whatSchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
 
 	///
 	// Body parameters schema.
 	///
-	.body(ModelShapeContains, "`geometry` represents the *reference shape* for the operation: " +
-		"provide  a *GeoJSON object* representing a *Polygon* or *MultiPolygon*."
-	)
+	.body(ModelShapeContains, DescriptionModelContains)
 
 	///
 	// Response schema.
 	///
-	.response([ModelRecord], ModelRecordDescription)
+	.response([ModelRecord], DescriptionModelRecord)
 
 	///
 	// Summary.
 	///
-	.summary('Get or stat all Chelsa data points contained by the provided reference geometry')
+	.summary('Return selection or aggregation of records contained by the provided reference geometry')
 
 	///
 	// Description.
 	///
-	.description(dd`
-The service will return the *list* of *Chelsa data points* that are *contained* in the *provided reference geometry*, that should be either a GeoJSON Polygon or MultiPolygon.
-
-Provide **KEY** in the \`:what\` path paraneter to return just the geometry hash, **SHAPE** to return the record geometries, **DATA** to return all properties, or **MIN** for minimum, **AVG** for average, **MAX** for maximum, **STD** for standard deviation and **VAR** for variance of quantitative properties.
-
-*Containing* means that the *centroids* of the Chelsa data points must be *fully contained* by the provided *reference gepmetry*, this means that Chelsa areas intersecting less than 50% will not be considered.
-`)
+	.description(DescriptionContains)
 
 /**
  * Return all Chelsa data points that intersect with the provided reference geometry.
@@ -376,19 +478,19 @@ Provide **KEY** in the \`:what\` path paraneter to return just the geometry hash
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  **/
-router.post('intersect/:what/:start/:limit', function (req, res)
+router.post('intersect/:what', function (req, res)
 {
 	///
 	// Path parameters.
 	///
 	const what = req.pathParams.what
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
 
 	///
 	// Body parameters.
 	///
 	const reference = req.body.geometry
+	const start = req.body.start
+	const limit = req.body.limit
 
 	///
 	// Build query.
@@ -426,34 +528,23 @@ router.post('intersect/:what/:start/:limit', function (req, res)
 	// Path parameter schemas.
 	///
 	.pathParam('what', whatSchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
 
 	///
 	// Body parameters schema.
 	///
-	.body(ModelShape, "`geometry` represents the *reference shape* for the operation: " +
-		"provide  a *GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, " +
-		"*MultiLineString*, *Polygon* or *MultiPolygon*."
-	)
+	.body(ModelShape, DescriptionModelIntersects)
 
 	///
 	// Response schema.
 	///
-	.response([ModelRecord], ModelRecordDescription)
+	.response([ModelRecord], DescriptionModelRecord)
 
 	///
 	// Summary.
 	///
-	.summary('Get or stat all Chelsa data points that intersect with the provided reference geometry')
+	.summary('Return selection or aggregation of records that intersect the provided reference geometry')
 
 	///
 	// Description.
 	///
-	.description(dd`
-		The service will return the *list* of Chelsa records that *intersect* with the *provided reference geometry*, that can be a GeoJSON *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
-
-Provide **KEY** in the \`:what\` path paraneter to return just the geometry hash, **SHAPE** to return the record geometries, **DATA** to return all properties, or **MIN** for minimum, **AVG** for average, **MAX** for maximum, **STD** for standard deviation and **VAR** for variance of quantitative properties.
-
-*Intersecting* means that elements will be selected if *any part* of the Chelsa data area *intersects* with *any part* of the provided *reference geometry*.
-	`)
+	.description(DescriptionIntersects)
