@@ -134,7 +134,7 @@ router.get(':hash', function (req, res)
 	`);
 
 /**
- * Return the shape record that contains the provided point.
+ * Return the shape record that intersects the provided point.
  *
  * This service will return the shape record that contains the provided coordinate..
  *
@@ -200,13 +200,13 @@ router.get('click/:lat/:lon', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get shape record containing the provided coordinate')
+	.summary('Get shape record intersecting the provided coordinate')
 
 	///
 	// Description.
 	///
 	.description(dd`
-		The service will return the shape record that contains the provided coordinate.
+		The service will return the shape record that intersects the provided coordinate.
 	`)
 
 /**

@@ -156,7 +156,7 @@ router.get(':lat/:lon', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get shape hash related to the provided coordinates')
+	.summary('Get provided point shape hash')
 
 	///
 	// Description.
@@ -233,7 +233,7 @@ router.post('poly', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get shape hash related to the provided polygon')
+	.summary('Get provided polygon shape hash')
 
 	///
 	// Description.
@@ -313,7 +313,7 @@ router.post('multipoly', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get shape hash related to the provided multi-polygon')
+	.summary('Get provided multi-polygon shape hash')
 
 	///
 	// Description.
