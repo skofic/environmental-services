@@ -92,7 +92,7 @@ module.exports = router
 ///
 // Tag router.
 ///
-router.tag('Shape hash')
+router.tag('Create shape hashes')
 
 
 /**
