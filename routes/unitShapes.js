@@ -112,9 +112,9 @@ router.get(':hash', function (req, res)
         `).toArray()
 	}
 
-		///
-		// Handle errors.
-		///
+	///
+	// Handle errors.
+	///
 	catch (error) {
 		throw error;
 	}
@@ -301,7 +301,7 @@ router.get('topo/alt/:min/:max/:sort/:start/:limit', function (req, res)
 	const sort = req.pathParams.sort
 	const start = req.pathParams.start
 	const limit = req.pathParams.limit
-	const descriptor = "geo_shape_elevation"
+	const descriptor = "chr_AvElevation"
 
 	///
 	// Perform service.
@@ -371,7 +371,7 @@ router.get('topo/altsd/:min/:max/:sort/:start/:limit', function (req, res)
 	const sort = req.pathParams.sort
 	const start = req.pathParams.start
 	const limit = req.pathParams.limit
-	const descriptor = "geo_shape_elevation_sd"
+	const descriptor = "chr_StdElevation"
 
 	///
 	// Perform service.
@@ -440,7 +440,7 @@ router.get('topo/slope/:min/:max/:sort/:start/:limit', function (req, res)
 	const sort = req.pathParams.sort
 	const start = req.pathParams.start
 	const limit = req.pathParams.limit
-	const descriptor = "geo_shape_slope"
+	const descriptor = "chr_AvSlope"
 
 	///
 	// Perform service.
@@ -509,7 +509,7 @@ router.get('topo/aspect/:min/:max/:sort/:start/:limit', function (req, res)
 	const sort = req.pathParams.sort
 	const start = req.pathParams.start
 	const limit = req.pathParams.limit
-	const descriptor = "geo_shape_aspect"
+	const descriptor = "chr_AvAspect"
 
 	///
 	// Perform service.
