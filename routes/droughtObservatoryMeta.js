@@ -208,7 +208,7 @@ router.get(':lat/:lon/:startDate/:endDate', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
         `).toArray()
 	}
@@ -309,7 +309,7 @@ router.post(':lat/:lon/:which', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
 		`
 	} else {
@@ -326,14 +326,14 @@ router.post(':lat/:lon/:which', function (req, res)
 			               
 			        COLLECT AGGREGATE start = MIN(data.std_date),
 			                          end   = MAX(data.std_date),
-			                          terms = UNIQUE(data.std_terms),
+			                          terms = FLATTEN(data.std_terms),
 			                          count = COUNT()
 			
 			    RETURN {
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
 		`
 	}
@@ -455,7 +455,7 @@ router.post(':lat/:lon/:startDate/:endDate/:which', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
 		`
 	} else {
@@ -481,7 +481,7 @@ router.post(':lat/:lon/:startDate/:endDate/:which', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
 		`
 	}
@@ -598,7 +598,7 @@ router.get('area/:lat/:lon', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
         `).toArray()
 	}
@@ -696,7 +696,7 @@ router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
         `).toArray()
 	}
@@ -799,7 +799,7 @@ router.post('area/:lat/:lon/:which', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
 		`
 	} else {
@@ -830,7 +830,7 @@ router.post('area/:lat/:lon/:which', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
 		`
 	}
@@ -953,7 +953,7 @@ router.post('area/:lat/:lon/:startDate/:endDate/:which', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
 		`
 	} else {
@@ -986,7 +986,7 @@ router.post('area/:lat/:lon/:startDate/:endDate/:which', function (req, res)
 			        count: count,
 			        std_date_start: start,
 			        std_date_end: end,
-			        std_terms: FLATTEN(terms)
+			        std_terms: UNIQUE(FLATTEN(terms))
 			    }
 		`
 	}
