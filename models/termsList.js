@@ -6,11 +6,10 @@ const joi = require('joi')
 module.exports = {
 	schema: {
 		// Describe the attributes with joi here
-		std_date_span: joi.string().valid('std_date_span_day', 'std_date_span_month', 'std_date_span_year'),
-		std_terms: joi.array().items(joi.string()),
-		std_date_start: joi.string().regex(/^[0-9]+$/),
-		std_date_end:  joi.string().regex(/^[0-9]+$/),
-		count: joi.number().integer()
+		std_terms: joi.array()
+			.items(
+				joi.string()
+			)
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here
