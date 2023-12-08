@@ -22,11 +22,8 @@ const createRouter = require('@arangodb/foxx/router')
 ///
 // Collections and models.
 ///
-const collection = db._collection('ShapeData')
-const ModelDates = require('../models/remoteSensingDates')
 const ModelSpans = require('../models/remoteSensingSpans')
 const ModelTerms = require('../models/termsList')
-const ModelDescriptors = require('../models/remoteSensingDescriptors')
 const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()
 	.description('Unit shape geometry hash.\nThe value is the `_key` of the `Shapes` collection record.')
 const startDateSchema = joi.string().regex(/^[0-9]+$/).required()
