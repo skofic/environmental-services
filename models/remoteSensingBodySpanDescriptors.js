@@ -9,7 +9,11 @@ module.exports = {
 		std_date_span: joi.array()
 			.items(
 				joi.string()
-					.valid('std_date_span_day', 'std_date_span_month', 'std_date_span_year')
+					.valid(
+						'std_date_span_day',
+						'std_date_span_month',
+						'std_date_span_year'
+					)
 			)
 			.required(),
 		std_terms: joi.array()
