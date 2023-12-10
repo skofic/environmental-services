@@ -88,31 +88,54 @@ router.get(':lat/:lon', function (req, res)
 	///
 	// Perform service.
 	///
-	let result;
+	let result
 	try {
 		result = db._query(aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(
+			            GEO_POINT(${lon}, ${lat}),
+			            shape.geometry_bounds
+			        ),
+			        "geojson"
 			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key
-			        
-			        COLLECT AGGREGATE start = MIN(data.std_date),
-			                          end   = MAX(data.std_date),
-			                          terms = UNIQUE(data.std_terms),
-			                          count = COUNT()
-			
-			    RETURN {
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+			    COLLECT AGGREGATE start = MIN(shape.std_date),
+			                      end   = MAX(shape.std_date),
+			                      terms = UNIQUE(shape.std_terms),
+			                      count = COUNT()
+			RETURN {
+			    count: count,
+			    std_date_start: start,
+			    std_date_end: end,
+			    std_terms: UNIQUE(FLATTEN(terms))
+			}
         `).toArray()
 	}
+
+	// try {
+	// 	result = db._query(aql`
+	// 		FOR shape IN ${collection_map}
+	// 		    FILTER GEO_INTERSECTS(
+	// 		        GEO_POINT(${lon}, ${lat}),
+	// 		        shape.geometry
+	// 		    )
+	//
+	// 		    FOR data IN ${collection_dat}
+	// 		        FILTER data.geometry_hash == shape._key
+	//
+	// 		        COLLECT AGGREGATE start = MIN(data.std_date),
+	// 		                          end   = MAX(data.std_date),
+	// 		                          terms = UNIQUE(data.std_terms),
+	// 		                          count = COUNT()
+	//
+	// 		    RETURN {
+	// 		        count: count,
+	// 		        std_date_start: start,
+	// 		        std_date_end: end,
+	// 		        std_terms: UNIQUE(FLATTEN(terms))
+	// 		    }
+    //     `).toArray()
+	// }
 
 		///
 		// Handle errors.
@@ -185,33 +208,59 @@ router.get(':lat/:lon/:startDate/:endDate', function (req, res)
 	///
 	// Perform service.
 	///
-	let result;
+	let result
+
 	try {
 		result = db._query(aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-				           data.std_date >= ${startDate} AND
-				           data.std_date <= ${endDate}
-				           
-			        COLLECT AGGREGATE start = MIN(data.std_date),
-			                          end   = MAX(data.std_date),
-			                          terms = UNIQUE(data.std_terms),
-			                          count = COUNT()
-			
-			    RETURN {
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH  ANALYZER(
+			                GEO_INTERSECTS(
+			                    GEO_POINT(${lon}, ${lat}), shape.geometry_bounds),
+			                    "geojson") AND
+			            shape.std_date >= ${startDate} AND
+			            shape.std_date <= ${endDate}
+			            
+			    COLLECT AGGREGATE start = MIN(shape.std_date),
+			                      end   = MAX(shape.std_date),
+			                      terms = UNIQUE(shape.std_terms),
+			                      count = COUNT()
+			RETURN {
+			    count: count,
+			    std_date_start: start,
+			    std_date_end: end,
+			    std_terms: UNIQUE(FLATTEN(terms))
+			}
         `).toArray()
 	}
+
+		/*
+			try {
+				result = db._query(aql`
+					FOR shape IN ${collection_map}
+						FILTER GEO_INTERSECTS(
+							GEO_POINT(${lon}, ${lat}),
+							shape.geometry
+						)
+
+						FOR data IN ${collection_dat}
+							FILTER data.geometry_hash == shape._key AND
+								   data.std_date >= ${startDate} AND
+								   data.std_date <= ${endDate}
+
+							COLLECT AGGREGATE start = MIN(data.std_date),
+											  end   = MAX(data.std_date),
+											  terms = UNIQUE(data.std_terms),
+											  count = COUNT()
+
+						RETURN {
+							count: count,
+							std_date_start: start,
+							std_date_end: end,
+							std_terms: UNIQUE(FLATTEN(terms))
+						}
+				`).toArray()
+			}
+		*/
 
 	///
 	// Handle errors.
@@ -290,52 +339,86 @@ router.post(':lat/:lon/:which', function (req, res)
 	let query;
 	if(which.toLowerCase() === 'all') {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-			               ${descriptors} ALL IN data.std_terms
-			               
-			        COLLECT AGGREGATE start = MIN(data.std_date),
-			                          end   = MAX(data.std_date),
-			                          terms = UNIQUE(data.std_terms),
-			                          count = COUNT()
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), shape.geometry_bounds), "geojson") AND
+			           ${descriptors} ALL IN shape.std_terms
 			
-			    RETURN {
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+			    COLLECT AGGREGATE start = MIN(shape.std_date),
+			                      end   = MAX(shape.std_date),
+			                      terms = UNIQUE(shape.std_terms),
+			                      count = COUNT()
+			                      
+			RETURN {
+			    count: count,
+			    std_date_start: start,
+			    std_date_end: end,
+			    std_terms: UNIQUE(FLATTEN(terms))
+			}
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 	               ${descriptors} ALL IN data.std_terms
+		//
+		// 	        COLLECT AGGREGATE start = MIN(data.std_date),
+		// 	                          end   = MAX(data.std_date),
+		// 	                          terms = UNIQUE(data.std_terms),
+		// 	                          count = COUNT()
+		//
+		// 	    RETURN {
+		// 	        count: count,
+		// 	        std_date_start: start,
+		// 	        std_date_end: end,
+		// 	        std_terms: UNIQUE(FLATTEN(terms))
+		// 	    }
+		// `
 	} else {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-			               ${descriptors} ANY IN data.std_terms
-			               
-			        COLLECT AGGREGATE start = MIN(data.std_date),
-			                          end   = MAX(data.std_date),
-			                          terms = FLATTEN(data.std_terms),
-			                          count = COUNT()
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), shape.geometry_bounds), "geojson") AND
+			           ${descriptors} ANY IN shape.std_terms
 			
-			    RETURN {
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+			    COLLECT AGGREGATE start = MIN(shape.std_date),
+			                      end   = MAX(shape.std_date),
+			                      terms = UNIQUE(shape.std_terms),
+			                      count = COUNT()
+			                      
+			RETURN {
+			    count: count,
+			    std_date_start: start,
+			    std_date_end: end,
+			    std_terms: UNIQUE(FLATTEN(terms))
+			}
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 	               ${descriptors} ANY IN data.std_terms
+		//
+		// 	        COLLECT AGGREGATE start = MIN(data.std_date),
+		// 	                          end   = MAX(data.std_date),
+		// 	                          terms = UNIQUE(data.std_terms),
+		// 	                          count = COUNT()
+		//
+		// 	    RETURN {
+		// 	        count: count,
+		// 	        std_date_start: start,
+		// 	        std_date_end: end,
+		// 	        std_terms: UNIQUE(FLATTEN(terms))
+		// 	    }
+		// `
 	}
 
 	///
@@ -434,56 +517,94 @@ router.post(':lat/:lon/:startDate/:endDate/:which', function (req, res)
 	let query;
 	if(which.toLowerCase() === 'all') {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-				           data.std_date >= ${startDate} AND
-				           data.std_date <= ${endDate} AND
-			               ${descriptors} ALL IN data.std_terms
-			               
-			        COLLECT AGGREGATE start = MIN(data.std_date),
-			                          end   = MAX(data.std_date),
-			                          terms = UNIQUE(data.std_terms),
-			                          count = COUNT()
-			
-			    RETURN {
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+				SEARCH ANALYZER(GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), shape.geometry_bounds), "geojson") AND
+					   ${descriptors} ALL IN shape.std_terms AND
+					   shape.std_date >= ${startDate} AND
+				       shape.std_date <= ${endDate}
+	
+		        COLLECT AGGREGATE start = MIN(shape.std_date),
+		                          end   = MAX(shape.std_date),
+		                          terms = UNIQUE(shape.std_terms),
+		                          count = COUNT()
+
+		    RETURN {
+		        count: count,
+		        std_date_start: start,
+		        std_date_end: end,
+		        std_terms: UNIQUE(FLATTEN(terms))
+		    }
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 		           data.std_date >= ${startDate} AND
+		// 		           data.std_date <= ${endDate} AND
+		// 	               ${descriptors} ALL IN data.std_terms
+		//
+		// 	        COLLECT AGGREGATE start = MIN(data.std_date),
+		// 	                          end   = MAX(data.std_date),
+		// 	                          terms = UNIQUE(data.std_terms),
+		// 	                          count = COUNT()
+		//
+		// 	    RETURN {
+		// 	        count: count,
+		// 	        std_date_start: start,
+		// 	        std_date_end: end,
+		// 	        std_terms: UNIQUE(FLATTEN(terms))
+		// 	    }
+		// `
 	} else {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-				           data.std_date >= ${startDate} AND
-				           data.std_date <= ${endDate} AND
-			               ${descriptors} ANY IN data.std_terms
-			               
-			        COLLECT AGGREGATE start = MIN(data.std_date),
-			                          end   = MAX(data.std_date),
-			                          terms = UNIQUE(data.std_terms),
-			                          count = COUNT()
-			
-			    RETURN {
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+				SEARCH ANALYZER(GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), shape.geometry_bounds), "geojson") AND
+					   ${descriptors} ANY IN shape.std_terms AND
+					   shape.std_date >= ${startDate} AND
+				       shape.std_date <= ${endDate}
+	
+		        COLLECT AGGREGATE start = MIN(shape.std_date),
+		                          end   = MAX(shape.std_date),
+		                          terms = UNIQUE(shape.std_terms),
+		                          count = COUNT()
+
+		    RETURN {
+		        count: count,
+		        std_date_start: start,
+		        std_date_end: end,
+		        std_terms: UNIQUE(FLATTEN(terms))
+		    }
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 		           data.std_date >= ${startDate} AND
+		// 		           data.std_date <= ${endDate} AND
+		// 	               ${descriptors} ANY IN data.std_terms
+		//
+		// 	        COLLECT AGGREGATE start = MIN(data.std_date),
+		// 	                          end   = MAX(data.std_date),
+		// 	                          terms = UNIQUE(data.std_terms),
+		// 	                          count = COUNT()
+		//
+		// 	    RETURN {
+		// 	        count: count,
+		// 	        std_date_start: start,
+		// 	        std_date_end: end,
+		// 	        std_terms: UNIQUE(FLATTEN(terms))
+		// 	    }
+		// `
 	}
 
 	///
@@ -573,24 +694,20 @@ router.get('area/:lat/:lon', function (req, res)
 	let result;
 	try {
 		result = db._query(aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key
-			        
-			        COLLECT geo = shape.geometry,
-			                point = shape.geometry_point,
-			                radius = shape.geometry_point_radius
-			        
-			        AGGREGATE start = MIN(data.std_date),
-			                  end   = MAX(data.std_date),
-			                  terms = UNIQUE(data.std_terms),
-			                  count = COUNT()
-			
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), shape.geometry_bounds),
+			        "geojson")
+
+		        COLLECT geo = shape.geometry_bounds,
+		                point = shape.geometry_point,
+		                radius = shape.geometry_point_radius
+
+		        AGGREGATE start = MIN(shape.std_date),
+		                  end   = MAX(shape.std_date),
+		                  terms = UNIQUE(shape.std_terms),
+		                  count = COUNT()
+
 			    RETURN {
 			        geometry: geo,
 					geometry_point: point,
@@ -602,6 +719,37 @@ router.get('area/:lat/:lon', function (req, res)
 			    }
         `).toArray()
 	}
+	// try {
+	// 	result = db._query(aql`
+	// 		FOR shape IN ${collection_map}
+	// 		    FILTER GEO_INTERSECTS(
+	// 		        GEO_POINT(${lon}, ${lat}),
+	// 		        shape.geometry
+	// 		    )
+	//
+	// 		    FOR data IN ${collection_dat}
+	// 		        FILTER data.geometry_hash == shape._key
+	//
+	// 		        COLLECT geo = shape.geometry,
+	// 		                point = shape.geometry_point,
+	// 		                radius = shape.geometry_point_radius
+	//
+	// 		        AGGREGATE start = MIN(data.std_date),
+	// 		                  end   = MAX(data.std_date),
+	// 		                  terms = UNIQUE(data.std_terms),
+	// 		                  count = COUNT()
+	//
+	// 		    RETURN {
+	// 		        geometry: geo,
+	// 				geometry_point: point,
+	// 				geometry_point_radius: radius,
+	// 		        count: count,
+	// 		        std_date_start: start,
+	// 		        std_date_end: end,
+	// 		        std_terms: UNIQUE(FLATTEN(terms))
+	// 		    }
+    //     `).toArray()
+	// }
 
 	///
 	// Handle errors.
@@ -669,37 +817,66 @@ router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
 	let result;
 	try {
 		result = db._query(aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-				           data.std_date >= ${startDate} AND
-				           data.std_date <= ${endDate}
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), shape.geometry_bounds),
+			        "geojson") AND
+					   shape.std_date >= ${startDate} AND
+				       shape.std_date <= ${endDate}
 			        
-			        COLLECT geo = shape.geometry,
-			                point = shape.geometry_point,
-			                radius = shape.geometry_point_radius
-			        
-			        AGGREGATE start = MIN(data.std_date),
-			                  end   = MAX(data.std_date),
-			                  terms = UNIQUE(data.std_terms),
-			                  count = COUNT()
-			
-			    RETURN {
-			        geometry: geo,
-					geometry_point: point,
-					geometry_point_radius: radius,
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+		        COLLECT geo = shape.geometry_bounds,
+		                point = shape.geometry_point,
+		                radius = shape.geometry_point_radius
+		        
+		        AGGREGATE start = MIN(shape.std_date),
+		                  end   = MAX(shape.std_date),
+		                  terms = UNIQUE(shape.std_terms),
+		                  count = COUNT()
+		
+		    RETURN {
+		        geometry: geo,
+				geometry_point: point,
+				geometry_point_radius: radius,
+		        count: count,
+		        std_date_start: start,
+		        std_date_end: end,
+		        std_terms: UNIQUE(FLATTEN(terms))
+		    }
         `).toArray()
 	}
+	// try {
+	// 	result = db._query(aql`
+	// 		FOR shape IN ${collection_map}
+	// 		    FILTER GEO_INTERSECTS(
+	// 		        GEO_POINT(${lon}, ${lat}),
+	// 		        shape.geometry
+	// 		    )
+	//
+	// 		    FOR data IN ${collection_dat}
+	// 		        FILTER data.geometry_hash == shape._key AND
+	// 			           data.std_date >= ${startDate} AND
+	// 			           data.std_date <= ${endDate}
+	//
+	// 		        COLLECT geo = shape.geometry,
+	// 		                point = shape.geometry_point,
+	// 		                radius = shape.geometry_point_radius
+	//
+	// 		        AGGREGATE start = MIN(data.std_date),
+	// 		                  end   = MAX(data.std_date),
+	// 		                  terms = UNIQUE(data.std_terms),
+	// 		                  count = COUNT()
+	//
+	// 		    RETURN {
+	// 		        geometry: geo,
+	// 				geometry_point: point,
+	// 				geometry_point_radius: radius,
+	// 		        count: count,
+	// 		        std_date_start: start,
+	// 		        std_date_end: end,
+	// 		        std_terms: UNIQUE(FLATTEN(terms))
+	// 		    }
+    //     `).toArray()
+	// }
 
 	///
 	// Handle errors.
@@ -773,66 +950,118 @@ router.post('area/:lat/:lon/:which', function (req, res)
 	let query;
 	if(which.toLowerCase() === 'all') {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-			               ${descriptors} ALL IN data.std_terms
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), shape.geometry_bounds),
+			        "geojson") AND
+					   ${descriptors} ALL IN shape.std_terms
 			        
-			        COLLECT geo = shape.geometry,
-			                point = shape.geometry_point,
-			                radius = shape.geometry_point_radius
-			        
-			        AGGREGATE start = MIN(data.std_date),
-			                  end   = MAX(data.std_date),
-			                  terms = UNIQUE(data.std_terms),
-			                  count = COUNT()
-			
-			    RETURN {
-			        geometry: geo,
-					geometry_point: point,
-					geometry_point_radius: radius,
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+		        COLLECT geo = shape.geometry_bounds,
+		                point = shape.geometry_point,
+		                radius = shape.geometry_point_radius
+		        
+		        AGGREGATE start = MIN(shape.std_date),
+		                  end   = MAX(shape.std_date),
+		                  terms = UNIQUE(shape.std_terms),
+		                  count = COUNT()
+		
+		    RETURN {
+		        geometry: geo,
+				geometry_point: point,
+				geometry_point_radius: radius,
+		        count: count,
+		        std_date_start: start,
+		        std_date_end: end,
+		        std_terms: UNIQUE(FLATTEN(terms))
+		    }
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 	               ${descriptors} ALL IN data.std_terms
+		//
+		// 	        COLLECT geo = shape.geometry,
+		// 	                point = shape.geometry_point,
+		// 	                radius = shape.geometry_point_radius
+		//
+		// 	        AGGREGATE start = MIN(data.std_date),
+		// 	                  end   = MAX(data.std_date),
+		// 	                  terms = UNIQUE(data.std_terms),
+		// 	                  count = COUNT()
+		//
+		// 	    RETURN {
+		// 	        geometry: geo,
+		// 			geometry_point: point,
+		// 			geometry_point_radius: radius,
+		// 	        count: count,
+		// 	        std_date_start: start,
+		// 	        std_date_end: end,
+		// 	        std_terms: UNIQUE(FLATTEN(terms))
+		// 	    }
+		// `
 	} else {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-			               ${descriptors} ANY IN data.std_terms
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), shape.geometry_bounds),
+			        "geojson") AND
+					   ${descriptors} ANY IN shape.std_terms
 			        
-			        COLLECT geo = shape.geometry,
-			                point = shape.geometry_point,
-			                radius = shape.geometry_point_radius
-			        
-			        AGGREGATE start = MIN(data.std_date),
-			                  end   = MAX(data.std_date),
-			                  terms = UNIQUE(data.std_terms),
-			                  count = COUNT()
-			
-			    RETURN {
-			        geometry: geo,
-					geometry_point: point,
-					geometry_point_radius: radius,
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+		        COLLECT geo = shape.geometry_bounds,
+		                point = shape.geometry_point,
+		                radius = shape.geometry_point_radius
+		        
+		        AGGREGATE start = MIN(shape.std_date),
+		                  end   = MAX(shape.std_date),
+		                  terms = UNIQUE(shape.std_terms),
+		                  count = COUNT()
+		
+		    RETURN {
+		        geometry: geo,
+				geometry_point: point,
+				geometry_point_radius: radius,
+		        count: count,
+		        std_date_start: start,
+		        std_date_end: end,
+		        std_terms: UNIQUE(FLATTEN(terms))
+		    }
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 	               ${descriptors} ANY IN data.std_terms
+		//
+		// 	        COLLECT geo = shape.geometry,
+		// 	                point = shape.geometry_point,
+		// 	                radius = shape.geometry_point_radius
+		//
+		// 	        AGGREGATE start = MIN(data.std_date),
+		// 	                  end   = MAX(data.std_date),
+		// 	                  terms = UNIQUE(data.std_terms),
+		// 	                  count = COUNT()
+		//
+		// 	    RETURN {
+		// 	        geometry: geo,
+		// 			geometry_point: point,
+		// 			geometry_point_radius: radius,
+		// 	        count: count,
+		// 	        std_date_start: start,
+		// 	        std_date_end: end,
+		// 	        std_terms: UNIQUE(FLATTEN(terms))
+		// 	    }
+		// `
 	}
 
 	///
@@ -925,70 +1154,126 @@ router.post('area/:lat/:lon/:startDate/:endDate/:which', function (req, res)
 	let query;
 	if(which.toLowerCase() === 'all') {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-				           data.std_date >= ${startDate} AND
-				           data.std_date <= ${endDate} AND
-			               ${descriptors} ALL IN data.std_terms
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), shape.geometry_bounds),
+			        "geojson") AND
+			            ${descriptors} ALL IN shape.std_terms AND
+				        shape.std_date >= ${startDate} AND
+				        shape.std_date <= ${endDate}
 			        
-			        COLLECT geo = shape.geometry,
-			                point = shape.geometry_point,
-			                radius = shape.geometry_point_radius
-			        
-			        AGGREGATE start = MIN(data.std_date),
-			                  end   = MAX(data.std_date),
-			                  terms = UNIQUE(data.std_terms),
-			                  count = COUNT()
-			
-			    RETURN {
-			        geometry: geo,
-					geometry_point: point,
-					geometry_point_radius: radius,
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+		        COLLECT geo = shape.geometry_bounds,
+		                point = shape.geometry_point,
+		                radius = shape.geometry_point_radius
+		        
+		        AGGREGATE start = MIN(shape.std_date),
+		                  end   = MAX(shape.std_date),
+		                  terms = UNIQUE(shape.std_terms),
+		                  count = COUNT()
+		
+		    RETURN {
+		        geometry: geo,
+				geometry_point: point,
+				geometry_point_radius: radius,
+		        count: count,
+		        std_date_start: start,
+		        std_date_end: end,
+		        std_terms: UNIQUE(FLATTEN(terms))
+		    }
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 		           data.std_date >= ${startDate} AND
+		// 		           data.std_date <= ${endDate} AND
+		// 	               ${descriptors} ALL IN data.std_terms
+		//
+		// 	        COLLECT geo = shape.geometry,
+		// 	                point = shape.geometry_point,
+		// 	                radius = shape.geometry_point_radius
+		//
+		// 	        AGGREGATE start = MIN(data.std_date),
+		// 	                  end   = MAX(data.std_date),
+		// 	                  terms = UNIQUE(data.std_terms),
+		// 	                  count = COUNT()
+		//
+		// 	    RETURN {
+		// 	        geometry: geo,
+		// 			geometry_point: point,
+		// 			geometry_point_radius: radius,
+		// 	        count: count,
+		// 	        std_date_start: start,
+		// 	        std_date_end: end,
+		// 	        std_terms: UNIQUE(FLATTEN(terms))
+		// 	    }
+		// `
 	} else {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-				           data.std_date >= ${startDate} AND
-				           data.std_date <= ${endDate} AND
-			               ${descriptors} ANY IN data.std_terms
+			FOR shape IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), shape.geometry_bounds),
+			        "geojson") AND
+			            ${descriptors} ANY IN shape.std_terms AND
+				        shape.std_date >= ${startDate} AND
+				        shape.std_date <= ${endDate}
 			        
-			        COLLECT geo = shape.geometry,
-			                point = shape.geometry_point,
-			                radius = shape.geometry_point_radius
-			        
-			        AGGREGATE start = MIN(data.std_date),
-			                  end   = MAX(data.std_date),
-			                  terms = UNIQUE(data.std_terms),
-			                  count = COUNT()
-			
-			    RETURN {
-			        geometry: geo,
-					geometry_point: point,
-					geometry_point_radius: radius,
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms))
-			    }
+		        COLLECT geo = shape.geometry_bounds,
+		                point = shape.geometry_point,
+		                radius = shape.geometry_point_radius
+		        
+		        AGGREGATE start = MIN(shape.std_date),
+		                  end   = MAX(shape.std_date),
+		                  terms = UNIQUE(shape.std_terms),
+		                  count = COUNT()
+		
+		    RETURN {
+		        geometry: geo,
+				geometry_point: point,
+				geometry_point_radius: radius,
+		        count: count,
+		        std_date_start: start,
+		        std_date_end: end,
+		        std_terms: UNIQUE(FLATTEN(terms))
+		    }
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 		           data.std_date >= ${startDate} AND
+		// 		           data.std_date <= ${endDate} AND
+		// 	               ${descriptors} ANY IN data.std_terms
+		//
+		// 	        COLLECT geo = shape.geometry,
+		// 	                point = shape.geometry_point,
+		// 	                radius = shape.geometry_point_radius
+		//
+		// 	        AGGREGATE start = MIN(data.std_date),
+		// 	                  end   = MAX(data.std_date),
+		// 	                  terms = UNIQUE(data.std_terms),
+		// 	                  count = COUNT()
+		//
+		// 	    RETURN {
+		// 	        geometry: geo,
+		// 			geometry_point: point,
+		// 			geometry_point_radius: radius,
+		// 	        count: count,
+		// 	        std_date_start: start,
+		// 	        std_date_end: end,
+		// 	        std_terms: UNIQUE(FLATTEN(terms))
+		// 	    }
+		// `
 	}
 
 	///

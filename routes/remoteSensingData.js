@@ -107,7 +107,7 @@ router.get(':shape', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'getAllData')
 
 	.pathParam('shape', geometryHashSchema)
 	.response([ModelData], ModelDataDescription)
@@ -172,7 +172,7 @@ router.get(':shape/:startDate/:endDate', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'GelAllDataByDateRange')
 
 	.pathParam('shape', geometryHashSchema)
 	.pathParam('startDate', startDateSchema)
@@ -239,7 +239,7 @@ router.post('span/:shape', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'GetDataBySpan')
 	.pathParam('shape', geometryHashSchema)
 	.body(ModelBodySpan, "The list of requested time spans.\n" +
 		"Provide one or more *time span codes*:\n" +
@@ -312,7 +312,7 @@ router.post('span/:shape/:startDate/:endDate', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'GetDataByDateRangeAndSpan')
 	.pathParam('shape', geometryHashSchema)
 	.pathParam('startDate', startDateSchema)
 	.pathParam('endDate', endDateSchema)
@@ -378,7 +378,7 @@ router.post('terms/:shape', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'GetDataByTerms')
 	.pathParam('shape', geometryHashSchema)
 	.body(ModelBodyDescriptors, "The list of requested *observation variable names*.")
 	.response([ModelData], ModelDataDescription)
@@ -426,8 +426,13 @@ router.post('terms/:shape/:startDate/:endDate', function (req, res)
 			            doc.std_date <= ${endDate} AND
 			            doc.std_terms IN ${body.std_terms}
 			    SORT doc.std_date
-			    LET data = { std_date: doc.std_date, properties: KEEP(doc.properties, ${body.std_terms}) }
-			    COLLECT span = doc.std_date_span INTO groups KEEP data
+			    LET data = {
+			        std_date: doc.std_date,
+			        properties: KEEP(doc.properties, ${body.std_terms})
+			    }
+			    COLLECT span = doc.std_date_span
+			    INTO groups
+			    KEEP data
 			RETURN {
 			    std_date_span: span,
 			    std_date_series: groups[*].data
@@ -447,7 +452,7 @@ router.post('terms/:shape/:startDate/:endDate', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'GetDataByDateRangeAndTerms')
 	.pathParam('shape', geometryHashSchema)
 	.pathParam('startDate', startDateSchema)
 	.pathParam('endDate', endDateSchema)
@@ -460,4 +465,180 @@ router.post('terms/:shape/:startDate/:endDate', function (req, res)
 Provide the *geometry ID* of the *unit shape*, the *start* and *end* dates of the *requested time period* and one or more *observation variable names*.
 
 The returned data will only feature the provided variables, if found.
+`)
+
+/**
+ * Get remote sensing data by geometry_hash, date range, spans and variable names.
+ *
+ * This service will return remote sensing data related to the provided unit shape,
+ * the data
+ *
+ * This service will return remote sensing data for the provided unit shape
+ * where the provided observation variables are featured in observations,
+ * where the time range lies between the provided start and end dates,
+ * where the time span is among the provided daily, monthly and annual time spans,
+ * the resulting data will be grouped by time span.
+ *
+ * Parameters:
+ * - `:shape`: The key of the unit shape.
+ * - ':startDate': The start date.
+ * - ':endDate': The end date.
+ * - body.std_date_span: The list of spans.
+ * - body.std_terms: The list of descriptors.
+ */
+router.post('span/terms/:shape/:startDate/:endDate', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const shape = req.pathParams.shape
+	const startDate = req.pathParams.startDate
+	const endDate = req.pathParams.endDate
+	const spans = req.body.std_date_span
+	const terms = req.body.std_terms
+
+	///
+	// Perform service.
+	///
+	let result
+	///
+	// MILKO - This query fails here, but works outside of service.
+	//         Need to find the reason, hopefully my error and not a bug.
+	///
+	try {
+		result = db._query(aql`
+			FOR doc IN VIEW_SHAPE_DATA
+				SEARCH  doc.geometry_hash == ${shape} AND
+			    		${terms} ANY IN doc.std_terms  AND
+			            ${spans} ANY IN doc.std_date_span AND
+			            doc.std_date >= ${startDate} AND
+			            doc.std_date <= ${endDate}
+			    SORT doc.std_date
+			    LET data = {
+			        std_date: doc.std_date,
+			        properties: KEEP(doc.properties, ${terms})
+			    }
+			    COLLECT span = doc.std_date_span
+			    INTO groups
+			    KEEP data
+			RETURN {
+			    std_date_span: span,
+			    std_date_series: groups[*].data
+			}
+        `).toArray()
+	}
+
+		///
+		// Handle errors.
+		///
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'GetDataByDateRangeAndSpanAndTerms')
+	.pathParam('shape', geometryHashSchema)
+	.pathParam('startDate', startDateSchema)
+	.pathParam('endDate', endDateSchema)
+	.body(ModelBodySpanDescriptors, "The list of requested *observation variable names* and the list of *requested time spans*.")
+	.response([ModelData], ModelDataDescription)
+	.summary('Get remote sensing data by unit shape, date range, time spans and observation variables, grouped by time span')
+	.description(dd`
+  Retrieves remote sensing data for the provided *unit shape*, for the provided *date range*, for the provided *time spans* and for the provided *list of observation variables*.
+
+Provide the *geometry ID* of the *unit shape*, the *start* and *end* dates of the *requested time period*, one or more *time span codes* and one or more *observation variable names*.
+
+The returned data will only feature the provided variables and time spans, if found.
+`)
+
+/**
+ * Get remote sensing data by geometry_hash, date range, spans and variable names.
+ *
+ * This service will return remote sensing data related to the provided unit shape,
+ * the data
+ *
+ * This service will return remote sensing data for the provided unit shape
+ * where the provided observation variables are featured in observations,
+ * where the time range lies between the provided start and end dates,
+ * where the time span is among the provided daily, monthly and annual time spans,
+ * the resulting data will be grouped by time span.
+ *
+ * Parameters:
+ * - `:shape`: The key of the unit shape.
+ * - ':startDate': The start date.
+ * - ':endDate': The end date.
+ * - body.std_date_span: The list of spans.
+ * - body.std_terms: The list of descriptors.
+ */
+router.post('span/terms/:shape/:startDate/:endDate', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const shape = req.pathParams.shape
+	const startDate = req.pathParams.startDate
+	const endDate = req.pathParams.endDate
+	const spans = req.body.std_date_span
+	const terms = req.body.std_terms
+
+	///
+	// Perform service.
+	///
+	let result
+	///
+	// MILKO - This query fails here, but works outside of service.
+	//         Need to find the reason, hopefully my error and not a bug.
+	///
+	try {
+		result = db._query(aql`
+			FOR doc IN VIEW_SHAPE_DATA
+				SEARCH doc.geometry_hash == ${shape} AND
+			    	   ${terms}  ANY IN doc.std_terms AND
+			           ${spans}  ANY IN doc.std_date_span AND
+			           doc.std_date >= ${startDate} AND
+			           doc.std_date <= ${endDate}
+			    SORT doc.std_date
+			    LET data = {
+			        std_date: doc.std_date,
+			        properties: KEEP(doc.properties, ${terms})
+			    }
+			    COLLECT span = doc.std_date_span
+			    INTO groups
+			    KEEP data
+			RETURN {
+			    std_date_span: span,
+			    std_date_series: groups[*].data
+			}
+        `).toArray()
+	}
+
+		///
+		// Handle errors.
+		///
+	catch (error) {
+		throw error;
+	}
+
+	///
+	// Return result.
+	///
+	res.send(result);
+
+}, 'list')
+	.pathParam('shape', geometryHashSchema)
+	.pathParam('startDate', startDateSchema)
+	.pathParam('endDate', endDateSchema)
+	.body(ModelBodySpanDescriptors, "The list of requested *observation variable names* and the list of *requested time spans*.")
+	.response([ModelData], ModelDataDescription)
+	.summary('Get remote sensing data by unit shape, date range, time spans and observation variables, grouped by time span')
+	.description(dd`
+  Retrieves remote sensing data for the provided *unit shape*, for the provided *date range*, for the provided *time spans* and for the provided *list of observation variables*.
+
+Provide the *geometry ID* of the *unit shape*, the *start* and *end* dates of the *requested time period*, one or more *time span codes* and one or more *observation variable names*.
+
+The returned data will only feature the provided variables and time spans, if found.
 `)
