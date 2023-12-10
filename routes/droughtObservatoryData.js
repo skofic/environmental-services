@@ -92,30 +92,62 @@ router.get('all/area/:lat/:lon', function (req, res)
 	let result;
 	try {
 		result = db._query(aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
+			FOR item IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(
+			            GEO_POINT(${lon}, ${lat}),
+			            item.geometry_bounds
+			        ),
+			        "geojson"
 			    )
-			    
-			    SORT shape.geometry_point_radius DESC
+			      
+			    SORT item.std_date ASC
+			  
+			    COLLECT radius = item.geometry_point_radius,
+			            bounds = item.geometry_bounds,
+			            point = item.geometry_point
+			    INTO groups
 			
 			RETURN {
-			    geometry: shape.geometry,
-			    geometry_point: shape.geometry_point,
-			    geometry_point_radius: shape.geometry_point_radius,
+			    geometry: bounds,
+			    geometry_point: point,
+			    geometry_point_radius: radius,
 			    properties: (
-			        FOR data IN ${collection_dat}
-			            FILTER data.geometry_hash == shape._key
-			            SORT data.std_date ASC
+			        FOR doc IN groups[*].item
 			        RETURN MERGE_RECURSIVE(
-			            { std_date: data.std_date },
-			            data.properties
+			            { std_date: doc.std_date },
+			            doc.properties
 			        )
 			    )
 			}
         `).toArray()
 	}
+	// try {
+	// 	result = db._query(aql`
+	// 		FOR shape IN ${collection_map}
+	// 		    FILTER GEO_INTERSECTS(
+	// 		        GEO_POINT(${lon}, ${lat}),
+	// 		        shape.geometry
+	// 		    )
+	//
+	// 		    SORT shape.geometry_point_radius DESC
+	//
+	// 		RETURN {
+	// 		    geometry: shape.geometry,
+	// 		    geometry_point: shape.geometry_point,
+	// 		    geometry_point_radius: shape.geometry_point_radius,
+	// 		    properties: (
+	// 		        FOR data IN ${collection_dat}
+	// 		            FILTER data.geometry_hash == shape._key
+	// 		            SORT data.std_date ASC
+	// 		        RETURN MERGE_RECURSIVE(
+	// 		            { std_date: data.std_date },
+	// 		            data.properties
+	// 		        )
+	// 		    )
+	// 		}
+    //     `).toArray()
+	// }
 
 		///
 		// Handle errors.
@@ -129,7 +161,7 @@ router.get('all/area/:lat/:lon', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'GetAllDataByArea')
 
 	///
 	// Path parameter schemas.
@@ -189,25 +221,48 @@ router.get('all/date/:lat/:lon', function (req, res)
 	let result;
 	try {
 		result = db._query(aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
+			FOR data IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(
+			            GEO_POINT(${lon}, ${lat}),
+			            data.geometry_bounds
+			        ),
+			        "geojson"
 			    )
+			      
+			    SORT data.std_date ASC
+			  
+			    COLLECT date = data.std_date
+			    INTO items
+			    KEEP data
 			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key
-			        SORT data.std_date ASC
-			        COLLECT date = data.std_date
-			        INTO items
-			        KEEP data
-			
-			    RETURN {
-			        std_date: date,
-			        properties: MERGE_RECURSIVE(items[*].data.properties)
-			    }
+			RETURN {
+			    std_date: date,
+			    properties: MERGE_RECURSIVE(items[*].data.properties)
+			}
         `).toArray()
 	}
+	// try {
+	// 	result = db._query(aql`
+	// 		FOR shape IN ${collection_map}
+	// 		    FILTER GEO_INTERSECTS(
+	// 		        GEO_POINT(${lon}, ${lat}),
+	// 		        shape.geometry
+	// 		    )
+	//
+	// 		    FOR data IN ${collection_dat}
+	// 		        FILTER data.geometry_hash == shape._key
+	// 		        SORT data.std_date ASC
+	// 		        COLLECT date = data.std_date
+	// 		        INTO items
+	// 		        KEEP data
+	//
+	// 		    RETURN {
+	// 		        std_date: date,
+	// 		        properties: MERGE_RECURSIVE(items[*].data.properties)
+	// 		    }
+    //     `).toArray()
+	// }
 
 		///
 		// Handle errors.
@@ -221,7 +276,7 @@ router.get('all/date/:lat/:lon', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'GetAllDataByDate')
 
 	///
 	// Path parameter schemas.
@@ -277,32 +332,62 @@ router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
 	let result;
 	try {
 		result = db._query(aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    SORT shape.geometry_point_radius DESC
+			FOR item IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),item.geometry_bounds),
+			        "geojson") AND
+			           item.std_date >= ${startDate} AND
+		               item.std_date <= ${endDate}
+			      
+			    SORT item.std_date ASC
+			  
+			    COLLECT radius = item.geometry_point_radius,
+			            bounds = item.geometry_bounds,
+			            point = item.geometry_point
+			    INTO groups
 			
 			RETURN {
-			    geometry: shape.geometry,
-			    geometry_point: shape.geometry_point,
-			    geometry_point_radius: shape.geometry_point_radius,
+			    geometry: bounds,
+			    geometry_point: point,
+			    geometry_point_radius: radius,
 			    properties: (
-			        FOR data IN ${collection_dat}
-				        FILTER data.geometry_hash == shape._key AND
-				               data.std_date >= ${startDate} AND
-				               data.std_date <= ${endDate}
-			            SORT data.std_date ASC
+			        FOR doc IN groups[*].item
 			        RETURN MERGE_RECURSIVE(
-			            { std_date: data.std_date },
-			            data.properties
+			            { std_date: doc.std_date },
+			            doc.properties
 			        )
 			    )
 			}
         `).toArray()
 	}
+	// try {
+	// 	result = db._query(aql`
+	// 		FOR shape IN ${collection_map}
+	// 		    FILTER GEO_INTERSECTS(
+	// 		        GEO_POINT(${lon}, ${lat}),
+	// 		        shape.geometry
+	// 		    )
+	//
+	// 		    SORT shape.geometry_point_radius DESC
+	//
+	// 		RETURN {
+	// 		    geometry: shape.geometry,
+	// 		    geometry_point: shape.geometry_point,
+	// 		    geometry_point_radius: shape.geometry_point_radius,
+	// 		    properties: (
+	// 		        FOR data IN ${collection_dat}
+	// 			        FILTER data.geometry_hash == shape._key AND
+	// 			               data.std_date >= ${startDate} AND
+	// 			               data.std_date <= ${endDate}
+	// 		            SORT data.std_date ASC
+	// 		        RETURN MERGE_RECURSIVE(
+	// 		            { std_date: data.std_date },
+	// 		            data.properties
+	// 		        )
+	// 		    )
+	// 		}
+    //     `).toArray()
+	// }
 
 	///
 	// Handle errors.
@@ -316,7 +401,7 @@ router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'GetAllDataByAreaForDateRange')
 
 	///
 	// Path parameter schemas.
@@ -379,27 +464,48 @@ router.get('date/:lat/:lon/:startDate/:endDate', function (req, res)
 	let result;
 	try {
 		result = db._query(aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
+			FOR data IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),data.geometry_bounds),
+			        "geojson") AND
+			           data.std_date >= ${startDate} AND
+		               data.std_date <= ${endDate}
+			      
+			    SORT data.std_date ASC
+			  
+			    COLLECT date = data.std_date
+			    INTO items
+			    KEEP data
 			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-			               data.std_date >= ${startDate} AND
-			               data.std_date <= ${endDate}
-			        SORT data.std_date ASC
-			        COLLECT date = data.std_date
-			        INTO items
-			        KEEP data
-			
-			    RETURN {
-			        std_date: date,
-			        properties: MERGE_RECURSIVE(items[*].data.properties)
-			    }
+			RETURN {
+			    std_date: date,
+			    properties: MERGE_RECURSIVE(items[*].data.properties)
+			}
         `).toArray()
 	}
+	// try {
+	// 	result = db._query(aql`
+	// 		FOR shape IN ${collection_map}
+	// 		    FILTER GEO_INTERSECTS(
+	// 		        GEO_POINT(${lon}, ${lat}),
+	// 		        shape.geometry
+	// 		    )
+	//
+	// 		    FOR data IN ${collection_dat}
+	// 		        FILTER data.geometry_hash == shape._key AND
+	// 		               data.std_date >= ${startDate} AND
+	// 		               data.std_date <= ${endDate}
+	// 		        SORT data.std_date ASC
+	// 		        COLLECT date = data.std_date
+	// 		        INTO items
+	// 		        KEEP data
+	//
+	// 		    RETURN {
+	// 		        std_date: date,
+	// 		        properties: MERGE_RECURSIVE(items[*].data.properties)
+	// 		    }
+    //     `).toArray()
+	// }
 
 		///
 		// Handle errors.
@@ -413,7 +519,7 @@ router.get('date/:lat/:lon/:startDate/:endDate', function (req, res)
 	///
 	res.send(result);
 
-}, 'list')
+}, 'GetAllDataByDateForDateRange')
 
 	///
 	// Path parameter schemas.
@@ -479,60 +585,118 @@ router.post('area/:lat/:lon/:startDate/:endDate/:which', function (req, res)
 	let query;
 	if(which.toLowerCase() === 'all') {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    SORT shape.geometry_point_radius DESC
+			FOR item IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),item.geometry_bounds),
+			        "geojson") AND
+			           ${descriptors} ALL IN item.std_terms AND
+			           item.std_date >= ${startDate} AND
+		               item.std_date <= ${endDate}
+			      
+			    SORT item.std_date ASC
+			  
+			    COLLECT radius = item.geometry_point_radius,
+			            bounds = item.geometry_bounds,
+			            point = item.geometry_point
+			    INTO groups
 			
 			RETURN {
-			    geometry: shape.geometry,
-			    geometry_point: shape.geometry_point,
-			    geometry_point_radius: shape.geometry_point_radius,
+			    geometry: bounds,
+			    geometry_point: point,
+			    geometry_point_radius: radius,
 			    properties: (
-			        FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-			               data.std_date >= ${startDate} AND
-			               data.std_date <= ${endDate} AND
-			               ${descriptors} ALL IN data.std_terms
-			        SORT data.std_date ASC
+			        FOR doc IN groups[*].item
 			        RETURN MERGE_RECURSIVE(
-			            { std_date: data.std_date },
-			            data.properties
+			            { std_date: doc.std_date },
+			            doc.properties
 			        )
 			    )
 			}
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    SORT shape.geometry_point_radius DESC
+		//
+		// 	RETURN {
+		// 	    geometry: shape.geometry,
+		// 	    geometry_point: shape.geometry_point,
+		// 	    geometry_point_radius: shape.geometry_point_radius,
+		// 	    properties: (
+		// 	        FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 	               data.std_date >= ${startDate} AND
+		// 	               data.std_date <= ${endDate} AND
+		// 	               ${descriptors} ALL IN data.std_terms
+		// 	        SORT data.std_date ASC
+		// 	        RETURN MERGE_RECURSIVE(
+		// 	            { std_date: data.std_date },
+		// 	            data.properties
+		// 	        )
+		// 	    )
+		// 	}
+		// `
 	} else {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
-			    
-			    SORT shape.geometry_point_radius DESC
+			FOR item IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),item.geometry_bounds),
+			        "geojson") AND
+			           ${descriptors} ANY IN item.std_terms AND
+			           item.std_date >= ${startDate} AND
+		               item.std_date <= ${endDate}
+			      
+			    SORT item.std_date ASC
+			  
+			    COLLECT radius = item.geometry_point_radius,
+			            bounds = item.geometry_bounds,
+			            point = item.geometry_point
+			    INTO groups
 			
 			RETURN {
-			    geometry: shape.geometry,
-			    geometry_point: shape.geometry_point,
-			    geometry_point_radius: shape.geometry_point_radius,
+			    geometry: bounds,
+			    geometry_point: point,
+			    geometry_point_radius: radius,
 			    properties: (
-			        FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-			               data.std_date >= ${startDate} AND
-			               data.std_date <= ${endDate} AND
-			               ${descriptors} ANY IN data.std_terms
-			        SORT data.std_date ASC
+			        FOR doc IN groups[*].item
 			        RETURN MERGE_RECURSIVE(
-			            { std_date: data.std_date },
-			            data.properties
+			            { std_date: doc.std_date },
+			            doc.properties
 			        )
 			    )
 			}
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    SORT shape.geometry_point_radius DESC
+		//
+		// 	RETURN {
+		// 	    geometry: shape.geometry,
+		// 	    geometry_point: shape.geometry_point,
+		// 	    geometry_point_radius: shape.geometry_point_radius,
+		// 	    properties: (
+		// 	        FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 	               data.std_date >= ${startDate} AND
+		// 	               data.std_date <= ${endDate} AND
+		// 	               ${descriptors} ANY IN data.std_terms
+		// 	        SORT data.std_date ASC
+		// 	        RETURN MERGE_RECURSIVE(
+		// 	            { std_date: data.std_date },
+		// 	            data.properties
+		// 	        )
+		// 	    )
+		// 	}
+		// `
 	}
 
 	///
@@ -552,7 +716,7 @@ router.post('area/:lat/:lon/:startDate/:endDate/:which', function (req, res)
 		throw error;
 	}
 
-}, 'list')
+}, 'GetAllDataByAreaForDateRangeAndTerms')
 
 	///
 	// Path parameter schemas.
@@ -629,52 +793,96 @@ router.post('date/:lat/:lon/:startDate/:endDate/:which/:start/:limit', function 
 	let query;
 	if(which.toLowerCase() === 'all') {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
+			FOR data IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),data.geometry_bounds),
+			        "geojson") AND
+			           ${descriptors} ALL IN data.std_terms AND
+			           data.std_date >= ${startDate} AND
+		               data.std_date <= ${endDate}
+			      
+			    SORT data.std_date ASC
+			  
+			    COLLECT date = data.std_date
+			    INTO items
+			    KEEP data
 			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-			               data.std_date >= ${startDate} AND
-			               data.std_date <= ${endDate} AND
-			               ${descriptors} ALL IN data.std_terms
-			        SORT data.std_date ASC
-			        LIMIT ${start}, ${limit}
-			        COLLECT date = data.std_date
-			        INTO items
-			        KEEP data
-			
-			    RETURN {
-			        std_date: date,
-			        properties: MERGE_RECURSIVE(items[*].data.properties)
-			    }
+			    LIMIT ${start}, ${limit}
+			    
+			RETURN {
+			    std_date: date,
+			    properties: MERGE_RECURSIVE(items[*].data.properties)
+			}
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 	               data.std_date >= ${startDate} AND
+		// 	               data.std_date <= ${endDate} AND
+		// 	               ${descriptors} ALL IN data.std_terms
+		// 	        SORT data.std_date ASC
+		// 	        LIMIT ${start}, ${limit}
+		// 	        COLLECT date = data.std_date
+		// 	        INTO items
+		// 	        KEEP data
+		//
+		// 	    RETURN {
+		// 	        std_date: date,
+		// 	        properties: MERGE_RECURSIVE(items[*].data.properties)
+		// 	    }
+		// `
 	} else {
 		query = aql`
-			FOR shape IN ${collection_map}
-			    FILTER GEO_INTERSECTS(
-			        GEO_POINT(${lon}, ${lat}),
-			        shape.geometry
-			    )
+			FOR data IN VIEW_DROUGHT_OBSERVATORY
+			    SEARCH ANALYZER(
+			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),data.geometry_bounds),
+			        "geojson") AND
+			           ${descriptors} ANY IN data.std_terms AND
+			           data.std_date >= ${startDate} AND
+		               data.std_date <= ${endDate}
+			      
+			    SORT data.std_date ASC
+			  
+			    COLLECT date = data.std_date
+			    INTO items
+			    KEEP data
 			    
-			    FOR data IN ${collection_dat}
-			        FILTER data.geometry_hash == shape._key AND
-			               data.std_date >= ${startDate} AND
-			               data.std_date <= ${endDate} AND
-			               ${descriptors} ANY IN data.std_terms
-			        SORT data.std_date ASC
-			        LIMIT ${start}, ${limit}
-			        COLLECT date = data.std_date
-			        INTO items
-			        KEEP data
-			
-			    RETURN {
-			        std_date: date,
-			        properties: MERGE_RECURSIVE(items[*].data.properties)
-			    }
+			    LIMIT ${start}, ${limit}
+			    
+			RETURN {
+			    std_date: date,
+			    properties: MERGE_RECURSIVE(items[*].data.properties)
+			}
 		`
+		// query = aql`
+		// 	FOR shape IN ${collection_map}
+		// 	    FILTER GEO_INTERSECTS(
+		// 	        GEO_POINT(${lon}, ${lat}),
+		// 	        shape.geometry
+		// 	    )
+		//
+		// 	    FOR data IN ${collection_dat}
+		// 	        FILTER data.geometry_hash == shape._key AND
+		// 	               data.std_date >= ${startDate} AND
+		// 	               data.std_date <= ${endDate} AND
+		// 	               ${descriptors} ANY IN data.std_terms
+		// 	        SORT data.std_date ASC
+		// 	        LIMIT ${start}, ${limit}
+		// 	        COLLECT date = data.std_date
+		// 	        INTO items
+		// 	        KEEP data
+		//
+		// 	    RETURN {
+		// 	        std_date: date,
+		// 	        properties: MERGE_RECURSIVE(items[*].data.properties)
+		// 	    }
+		// `
 	}
 
 	///
