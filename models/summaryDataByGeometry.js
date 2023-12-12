@@ -5,19 +5,20 @@ const joi = require('joi')
 
 module.exports = {
 	schema: {
-		geometry:
-			joi.object({
-				type: joi.string()
-					.valid(
-						"Polygon", "MultiPolygon"
-					).required(),
-				coordinates: joi.array()
-					.items(
-						joi.number(),
-						joi.array()
-					)
-					.required()
-			}).required(),
+		count: joi.number(),
+		std_date_start: joi.string()
+			.regex(/^[0-9]{4,8}$/)
+			.required(),
+		std_date_end: joi.string()
+			.regex(/^[0-9]{4,8}$/)
+			.required(),
+		std_terms: joi.array()
+			.items(joi.string())
+			.required(),
+		std_dataset_ids: joi.array()
+			.items(joi.string()),
+		geometry_point_radius: joi.number()
+			.required(),
 		geometry_point:
 			joi.object({
 				type: joi.string()
@@ -30,11 +31,19 @@ module.exports = {
 					)
 					.required()
 			}).required(),
-		geometry_point_radius: joi.number().required(),
-		count: joi.number(),
-		std_date_start: joi.string().regex(/^[0-9]+$/),
-		std_date_end: joi.string().regex(/^[0-9]+$/),
-		std_terms: joi.array().items(joi.string())
+		geometry_bounds:
+			joi.object({
+				type: joi.string()
+					.valid(
+						"Polygon", "MultiPolygon"
+					).required(),
+				coordinates: joi.array()
+					.items(
+						joi.number(),
+						joi.array()
+					)
+					.required()
+			}).required()
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here
