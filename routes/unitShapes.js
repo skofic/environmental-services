@@ -18,57 +18,63 @@ const createRouter = require('@arangodb/foxx/router')
 // Collections and models.
 ///
 const collection = db._collection('Shapes')
-const ModelShape = require("../models/shapeAll");
-const ModelRecord = require('../models/shapeData')
-const ModelContainer = require('../models/containerTarget')
-const geometryHashSchema = joi.string().regex(/^[0-9a-f]{32}$/).required()
-	.description('Unit shape geometry hash.\nThe value is the `_key` of the `Shapes` collection record.')
-const minAreaSchema = joi.number().required()
-	.description('Minimum area inclusive in square meters.')
-const maxAreaSchema = joi.number().required()
-	.description('Maximum area inclusive in square meters.')
-const minAspectSchema = joi.number().required()
-	.description('Minimum aspect inclusive in degrees.')
-const maxAspectSchema = joi.number().required()
-	.description('Maximum aspect inclusive in degrees.')
-const minSlopeSchema = joi.number().required()
-	.description('Minimum slope inclusive in degrees.')
-const maxSlopeSchema = joi.number().required()
-	.description('Maximum slope inclusive in degrees.')
-const minDistanceSchema = joi.number().required()
-	.description('Minimum distance inclusive in meters.')
-const maxDistanceSchema = joi.number().required()
-	.description('Maximum distance inclusive in meters.')
-const minElevationSchema = joi.number().required()
-	.description('Minimum elevation inclusive in meters.')
-const maxElevationSchema = joi.number().required()
-	.description('Maximum elevation inclusive in meters.')
-const minElevationSdSchema = joi.number().required()
-	.description('Minimum elevation standard deviation inclusive in meters.')
-const maxElevationSdSchema = joi.number().required()
-	.description('Maximum elevation standard deviation inclusive in meters.')
-const sortSchema = joi.string().valid('ASC', 'DESC').required()
-	.description("Sort order: \`ASC\` for ascending, \`DESC\` for descending.")
-const startLimitSchema = joi.number().required()
-	.description('Start index for results list, 0 is first.')
-const itemsLimitSchema = joi.number().required()
-	.description('Number of records to return, if found.')
-const latSchema = joi.number().min(-90).max(90).required()
+const ModelData = require('../models/rsShapeData')
+const ModelDataDescription =
+	'GCU shape record.\n\n' +
+	'The returned data represents a single GCU shape. ' +
+	'This is the data structure:\n\n' +
+	'- `geometry_hash`: GeoJSON hash of the shape.\n' +
+	'- `std_dataset_ids`: List of datasets in measurements.\n' +
+	'- `properties`: List of static environmental variables.\n' +
+	'- `geometry`: GeoJSON geometry of the shape.\n' +
+	'- `geometry_bounds`: GeoJSON bounding box of the shape.\n\n' +
+	'There will be one record per shape.'
+const ModelDataClick = require('../models/rsShapeDataClick')
+const ModelDataClickDescription =
+	'GCU shape record.\n\n' +
+	'The returned data represents a single GCU shape. ' +
+	'This is the data structure:\n\n' +
+	'- `geometry_hash`: GeoJSON hash of the shape.\n' +
+	'- `std_dataset_ids`: List of datasets in measurements.\n' +
+	'- `properties`: List of static environmental variables.\n' +
+	'- `geometry_point`: Provided coordinates as a GeoJSON point geometry.\n' +
+	'- `geometry`: GeoJSON geometry of the shape.\n' +
+	'- `geometry_bounds`: GeoJSON bounding box of the shape.\n\n' +
+	'There will be one record per shape.'
+const ModelSelection = require('../models/rsSelectionShape')
+const ModelSelectionDescription =
+	'Shape selection criteris.\n\n' +
+	'The selection data is structured as follows:\n\n' +
+	'- `geometry_hash`: List of shape geometry hashes.\n' +
+	'- `std_dataset_ids`: List of dataset identifiers.\n' +
+	'- `geo_shape_area`: Shape area range, limits included.\n' +
+	'- `chr_AvElevation`: Shape average elevation range, limits included.\n' +
+	'- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n' +
+	'- `chr_AvSlope`: Shape average slope range, limits included.\n' +
+	'- `chr_AvAspect`: Shape average area range, limits included.\n' +
+	'- `intersects`: GeoJSON geometry that intersects shapes.\n' +
+	'- `distance`: Provide the GeoJSON shape in *reference* and the distance range in *range*.\n' +
+	'- `paging`: Paging: provide offset and limit properties, or omit the property to return all available data.\n\n' +
+	'When filling the search criteria either provide a value or omit the corresponding property.\n' +
+	'Range values are included in the expected range, it is also possible to omit one of the terms.\n' +
+	'Distance and elevation ranges are expected to be expressed in meters.'
+const geometryHashSchema = joi.string()
+	.regex(/^[0-9a-f]{32}$/)
+	.required()
+	.description(
+		'Unit shape geometry hash.\n' +
+		'The value is the `_key` of the `Shapes` collection record.'
+	)
+const latSchema = joi.number()
+	.min(-90)
+	.max(90)
+	.required()
 	.description('Coordinate decimal latitude.')
-const lonSchema = joi.number().min(-180).max(180).required()
+const lonSchema = joi.number()
+	.min(-90)
+	.max(90)
+	.required()
 	.description('Coordinate decimal longitude.')
-const ShapeRecordDescription = `
-Unit Shape record.
-
-The record contains the following properties:
-
-- \`geometry_hash\`: The hash of the shape's GeoJSON *geometry*, which is also the *unique key* of the *shape* record.
-- \`geometry\`: The GeoJSON *geometry* of the *shape*.
-- \`geometry_bounds\`: The GeoJSON *geometry* that represents the shape's *bounding box*.
-- \`properties\`: An object containing properties related to the shape and not tied to a time frame.
-
-This schema reflects a *single record* in the *unit shapes collection*.
-`
 
 ///
 // Create and export router.
@@ -105,10 +111,13 @@ router.get(':hash', function (req, res)
 		result = db._query(aql`
 			FOR doc IN ${collection}
 			    FILTER doc._key == ${hash}
-			RETURN MERGE(
-				{ geometry_hash: doc._key },
-				UNSET(doc, '_id', '_key', '_rev')
-			)
+			RETURN {
+			    geometry_hash: doc._key,
+			    std_dataset_ids: doc.std_dataset_ids,
+			    properties: doc.properties,
+			    geometry: doc.geometry,
+			    geometry_bounds: doc.geometry_bounds
+			}
         `).toArray()
 	}
 
@@ -124,19 +133,36 @@ router.get(':hash', function (req, res)
 	///
 	res.send(result);
 
-}, 'record')
+}, 'GetShape')
 
+	///
+	// Path parameter schemas.
+	///
 	.pathParam('hash', geometryHashSchema)
-	.response([ModelRecord], ShapeRecordDescription)
-	.summary('Get shape record for the provided geometry hash')
+
+	///
+	// Summary.
+	///
+	.summary('Get shape by geometry hash')
+
+	///
+	// Response schema.
+	///
+	.response([ModelData], ModelDataDescription)
+
+	///
+	// Description.
+	///
 	.description(dd`
-		The service will return the *shape record* identified by the provided *geometry hash*.
+		The service will return the *shape record* identified by \
+		the provided *geometry hash*.
 	`);
 
 /**
  * Return the shape record that intersects the provided point.
  *
- * This service will return the shape record that contains the provided coordinate..
+ * This service will return the shape record
+ * that intersects the provided coordinate.
  *
  * Parameters:
  * - `:lat`: The latitude.
@@ -154,16 +180,19 @@ router.get('click/:lat/:lon', function (req, res)
 	// Build query.
 	//
 	const query = aql`
-		FOR doc IN ${collection}
-			FILTER GEO_INTERSECTS(
-				GEO_POINT(${lon}, ${lat}),
-				doc.geometry
+		LET point = GEO_POINT(${lon}, ${lat})
+		FOR doc IN VIEW_SHAPE
+			SEARCH ANALYZER(
+				GEO_INTERSECTS(point, doc.geometry),
+				"geojson"
 			)
 		RETURN {
-			geometry_hash: doc._key,
-			geometry_point: doc.geometry,
-			geometry_bounds: doc.geometry_bounds,
-			properties: doc.properties
+		    geometry_hash: doc._key,
+		    std_dataset_ids: doc.std_dataset_ids,
+		    properties: doc.properties,
+		    geometry_point: point,
+		    geometry: doc.geometry,
+		    geometry_bounds: doc.geometry_bounds
 		}
 	`
 
@@ -184,7 +213,7 @@ router.get('click/:lat/:lon', function (req, res)
 		throw error;
 	}
 
-}, 'list')
+}, 'GetClick')
 
 	///
 	// Path parameter schemas.
@@ -195,7 +224,7 @@ router.get('click/:lat/:lon', function (req, res)
 	///
 	// Response schema.
 	///
-	.response([ModelRecord], ShapeRecordDescription)
+	.response([ModelDataClick], ModelDataClickDescription)
 
 	///
 	// Summary.
@@ -210,554 +239,137 @@ router.get('click/:lat/:lon', function (req, res)
 	`)
 
 /**
- * Return all shapes within the provided area range.
+ * Select shapes using search criteria.
  *
- * This service will return the shape records whose area is larger or equal
- * to the provided minimum area and smaller or equal to the provided maximum area.
- *
- * Parameters:
- * - `:min`: The minimum area inclusive.
- * - `:max`: The maximum area inclusive.
- * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
- * - `:start`: The start index.
- * - `:limit`: The number of records.
- */
-router.get('topo/area/:min/:max/:sort/:start/:limit', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const min = req.pathParams.min
-	const max = req.pathParams.max
-	const sort = req.pathParams.sort
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
-	const descriptor = "geo_shape_area"
-
-	///
-	// Perform service.
-	///
-	let result;
-	try {
-		result = db._query(aql`
-			FOR doc IN ${collection}
-			    FILTER doc.properties.topography.${descriptor} >= ${min}
-			    FILTER doc.properties.topography.${descriptor} <= ${max}
-			    SORT doc.properties.topography.${descriptor} ${sort}
-			    LIMIT ${start}, ${limit}
-			RETURN MERGE(
-				{ geometry_hash: doc._key },
-				UNSET(doc, '_id', '_key', '_rev')
-			)
-        `).toArray()
-	}
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'list')
-
-	.pathParam('min', minAreaSchema)
-	.pathParam('max', maxAreaSchema)
-	.pathParam('sort', sortSchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
-
-	.response([ModelRecord], ShapeRecordDescription)
-	.summary('Get all shapes within the provided area range')
-	.description(dd`
-		The service will return the *list* of *shape records* whose *geometry area* is within the *provided range*.
-	`);
-
-/**
- * Return all shapes within the provided elevation range.
- *
- * This service will return the shape records whose elevation is higher or equal
- * to the provided minimum elevation and lower or equal to the provided maximum elevation.
- *
- * Parameters:
- * - `:min`: The minimum elevation inclusive.
- * - `:max`: The maximum elevation inclusive.
- * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
- * - `:start`: The start index.
- * - `:limit`: The number of records.
- */
-router.get('topo/alt/:min/:max/:sort/:start/:limit', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const min = req.pathParams.min
-	const max = req.pathParams.max
-	const sort = req.pathParams.sort
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
-	const descriptor = "chr_AvElevation"
-
-	///
-	// Perform service.
-	///
-	let result
-	try {
-		result = db._query(aql`
-			FOR doc IN ${collection}
-			    FILTER doc.properties.topography.${descriptor} >= ${min}
-			    FILTER doc.properties.topography.${descriptor} <= ${max}
-			    SORT doc.properties.topography.${descriptor} ${sort}
-			    LIMIT ${start}, ${limit}
-			RETURN MERGE(
-				{ geometry_hash: doc._key },
-				UNSET(doc, '_id', '_key', '_rev')
-			)
-        `).toArray()
-	}
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'list')
-
-	.pathParam('min', minElevationSchema)
-	.pathParam('max', maxElevationSchema)
-	.pathParam('sort', sortSchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
-
-	.response([ModelRecord], ShapeRecordDescription)
-	.summary('Get all shapes within the provided elevation range')
-	.description(dd`
-		The service will return the *list* of *shape records* whose *elevation* is within the *provided range*.
-	`);
-
-/**
- * Return all shapes within the provided elevation standard deviation range.
- *
- * This service will return the shape records whose elevation standard deviation
- * is larger or equal to the provided minimum value and smaller or equal to the
- * provided maximum value.
- *
- * Parameters:
- * - `:min`: The minimum elevation standard deviation inclusive.
- * - `:max`: The maximum elevation standard deviation inclusive.
- * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
- * - `:start`: The start index.
- * - `:limit`: The number of records.
- */
-router.get('topo/altsd/:min/:max/:sort/:start/:limit', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const min = req.pathParams.min
-	const max = req.pathParams.max
-	const sort = req.pathParams.sort
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
-	const descriptor = "chr_StdElevation"
-
-	///
-	// Perform service.
-	///
-	let result
-	try {
-		result = db._query(aql`
-			FOR doc IN ${collection}
-			    FILTER doc.properties.topography.${descriptor} >= ${min}
-			    FILTER doc.properties.topography.${descriptor} <= ${max}
-			    SORT doc.properties.topography.${descriptor} ${sort}
-			    LIMIT ${start}, ${limit}
-			RETURN MERGE(
-				{ geometry_hash: doc._key },
-				UNSET(doc, '_id', '_key', '_rev')
-			)
-        `).toArray()
-	}
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'list')
-
-	.pathParam('min', minElevationSdSchema)
-	.pathParam('max', maxElevationSdSchema)
-	.pathParam('sort', sortSchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
-
-	.response([ModelRecord], ShapeRecordDescription)
-	.summary('Get all shapes within the provided elevation standard deviation range')
-	.description(dd`
-		The service will return the *list* of *shape records* whose *elevation standard deviation* is within the *provided range*.
-	`);
-
-/**
- * Return all shapes within the provided slope range.
- *
- * This service will return the shape records whose slope is larger or equal
- * to the provided minimum value and smaller or equal to the provided maximum value.
- *
- * Parameters:
- * - `:min`: The minimum slope inclusive.
- * - `:max`: The maximum slope inclusive.
- * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
- * - `:start`: The start index.
- * - `:limit`: The number of records.
- */
-router.get('topo/slope/:min/:max/:sort/:start/:limit', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const min = req.pathParams.min
-	const max = req.pathParams.max
-	const sort = req.pathParams.sort
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
-	const descriptor = "chr_AvSlope"
-
-	///
-	// Perform service.
-	///
-	let result
-	try {
-		result = db._query(aql`
-			FOR doc IN ${collection}
-			    FILTER doc.properties.topography.${descriptor} >= ${min}
-			    FILTER doc.properties.topography.${descriptor} <= ${max}
-			    SORT doc.properties.topography.${descriptor} ${sort}
-			    LIMIT ${start}, ${limit}
-			RETURN MERGE(
-				{ geometry_hash: doc._key },
-				UNSET(doc, '_id', '_key', '_rev')
-			)
-        `).toArray()
-	}
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'list')
-
-	.pathParam('min', minSlopeSchema)
-	.pathParam('max', maxSlopeSchema)
-	.pathParam('sort', sortSchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
-
-	.response([ModelRecord], ShapeRecordDescription)
-	.summary('Get all shapes within the provided slope range')
-	.description(dd`
-		The service will return the *list* of *shape records* whose *slope* is within the *provided range*.
-	`);
-
-/**
- * Return all shapes within the provided aspect range.
- *
- * This service will return the shape records whose aspect is larger or equal
- * to the provided minimum value and smaller or equal to the provided maximum value.
- *
- * Parameters:
- * - `:min`: The minimum aspect inclusive.
- * - `:max`: The maximum aspect inclusive.
- * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
- * - `:start`: The start index.
- * - `:limit`: The number of records.
- */
-router.get('topo/aspect/:min/:max/:sort/:start/:limit', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const min = req.pathParams.min
-	const max = req.pathParams.max
-	const sort = req.pathParams.sort
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
-	const descriptor = "chr_AvAspect"
-
-	///
-	// Perform service.
-	///
-	let result
-	try {
-		result = db._query(aql`
-			FOR doc IN ${collection}
-			    FILTER doc.properties.topography.${descriptor} >= ${min}
-			    FILTER doc.properties.topography.${descriptor} <= ${max}
-			    SORT doc.properties.topography.${descriptor} ${sort}
-			    LIMIT ${start}, ${limit}
-			RETURN MERGE(
-				{ geometry_hash: doc._key },
-				UNSET(doc, '_id', '_key', '_rev')
-			)
-        `).toArray()
-	}
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'list')
-
-	.pathParam('min', minAspectSchema)
-	.pathParam('max', maxAspectSchema)
-	.pathParam('sort', sortSchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
-
-	.response([ModelRecord], ShapeRecordDescription)
-	.summary('Get all shapes within the provided aspect range')
-	.description(dd`
-		The service will return the *list* of *shape records* whose *aspect* is within the *provided range*.
-	`);
-
-/**
- * Return all shapes within the provided distance range.
- *
- * This service will return the shape records whose distance to the provided reference
- * geometry is larger or equal to the provided minimum distance and smaller or equal to
- * the provided maximum distance.
- *
- * Parameters:
- * - `:min`: The minimum distance inclusive.
- * - `:max`: The maximum distance inclusive.
- * - `:sort`: The sort order: `ASC` for ascending, `DESC` for descending.
- * - `:start`: The start index.
- * - `:limit`: The number of records.
+ * This service will return all shape records satisfying the search criteria.
  **/
-router.post('dist/:min/:max/:sort/:start/:limit', function (req, res)
+router.post('search', function (req, res)
 {
 	///
-	// Parameters.
+	// Set variables.
 	///
-	const min = req.pathParams.min
-	const max = req.pathParams.max
-	const sort = req.pathParams.sort
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
+	let dist = null
 
-	const reference = req.body.geometry
+	///
+	// Collect body parameters.
+	///
+	const filters = []
+	for(const [key, value] of Object.entries(req.body)) {
+		switch(key) {
+			case 'geometry_hash':
+				filters.push(aql`doc._key IN ${value}`)
+				break
+
+			case 'std_dataset_ids':
+				filters.push(aql`${value} ANY IN doc.std_dataset_ids`)
+				break
+
+			case 'geo_shape_area':
+			case 'chr_AvElevation':
+			case 'chr_StdElevation':
+			case 'chr_AvSlope':
+			case 'chr_AvAspect':
+				if(req.body[key].hasOwnProperty('min')) {
+					filters.push(aql`doc.properties[${key}] >= ${req.body[key].min}`)
+				}
+				if(req.body[key].hasOwnProperty('max')) {
+					filters.push(aql`doc.properties[${key}] <= ${req.body[key].max}`)
+				}
+				break
+
+			case 'intersects':
+				filters.push(
+					aql`ANALYZER(GEO_INTERSECTS(${value}, doc.geometry), "geojson")`
+				)
+				break
+
+			case 'distance':
+				if(req.body[key].range.hasOwnProperty('min')) {
+					dist = aql`GEO_DISTANCE(doc.geometry, ${req.body[key].reference})`
+					filters.push(
+						aql`ANALYZER(${dist} >= ${req.body[key].range.min}, "geojson")`
+					)
+				}
+				if(req.body[key].range.hasOwnProperty('max')) {
+					filters.push(
+						aql`ANALYZER(${dist} <= ${req.body[key].range.max}, "geojson")`
+					)
+				}
+				break
+		}
+	}
+	const filter = (filters.length > 0)
+				 ? aql.join([aql`SEARCH`, aql.join(filters, ' AND ')])
+				 : aql``
+
+	///
+	// Collect paging parameters.
+	///
+	const paging = (req.body.hasOwnProperty('paging'))
+		? aql`LIMIT ${req.body.paging.offset}, ${req.body.paging.limit}`
+		: aql``
+
+	///
+	// Collect distance indicator.
+	///
+	const distance = (dist !== null)
+				   ? aql`distance: ${dist},`
+				   : aql``
+
+	///
+	// Build query.
+	//
+	const query = aql`
+		FOR doc IN VIEW_SHAPE
+			${filter}
+			${paging}
+		RETURN {
+			${distance}
+		    geometry_hash: doc._key,
+		    std_dataset_ids: doc.std_dataset_ids,
+		    properties: doc.properties,
+		    geometry: doc.geometry,
+		    geometry_bounds: doc.geometry_bounds
+		}
+	`
 
 	///
 	// Perform service.
 	///
-	let result
-	try {
-		result = db._query(aql`
-			FOR doc IN ${collection}
-			    LET target = ${reference}
-			    LET distance = GEO_DISTANCE(target, doc.geometry, "wgs84")
-			    FILTER distance >= ${min}
-			    FILTER distance <= ${max}
-			    SORT distance ${sort}
-			    LIMIT ${start}, ${limit}
-			RETURN MERGE(
-				{ geometry_hash: doc._key, distance: distance },
-				UNSET(doc, '_id', '_key', '_rev')
-			)
-        `).toArray()
+	try
+	{
+		///
+		// Perform query.
+		///
+		res.send(
+			db._query(query)
+				.toArray()
+		)
 	}
-
-		///
-		// Handle errors.
-		///
 	catch (error) {
 		throw error;
 	}
 
+}, 'SelectShapes')
+
 	///
-	// Return result.
+	// Body parameter schemas.
 	///
-	res.send(result);
+	.body(ModelSelection, ModelSelectionDescription)
 
-}, 'list')
+	///
+	// Response schema.
+	///
+	.response([ModelDataClick], ModelDataClickDescription)
 
-	.pathParam('min', minDistanceSchema)
-	.pathParam('max', maxDistanceSchema)
-	.pathParam('sort', sortSchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
+	///
+	// Summary.
+	///
+	.summary('Get shape record intersecting the provided coordinate')
 
-	.body(ModelShape, "The *reference shape* for the operation: provide  a \
-		*GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, \
-		*MultiLineString*, *Polygon* or *MultiPolygon*."
-	)
-	.response([ModelRecord], ShapeRecordDescription)
-	.summary('Get all shapes within the provided distance range')
+	///
+	// Description.
+	///
 	.description(dd`
-		The service will return the *list* of *shape records* whose *distance* to the *provided reference geometry* is within the *provided range*.
-		The distance is calculated the *wgs84 centroids* of both the provided reference geometry and the shape geometry.
-	`)
-
-/**
- * Return all shapes fully contained by the provided reference geometry.
- *
- * This service will return all the shape records which are fully contained
- * by the provided reference geometry, the latter may be a Polygon or MultiPolugon.
- *
- * Parameters:
- * - `:start`: The start index.
- * - `:limit`: The number of records.
- **/
-router.post('contain/:start/:limit', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
-
-	const reference = req.body.geometry
-
-	///
-	// Perform service.
-	///
-	let result
-	try {
-		result = db._query(aql`
-			FOR doc IN ${collection}
-			    LET target = ${reference}
-			    FILTER GEO_CONTAINS(${reference}, doc.geometry)
-			    LIMIT ${start}, ${limit}
-			RETURN MERGE(
-				{ geometry_hash: doc._key },
-				UNSET(doc, '_id', '_key', '_rev')
-			)
-        `).toArray()
-	}
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'list')
-
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
-
-	.body(ModelContainer, "The *reference shape* for the operation: provide  a \
-		*GeoJSON object* representing a *Polygon* or *MultiPolygon*."
-	)
-	.response([ModelRecord], ShapeRecordDescription)
-	.summary('Get all shapes fully contained by the provided reference geometry')
-	.description(dd`
-		The service will return the *list* of *shape records* contained by the provided reference geometry.
-		*Contained* is defined such that if the sphere is subdivided into faces (loops), every point is contained by exactly one face. This implies that linear rings do not necessarily contain their vertices.
-	`)
-
-/**
- * Return all shapes that intersect with the provided reference geometry.
- *
- * This service will return all the shape records which intersect
- * with the provided reference geometry.
- *
- * Parameters:
- * - `:start`: The start index.
- * - `:limit`: The number of records.
- **/
-router.post('intersect/:start/:limit', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
-
-	const reference = req.body.geometry
-
-	///
-	// Perform service.
-	///
-	let result
-	try {
-		result = db._query(aql`
-			FOR doc IN ${collection}
-			    LET target = ${reference}
-			    FILTER GEO_INTERSECTS(${reference}, doc.geometry)
-			    LIMIT ${start}, ${limit}
-			RETURN MERGE(
-				{ geometry_hash: doc._key },
-				UNSET(doc, '_id', '_key', '_rev')
-			)
-        `).toArray()
-	}
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'list')
-
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
-
-	.body(ModelShape, "The *reference shape* for the operation: provide  a \
-		*GeoJSON object* representing a *Point*, *MultiPoint*, *LineString*, \
-		*MultiLineString*, *Polygon* or *MultiPolygon*."
-	)
-	.response([ModelRecord], ShapeRecordDescription)
-	.summary('Get all shapes that intersect the provided reference geometry')
-	.description(dd`
-		The service will return the *list* of *shape records* intersecting by the provided reference geometry.
-		*Intersecting* is defined such that at least one point in the reference geometry is also in the shape geometry or vice-versa.
+		The service will return the shape record that intersects the provided coordinate.
 	`)

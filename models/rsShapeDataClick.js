@@ -6,17 +6,17 @@ const joi = require('joi')
 module.exports = {
 	schema: {
 		geometry_hash: joi.string().regex(/^[0-9a-f]{32}$/),
-		geometry: joi.object().required(),
-		geometry_bounds: joi.object(),
+		std_dataset_ids: joi.array().items(joi.string()),
 		properties: joi.object({
-			topography: joi.object({
-				geo_shape_aspect: joi.number(),
-				geo_shape_elevation: joi.number(),
-				geo_shape_elevation_sd: joi.number(),
-				geo_shape_slope: joi.number(),
-				geo_shape_area: joi.number()
-			})
-		}).required()
+			geo_shape_area: joi.number(),
+			chr_AvElevation: joi.number(),
+			chr_StdElevation: joi.number(),
+			chr_AvSlope: joi.number(),
+			chr_AvAspect: joi.number()
+		}).required(),
+		geometry_point: joi.object().required(),
+		geometry: joi.object().required(),
+		geometry_bounds: joi.object()
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here
