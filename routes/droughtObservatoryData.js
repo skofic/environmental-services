@@ -20,9 +20,31 @@ const createRouter = require('@arangodb/foxx/router')
 ///
 const collection_dat = db._collection('DroughtObservatory')
 const collection_map = db._collection('DroughtObservatoryMap')
-const ModelDataArea = require('../models/droughtObservatoryDataArea')
+const ModelDataArea = require('../models/doDataByArea')
+const ModelDataAreaDescription =
+	'Data by measurement bounding box.\n\n' +
+	'The returned data is structured as follows:\n\n' +
+	'- `geometry_point_radius`: The radius of the observation area from the centroid.\n' +
+	'- `geometry_point`: GeoJSON centroid of the observation area.\n' +
+	'- `geometry_bounds`: The GeoJSON polygon describing the area from which the data was extracted.\n' +
+	'- `std_dataset_ids`: List of featured dataset identifiers.\n' +
+	'- `properties`: A set of records featuring the measurement date and observed variables for the current observation resolution.\n\n' +
+	'There will be one record per measurement area.'
+const ModelSelectionData = require('../models/doSelectionData')
+const ModelSelectionDataDescription =
+	'Data selection criteria.\n\n' +
+	'Fill property values, or omit the property to ignore selection.\n' +
+	'The body is structured as follows:\n\n' +
+	'- `std_date_start`: Date range start, included, omit to ignore start date.\n' +
+	'- `std_date_end`: Date range end, included, omit to ignore end date\n' +
+	'- `std_terms`: List of selected variables, omit to consider all variables.\n' +
+	'- `std_dataset_ids`: List of dataset identifiers, omit to consider all datasets.\n' +
+	'- `geometry_point_radius`: List of observation area radius, omit to consider all areas.\n\n' +
+	'To set a selection criteria fill the value, to ignore it omit the property'
+
 const ModelDataDate = require('../models/droughtObservatoryDataDate')
 const ModelBodyDescriptors = require('../models/bodyDescriptors')
+const ModelSelectionSummary = require("../models/doSelectionSummaryData");
 const latSchema = joi.number().min(-90).max(90).required()
 	.description('Coordinate decimal latitude.')
 const lonSchema = joi.number().min(-180).max(180).required()
@@ -37,22 +59,6 @@ const itemsLimitSchema = joi.number().required()
 	.description('Number of records to return, if found.')
 const allAnySchema = joi.string().valid('ALL', 'ANY').required()
 	.description("Select data featuring \`all\` or \`any\` of the provided descriptors.")
-const ModelDataAreaDescription =
-	'Drought data grouped by data source geometry.\n' +
-	'\n' +
-	'The returned data is grouped as follows:\n' +
-	'\n' +
-	'- `geometry`: The polygon describing the area from which the data was extracted.\n' +
-	'- `geometry_point`: The coordinates of the area centroid.\n' +
-	'- `geometry_point_radius`: The radius, in decimal degrees, of the data area.\n' +
-	'- `properties`: The list of data measurements grouped by date.'
-const ModelDataDateDescription =
-	'Drought data grouped by date.\n' +
-	'\n' +
-	'The returned data is grouped as follows:\n' +
-	'\n' +
-	'- `std_date`: The date of the observed data in `YYYYMMDD` format.\n' +
-	'- `properties`: The list of data measurements .'
 
 ///
 // Create and export router.
@@ -69,8 +75,8 @@ router.tag('Drought Observatory Data')
 /**
  * Get all drought related data by area.
  *
- * This service will return all drought data associated to the provided
- * coordinates, grouped by area.
+ * This service will return all drought data associated
+ * with the provided coordinates, grouped by area.
  *
  * Use this service with care, since it might return a large amount of data.
  *
@@ -78,7 +84,7 @@ router.tag('Drought Observatory Data')
  * - `:lat`: The latitude.
  * - `:lon`: The longitude.
  */
-router.get('all/area/:lat/:lon', function (req, res)
+router.post('area/:lat/:lon', function (req, res)
 {
 	///
 	// Parameters.
@@ -87,31 +93,59 @@ router.get('all/area/:lat/:lon', function (req, res)
 	const lon = req.pathParams.lon
 
 	///
+	// Collect body parameters.
+	///
+	const filters = [
+		aql`SEARCH ANALYZER(GEO_INTERSECTS(click, item.geometry_bounds), "geojson")`
+	]
+	for(const [key, value] of Object.entries(req.body)) {
+		switch(key) {
+			case 'std_date_start':
+				filters.push(aql`AND item.std_date >= ${value}`)
+				break
+
+			case 'std_date_end':
+				filters.push(aql`AND item.std_date <= ${value}`)
+				break
+
+			case 'std_terms':
+				filters.push(aql`AND ${value} ANY IN item.std_terms`)
+				break
+
+			case 'std_dataset_ids':
+				filters.push(aql`AND ${value} ANY IN item.std_dataset_ids`)
+				break
+
+			case 'geometry_point_radius':
+				filters.push(aql`AND ${value} ANY IN item.geometry_point_radius`)
+				break
+		}
+	}
+	const filter = aql.join(filters)
+
+	///
 	// Perform service.
 	///
 	let result;
 	try {
 		result = db._query(aql`
+			LET click = GEO_POINT(${lon}, ${lat})
 			FOR item IN VIEW_DROUGHT_OBSERVATORY
-			    SEARCH ANALYZER(
-			        GEO_INTERSECTS(
-			            GEO_POINT(${lon}, ${lat}),
-			            item.geometry_bounds
-			        ),
-			        "geojson"
-			    )
+			    ${filter}
 			      
 			    SORT item.std_date ASC
 			  
 			    COLLECT radius = item.geometry_point_radius,
 			            bounds = item.geometry_bounds,
 			            point = item.geometry_point
+			    AGGREGATE sets = UNIQUE(item.std_dataset_ids)
 			    INTO groups
 			
 			RETURN {
-			    geometry: bounds,
-			    geometry_point: point,
 			    geometry_point_radius: radius,
+			    geometry_point: point,
+			    geometry_bounds: bounds,
+			    std_dataset_ids: UNIQUE(FLATTEN(sets)),
 			    properties: (
 			        FOR doc IN groups[*].item
 			        RETURN MERGE_RECURSIVE(
@@ -122,272 +156,6 @@ router.get('all/area/:lat/:lon', function (req, res)
 			}
         `).toArray()
 	}
-	// try {
-	// 	result = db._query(aql`
-	// 		FOR shape IN ${collection_map}
-	// 		    FILTER GEO_INTERSECTS(
-	// 		        GEO_POINT(${lon}, ${lat}),
-	// 		        shape.geometry
-	// 		    )
-	//
-	// 		    SORT shape.geometry_point_radius DESC
-	//
-	// 		RETURN {
-	// 		    geometry: shape.geometry,
-	// 		    geometry_point: shape.geometry_point,
-	// 		    geometry_point_radius: shape.geometry_point_radius,
-	// 		    properties: (
-	// 		        FOR data IN ${collection_dat}
-	// 		            FILTER data.geometry_hash == shape._key
-	// 		            SORT data.std_date ASC
-	// 		        RETURN MERGE_RECURSIVE(
-	// 		            { std_date: data.std_date },
-	// 		            data.properties
-	// 		        )
-	// 		    )
-	// 		}
-    //     `).toArray()
-	// }
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'GetAllDataByArea')
-
-	///
-	// Path parameter schemas.
-	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
-
-	///
-	// Response schema.
-	///
-	.response([ModelDataArea], ModelDataAreaDescription)
-
-	///
-	// Summary.
-	///
-	.summary('Get all drought data grouped by data source area')
-
-	///
-	// Description.
-	///
-	.description(dd`
-		This service will return *all* drought data covering the *provided* coordinates.
-		
-The data will be grouped by the *data source area* sorted in descending order, meaning that \
-larger resolution data will precede more precise resolution data. Within each group the \
-observation data will be grouped by date in ascending order.
-
-Use this service if you need information on the resolution of the data points.
-
-Note that this service may return a large amount of data, so it might be advisable to first \
-try the metadata services and limit the scope of the requested data.
-	`);
-
-/**
- * Get all drought related data by date.
- *
- * This service will return all drought data associated to the provided
- * coordinates, grouped by date.
- *
- * Use this service with care, since it might return a large amount of data.
- *
- * Parameters:
- * - `:lat`: The latitude.
- * - `:lon`: The longitude.
- */
-router.get('all/date/:lat/:lon', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
-
-	///
-	// Perform service.
-	///
-	let result;
-	try {
-		result = db._query(aql`
-			FOR data IN VIEW_DROUGHT_OBSERVATORY
-			    SEARCH ANALYZER(
-			        GEO_INTERSECTS(
-			            GEO_POINT(${lon}, ${lat}),
-			            data.geometry_bounds
-			        ),
-			        "geojson"
-			    )
-			      
-			    SORT data.std_date ASC
-			  
-			    COLLECT date = data.std_date
-			    INTO items
-			    KEEP data
-			    
-			RETURN {
-			    std_date: date,
-			    properties: MERGE_RECURSIVE(items[*].data.properties)
-			}
-        `).toArray()
-	}
-	// try {
-	// 	result = db._query(aql`
-	// 		FOR shape IN ${collection_map}
-	// 		    FILTER GEO_INTERSECTS(
-	// 		        GEO_POINT(${lon}, ${lat}),
-	// 		        shape.geometry
-	// 		    )
-	//
-	// 		    FOR data IN ${collection_dat}
-	// 		        FILTER data.geometry_hash == shape._key
-	// 		        SORT data.std_date ASC
-	// 		        COLLECT date = data.std_date
-	// 		        INTO items
-	// 		        KEEP data
-	//
-	// 		    RETURN {
-	// 		        std_date: date,
-	// 		        properties: MERGE_RECURSIVE(items[*].data.properties)
-	// 		    }
-    //     `).toArray()
-	// }
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'GetAllDataByDate')
-
-	///
-	// Path parameter schemas.
-	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
-
-	///
-	// Response schema.
-	///
-	.response([ModelDataDate], ModelDataDateDescription)
-
-	///
-	// Summary.
-	///
-	.summary('Get all drought data grouped by date')
-
-	///
-	// Description.
-	///
-	.description(dd`
-		This service will return *all* drought data covering the *provided* coordinates.
-		
-The data will be grouped by *date* sorted in ascending order. Each element \
-holds the observation date and a \`properties\` object containing the data.
-	`);
-
-/**
- * Get drought related data by date range grouped by area.
- *
- * This service will return all drought data associated to the provided
- * coordinates and date range, grouped by observation area.
- *
- * Parameters:
- * - `:lat`: The latitude.
- * - `:lon`: The longitude.
- * - ':startDate': The start date.
- * - `:endDate`: The end date.
- */
-router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
-	const startDate = req.pathParams.startDate
-	const endDate = req.pathParams.endDate
-
-	///
-	// Perform service.
-	///
-	let result;
-	try {
-		result = db._query(aql`
-			FOR item IN VIEW_DROUGHT_OBSERVATORY
-			    SEARCH ANALYZER(
-			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),item.geometry_bounds),
-			        "geojson") AND
-			           item.std_date >= ${startDate} AND
-		               item.std_date <= ${endDate}
-			      
-			    SORT item.std_date ASC
-			  
-			    COLLECT radius = item.geometry_point_radius,
-			            bounds = item.geometry_bounds,
-			            point = item.geometry_point
-			    INTO groups
-			
-			RETURN {
-			    geometry: bounds,
-			    geometry_point: point,
-			    geometry_point_radius: radius,
-			    properties: (
-			        FOR doc IN groups[*].item
-			        RETURN MERGE_RECURSIVE(
-			            { std_date: doc.std_date },
-			            doc.properties
-			        )
-			    )
-			}
-        `).toArray()
-	}
-	// try {
-	// 	result = db._query(aql`
-	// 		FOR shape IN ${collection_map}
-	// 		    FILTER GEO_INTERSECTS(
-	// 		        GEO_POINT(${lon}, ${lat}),
-	// 		        shape.geometry
-	// 		    )
-	//
-	// 		    SORT shape.geometry_point_radius DESC
-	//
-	// 		RETURN {
-	// 		    geometry: shape.geometry,
-	// 		    geometry_point: shape.geometry_point,
-	// 		    geometry_point_radius: shape.geometry_point_radius,
-	// 		    properties: (
-	// 		        FOR data IN ${collection_dat}
-	// 			        FILTER data.geometry_hash == shape._key AND
-	// 			               data.std_date >= ${startDate} AND
-	// 			               data.std_date <= ${endDate}
-	// 		            SORT data.std_date ASC
-	// 		        RETURN MERGE_RECURSIVE(
-	// 		            { std_date: data.std_date },
-	// 		            data.properties
-	// 		        )
-	// 		    )
-	// 		}
-    //     `).toArray()
-	// }
 
 	///
 	// Handle errors.
@@ -401,15 +169,23 @@ router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
 	///
 	res.send(result);
 
-}, 'GetAllDataByAreaForDateRange')
+}, 'SelectDataByArea')
 
 	///
 	// Path parameter schemas.
 	///
 	.pathParam('lat', latSchema)
 	.pathParam('lon', lonSchema)
-	.pathParam('startDate', startDateSchema)
-	.pathParam('endDate', endDateSchema)
+
+	///
+	// Body parameters.
+	///
+	.body(ModelSelectionData, ModelSelectionDataDescription)
+
+	///
+	// Summary.
+	///
+	.summary('Get all data grouped by measurement area')
 
 	///
 	// Response schema.
@@ -417,526 +193,12 @@ router.get('area/:lat/:lon/:startDate/:endDate', function (req, res)
 	.response([ModelDataArea], ModelDataAreaDescription)
 
 	///
-	// Summary.
-	///
-	.summary('Get drought data in date range by area')
-
-	///
 	// Description.
 	///
 	.description(dd`
-		This service will return  drought data covering the *provided* coordinates \
-		and date range grouped by area.
-		
-The data will be grouped by *area* sorted in descending radius order. Each element \
-holds the observation date and a \`properties\` object containing the data \
-sorted by date in ascending order.
-
-Note that all areas pertaining to the provided coordinates will be returned, \
-regardless whether there is any data in the date range.
-	`);
-
-/**
- * Get drought related data by date range grouped by date.
- *
- * This service will return all drought data associated to the provided
- * coordinates and date range, grouped by observation date.
- *
- * Parameters:
- * - `:lat`: The latitude.
- * - `:lon`: The longitude.
- * - ':startDate': The start date.
- * - `:endDate`: The end date.
- */
-router.get('date/:lat/:lon/:startDate/:endDate', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
-	const startDate = req.pathParams.startDate
-	const endDate = req.pathParams.endDate
-
-	///
-	// Perform service.
-	///
-	let result;
-	try {
-		result = db._query(aql`
-			FOR data IN VIEW_DROUGHT_OBSERVATORY
-			    SEARCH ANALYZER(
-			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),data.geometry_bounds),
-			        "geojson") AND
-			           data.std_date >= ${startDate} AND
-		               data.std_date <= ${endDate}
-			      
-			    SORT data.std_date ASC
-			  
-			    COLLECT date = data.std_date
-			    INTO items
-			    KEEP data
-			    
-			RETURN {
-			    std_date: date,
-			    properties: MERGE_RECURSIVE(items[*].data.properties)
-			}
-        `).toArray()
-	}
-	// try {
-	// 	result = db._query(aql`
-	// 		FOR shape IN ${collection_map}
-	// 		    FILTER GEO_INTERSECTS(
-	// 		        GEO_POINT(${lon}, ${lat}),
-	// 		        shape.geometry
-	// 		    )
-	//
-	// 		    FOR data IN ${collection_dat}
-	// 		        FILTER data.geometry_hash == shape._key AND
-	// 		               data.std_date >= ${startDate} AND
-	// 		               data.std_date <= ${endDate}
-	// 		        SORT data.std_date ASC
-	// 		        COLLECT date = data.std_date
-	// 		        INTO items
-	// 		        KEEP data
-	//
-	// 		    RETURN {
-	// 		        std_date: date,
-	// 		        properties: MERGE_RECURSIVE(items[*].data.properties)
-	// 		    }
-    //     `).toArray()
-	// }
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result);
-
-}, 'GetAllDataByDateForDateRange')
-
-	///
-	// Path parameter schemas.
-	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
-	.pathParam('startDate', startDateSchema)
-	.pathParam('endDate', endDateSchema)
-
-	///
-	// Response schema.
-	///
-	.response([ModelDataDate], ModelDataDateDescription)
-
-	///
-	// Summary.
-	///
-	.summary('Get drought data in date range by date')
-
-	///
-	// Description.
-	///
-	.description(dd`
-		This service will return  drought data covering the *provided* coordinates and date range.
-		
-The data will be grouped by *date* sorted in ascending order. Each element \
-holds the observation date and a \`properties\` object containing the data.
-	`);
-
-/**
- * Get drought related data by date range and descriptors by area.
- *
- * This service will return all drought data associated to the provided
- * coordinates, date range and containing all or any of the provided descriptors,
- * returning data grouped by observation area.
- *
- * Parameters:
- * - `:lat`: The latitude.
- * - `:lon`: The longitude.
- * - ':startDate': The start date.
- * - `:endDate`: The end date.
- * - `:which`: `ANY` or `ALL` species in the provided list should be matched.
- */
-router.post('area/:lat/:lon/:startDate/:endDate/:which', function (req, res)
-{
-	///
-	// Path parameters.
-	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
-	const startDate = req.pathParams.startDate
-	const endDate = req.pathParams.endDate
-	const which = req.pathParams.which.toLowerCase()
-
-	///
-	// Body parameters.
-	///
-	const descriptors = req.body.std_terms
-
-	///
-	// Perform service.
-	///
-	let query;
-	if(which.toLowerCase() === 'all') {
-		query = aql`
-			FOR item IN VIEW_DROUGHT_OBSERVATORY
-			    SEARCH ANALYZER(
-			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),item.geometry_bounds),
-			        "geojson") AND
-			           ${descriptors} ALL IN item.std_terms AND
-			           item.std_date >= ${startDate} AND
-		               item.std_date <= ${endDate}
-			      
-			    SORT item.std_date ASC
-			  
-			    COLLECT radius = item.geometry_point_radius,
-			            bounds = item.geometry_bounds,
-			            point = item.geometry_point
-			    INTO groups
-			
-			RETURN {
-			    geometry: bounds,
-			    geometry_point: point,
-			    geometry_point_radius: radius,
-			    properties: (
-			        FOR doc IN groups[*].item
-			        RETURN MERGE_RECURSIVE(
-			            { std_date: doc.std_date },
-			            doc.properties
-			        )
-			    )
-			}
-		`
-		// query = aql`
-		// 	FOR shape IN ${collection_map}
-		// 	    FILTER GEO_INTERSECTS(
-		// 	        GEO_POINT(${lon}, ${lat}),
-		// 	        shape.geometry
-		// 	    )
-		//
-		// 	    SORT shape.geometry_point_radius DESC
-		//
-		// 	RETURN {
-		// 	    geometry: shape.geometry,
-		// 	    geometry_point: shape.geometry_point,
-		// 	    geometry_point_radius: shape.geometry_point_radius,
-		// 	    properties: (
-		// 	        FOR data IN ${collection_dat}
-		// 	        FILTER data.geometry_hash == shape._key AND
-		// 	               data.std_date >= ${startDate} AND
-		// 	               data.std_date <= ${endDate} AND
-		// 	               ${descriptors} ALL IN data.std_terms
-		// 	        SORT data.std_date ASC
-		// 	        RETURN MERGE_RECURSIVE(
-		// 	            { std_date: data.std_date },
-		// 	            data.properties
-		// 	        )
-		// 	    )
-		// 	}
-		// `
-	} else {
-		query = aql`
-			FOR item IN VIEW_DROUGHT_OBSERVATORY
-			    SEARCH ANALYZER(
-			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),item.geometry_bounds),
-			        "geojson") AND
-			           ${descriptors} ANY IN item.std_terms AND
-			           item.std_date >= ${startDate} AND
-		               item.std_date <= ${endDate}
-			      
-			    SORT item.std_date ASC
-			  
-			    COLLECT radius = item.geometry_point_radius,
-			            bounds = item.geometry_bounds,
-			            point = item.geometry_point
-			    INTO groups
-			
-			RETURN {
-			    geometry: bounds,
-			    geometry_point: point,
-			    geometry_point_radius: radius,
-			    properties: (
-			        FOR doc IN groups[*].item
-			        RETURN MERGE_RECURSIVE(
-			            { std_date: doc.std_date },
-			            doc.properties
-			        )
-			    )
-			}
-		`
-		// query = aql`
-		// 	FOR shape IN ${collection_map}
-		// 	    FILTER GEO_INTERSECTS(
-		// 	        GEO_POINT(${lon}, ${lat}),
-		// 	        shape.geometry
-		// 	    )
-		//
-		// 	    SORT shape.geometry_point_radius DESC
-		//
-		// 	RETURN {
-		// 	    geometry: shape.geometry,
-		// 	    geometry_point: shape.geometry_point,
-		// 	    geometry_point_radius: shape.geometry_point_radius,
-		// 	    properties: (
-		// 	        FOR data IN ${collection_dat}
-		// 	        FILTER data.geometry_hash == shape._key AND
-		// 	               data.std_date >= ${startDate} AND
-		// 	               data.std_date <= ${endDate} AND
-		// 	               ${descriptors} ANY IN data.std_terms
-		// 	        SORT data.std_date ASC
-		// 	        RETURN MERGE_RECURSIVE(
-		// 	            { std_date: data.std_date },
-		// 	            data.properties
-		// 	        )
-		// 	    )
-		// 	}
-		// `
-	}
-
-	///
-	// Perform service.
-	///
-	try
-	{
-		///
-		// Perform query.
-		///
-		res.send(
-			db._query(query)
-				.toArray()
-		)
-	}
-	catch (error) {
-		throw error;
-	}
-
-}, 'GetAllDataByAreaForDateRangeAndTerms')
-
-	///
-	// Path parameter schemas.
-	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
-	.pathParam('startDate', startDateSchema)
-	.pathParam('endDate', endDateSchema)
-	.pathParam('which', allAnySchema)
-
-	///
-	// Body parameters.
-	///
-	.body(ModelBodyDescriptors, "The list of requested *observation variable names*.")
-
-	///
-	// Response schema.
-	///
-	.response([ModelDataArea], ModelDataAreaDescription)
-
-	///
-	// Summary.
-	///
-	.summary('Get drought data in date range and featuring selected descriptors by area')
-
-	///
-	// Description.
-	///
-	.description(dd`
-		This service will return  drought data covering the *provided* coordinates, date range \
-		and featuring *any* or *all* of the provided descriptors.
-		
-The data will be grouped by *observation area* sorted in descending order order. Each element \
-holds the observation date and a \`properties\` object containing the data.
-
-Note that all areas pertaining to the provided coordinates will be returned, \
-regardless whether there is any data in the date range.
-	`);
-
-/**
- * Get drought related data by date range and descriptors by date.
- *
- * This service will return all drought data associated to the provided
- * coordinates, date range and containing all or any of the provided descriptors,
- * returning data grouped by date.
- *
- * Parameters:
- * - `:lat`: The latitude.
- * - `:lon`: The longitude.
- * - ':startDate': The start date.
- * - `:endDate`: The end date.
- * - `:which`: `ANY` or `ALL` species in the provided list should be matched.
- * - `:start`: The start index.
- * - `:limit`: The number of records.
- */
-router.post('date/:lat/:lon/:startDate/:endDate/:which/:start/:limit', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
-	const startDate = req.pathParams.startDate
-	const endDate = req.pathParams.endDate
-	const which = req.pathParams.which.toLowerCase()
-	const start = req.pathParams.start
-	const limit = req.pathParams.limit
-
-	const descriptors = req.body.std_terms
-
-	///
-	// Perform service.
-	///
-	let query;
-	if(which.toLowerCase() === 'all') {
-		query = aql`
-			FOR data IN VIEW_DROUGHT_OBSERVATORY
-			    SEARCH ANALYZER(
-			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),data.geometry_bounds),
-			        "geojson") AND
-			           ${descriptors} ALL IN data.std_terms AND
-			           data.std_date >= ${startDate} AND
-		               data.std_date <= ${endDate}
-			      
-			    SORT data.std_date ASC
-			  
-			    COLLECT date = data.std_date
-			    INTO items
-			    KEEP data
-			    
-			    LIMIT ${start}, ${limit}
-			    
-			RETURN {
-			    std_date: date,
-			    properties: MERGE_RECURSIVE(items[*].data.properties)
-			}
-		`
-		// query = aql`
-		// 	FOR shape IN ${collection_map}
-		// 	    FILTER GEO_INTERSECTS(
-		// 	        GEO_POINT(${lon}, ${lat}),
-		// 	        shape.geometry
-		// 	    )
-		//
-		// 	    FOR data IN ${collection_dat}
-		// 	        FILTER data.geometry_hash == shape._key AND
-		// 	               data.std_date >= ${startDate} AND
-		// 	               data.std_date <= ${endDate} AND
-		// 	               ${descriptors} ALL IN data.std_terms
-		// 	        SORT data.std_date ASC
-		// 	        LIMIT ${start}, ${limit}
-		// 	        COLLECT date = data.std_date
-		// 	        INTO items
-		// 	        KEEP data
-		//
-		// 	    RETURN {
-		// 	        std_date: date,
-		// 	        properties: MERGE_RECURSIVE(items[*].data.properties)
-		// 	    }
-		// `
-	} else {
-		query = aql`
-			FOR data IN VIEW_DROUGHT_OBSERVATORY
-			    SEARCH ANALYZER(
-			        GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}),data.geometry_bounds),
-			        "geojson") AND
-			           ${descriptors} ANY IN data.std_terms AND
-			           data.std_date >= ${startDate} AND
-		               data.std_date <= ${endDate}
-			      
-			    SORT data.std_date ASC
-			  
-			    COLLECT date = data.std_date
-			    INTO items
-			    KEEP data
-			    
-			    LIMIT ${start}, ${limit}
-			    
-			RETURN {
-			    std_date: date,
-			    properties: MERGE_RECURSIVE(items[*].data.properties)
-			}
-		`
-		// query = aql`
-		// 	FOR shape IN ${collection_map}
-		// 	    FILTER GEO_INTERSECTS(
-		// 	        GEO_POINT(${lon}, ${lat}),
-		// 	        shape.geometry
-		// 	    )
-		//
-		// 	    FOR data IN ${collection_dat}
-		// 	        FILTER data.geometry_hash == shape._key AND
-		// 	               data.std_date >= ${startDate} AND
-		// 	               data.std_date <= ${endDate} AND
-		// 	               ${descriptors} ANY IN data.std_terms
-		// 	        SORT data.std_date ASC
-		// 	        LIMIT ${start}, ${limit}
-		// 	        COLLECT date = data.std_date
-		// 	        INTO items
-		// 	        KEEP data
-		//
-		// 	    RETURN {
-		// 	        std_date: date,
-		// 	        properties: MERGE_RECURSIVE(items[*].data.properties)
-		// 	    }
-		// `
-	}
-
-	///
-	// Perform service.
-	///
-	try
-	{
-		///
-		// Perform query.
-		///
-		res.send(
-			db._query(query)
-				.toArray()
-		)
-	}
-	catch (error) {
-		throw error;
-	}
-
-}, 'list')
-
-	///
-	// Path parameter schemas.
-	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
-	.pathParam('startDate', startDateSchema)
-	.pathParam('endDate', endDateSchema)
-	.pathParam('which', allAnySchema)
-	.pathParam('start', startLimitSchema)
-	.pathParam('limit', itemsLimitSchema)
-
-	///
-	// Body parameters.
-	///
-	.body(ModelBodyDescriptors, "The list of requested *observation variable names*.")
-
-	///
-	// Response schema.
-	///
-	.response([ModelDataDate], ModelDataDateDescription)
-
-	///
-	// Summary.
-	///
-	.summary('Get drought data in date range and featuring selected descriptors by date')
-
-	///
-	// Description.
-	///
-	.description(dd`
-		This service will return  drought data covering the *provided* coordinates, date range \
-		and featuring *any* or *all* of the provided descriptors.
-		
-The data will be grouped by *date* sorted in ascending order. Each element \
-holds the observation date and a \`properties\` object containing the data.
+		This service will return the data covering the *provided* coordinates.
+		The resulting data will be grouped by measurement area or bounding box.
+		Provide in the body of the request the selection criteria.\n
+		Note that there is no paging on the area sub-records, so use this service \
+		to process or store the data, rather than using it for paging.
 	`);

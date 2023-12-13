@@ -5,19 +5,8 @@ const joi = require('joi')
 
 module.exports = {
 	schema: {
-		geometry:
-			joi.object({
-				type: joi.string()
-					.valid(
-						"Polygon", "MultiPolygon"
-					).required(),
-				coordinates: joi.array()
-					.items(
-						joi.number(),
-						joi.array()
-					)
-					.required()
-			}).required(),
+		geometry_point_radius: joi.number()
+			.required(),
 		geometry_point:
 			joi.object({
 				type: joi.string()
@@ -30,11 +19,27 @@ module.exports = {
 					)
 					.required()
 			}).required(),
-		geometry_point_radius: joi.number().required(),
+		geometry_bounds:
+			joi.object({
+				type: joi.string()
+					.valid(
+						"Polygon", "MultiPolygon"
+					).required(),
+				coordinates: joi.array()
+					.items(
+						joi.number(),
+						joi.array()
+					)
+					.required()
+			}).required(),
+		std_dataset_ids: joi.array()
+			.items(joi.string()),
 		properties: joi.array()
 			.items(
 				joi.object({
-					std_date: joi.string().regex(/^[0-9]+$/).required()
+					std_date: joi.string()
+						.regex(/^[0-9]{4,8}$/)
+						.required()
 				})
 			)
 	},
