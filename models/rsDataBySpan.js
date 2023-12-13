@@ -13,12 +13,19 @@ module.exports = {
 		// std_date that contains the date and properties
 		// that will contain all properties recorded in that date.
 		std_date_span: joi.string()
-			.valid('std_date_span_day', 'std_date_span_month', 'std_date_span_year'),
+			.valid(
+				'std_date_span_day',
+				'std_date_span_month',
+				'std_date_span_year'
+			),
 		std_date_series: joi.array()
-			.items(joi.object({
-				std_date: joi.string(),
-				properties: joi.object()
-			}))
+			.items(
+				joi.object({
+					std_date: joi.string(),
+					properties: joi.object(),
+					std_dataset_ids: joi.array().items(joi.string())
+				})
+			)
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here

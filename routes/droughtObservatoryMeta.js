@@ -24,7 +24,7 @@ const collection_map = db._collection('DroughtObservatoryMap')
 ///
 // Models.
 ///
-const ModelSummaryByDate = require('../models/summaryDataByDate')
+const ModelSummaryByDate = require('../models/doSummaryDataByDate')
 const ModelSummaryByDateDescription =
 	'Data summary by date.\n\n' +
 	'The returned data is grouped as follows:\n\n' +
@@ -36,7 +36,7 @@ const ModelSummaryByDateDescription =
 	'- `geometry_point_radius`: List of observation area radius.\n' +
 	'- `geometry_point`: List of observation area GeoJSON centroids.\n' +
 	'- `geometry_bounds`: List of observation area  GeoJSON polygons.\n'
-const ModelSummaryByGeometry = require('../models/summaryDataByGeometry')
+const ModelSummaryByGeometry = require('../models/doSummaryDataByGeometry')
 const ModelSummaryByGeometryDescription =
 	'Data summary by measurement bounding box.\n\n' +
 	'The returned data is structured as follows:\n\n' +
@@ -48,7 +48,7 @@ const ModelSummaryByGeometryDescription =
 	'- `geometry_point_radius`: The radius of the observation area from the centroid.\n' +
 	'- `geometry_point`: GeoJSON centroid of the observation area.\n' +
 	'- `geometry_bounds`: The GeoJSON polygon describing the area from which the data was extracted.\n'
-const ModelSummaryByDataset = require('../models/summaryDataByDataset')
+const ModelSummaryByDataset = require('../models/doSummaryDataByDataset')
 const ModelSummaryByDatasetDescription =
 	'Data summary by dataset.\n\n' +
 	'The returned data is structured as follows:\n\n' +
@@ -60,7 +60,7 @@ const ModelSummaryByDatasetDescription =
 	'- `geometry_point_radius`: The radius of the observation area from the centroid.\n' +
 	'- `geometry_point`: GeoJSON centroid of the observation area.\n' +
 	'- `geometry_bounds`: The GeoJSON polygon describing the area from which the data was extracted.\n'
-const ModelSelectionSummary = require('../models/selectionSummaryData')
+const ModelSelectionSummary = require('../models/doSelectionSummaryData')
 const ModelSelectionSummaryDescription =
 	'Summary data selection.\n\n' +
 	'Fill property values, or omit the property to ignore selection.\n' +
@@ -189,7 +189,7 @@ router.get(':lat/:lon', function (req, res)
 		This service will return the summary of all data measurements \
 		available for the provided coordinate.
 		The summary data is not grouped.
-		`);
+	`);
 
 /**
  * Get data summary for provided coordinates by area.
