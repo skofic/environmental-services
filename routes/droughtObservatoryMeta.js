@@ -70,6 +70,15 @@ const ModelSelectionSummaryDescription =
 	'- `std_terms`: List of selected variables, omit to consider all variables.\n' +
 	'- `std_dataset_ids`: List of dataset identifiers, omit to consider all datasets.\n' +
 	'- `geometry_point_radius`: List of observation area radius, omit to consider all areas.\n'
+const ModelSelectionSummaryDataset = require('../models/doSelectionSummaryDataset')
+const ModelSelectionSummaryDatasetDescription =
+	'Summary data selection by dataset.\n\n' +
+	'Fill property values, or omit the property to ignore selection.\n' +
+	'The body is structured as follows:\n\n' +
+	'- `std_date_start`: Date range start, included, omit to ignore start date.\n' +
+	'- `std_date_end`: Date range end, included, omit to ignore end date\n' +
+	'- `std_terms`: List of selected variables, omit to consider all variables.\n' +
+	'- `geometry_point_radius`: List of observation area radius, omit to consider all areas.\n'
 const latSchema = joi.number().min(-90).max(90).required()
 	.description('Coordinate decimal latitude.')
 const lonSchema = joi.number().min(-180).max(180).required()
@@ -311,63 +320,46 @@ router.get('dataset/:lat/:lon', function (req, res)
 	let result;
 	try {
 		result = db._query(aql`
-			LET sets = REMOVE_VALUE(
-			    UNIQUE(
-			        FLATTEN(
-			            (
-			                FOR probe IN VIEW_DROUGHT_OBSERVATORY
-			                    SEARCH ANALYZER(
-			                        GEO_INTERSECTS(
-			                            GEO_POINT(${lon}, ${lat}),
-			                            probe.geometry_bounds
-			                        ),
-			                        "geojson"
-			                    )
-			                    COLLECT AGGREGATE sets = UNIQUE(probe.std_dataset_ids)
-			                RETURN UNIQUE(FLATTEN(sets))
-			            )
-			        )
-			    ),
-			    null
-			)
+			LET point = GEO_POINT(${lon}, ${lat})
+			LET sets = UNIQUE(FLATTEN(
+			    FOR doc IN VIEW_DROUGHT_OBSERVATORY
+			        SEARCH ANALYZER(GEO_INTERSECTS(point, doc.geometry_bounds), "geojson")
+			    RETURN doc.std_dataset_ids
+			))
 			
 			FOR set IN sets
-			RETURN (
-			    FOR probe IN VIEW_DROUGHT_OBSERVATORY
-			        SEARCH ANALYZER(
-			            GEO_INTERSECTS(
-			                GEO_POINT(${lon}, ${lat}),
-			                probe.geometry_bounds
-			            ),
-			            "geojson"
-			        ) AND
-			        probe.std_dataset_ids == set
+			    LET save = (
+			        FOR doc IN VIEW_DROUGHT_OBSERVATORY
+			            SEARCH ANALYZER(GEO_INTERSECTS(point, doc.geometry_bounds), "geojson") AND
+			                   doc.std_dataset_ids == set
 			    
-			        COLLECT AGGREGATE start = MIN(probe.std_date),
-			                          end   = MAX(probe.std_date),
-			                          terms = UNIQUE(probe.std_terms),
-			                          radius = UNIQUE(probe.geometry_point_radius),
-			                          points = UNIQUE(probe.geometry_point),
-			                          bounds = UNIQUE(probe.geometry_bounds),
-			                          count = COUNT()
+			            COLLECT AGGREGATE start = MIN(doc.std_date),
+			                              end   = MAX(doc.std_date),
+			                              terms = UNIQUE(doc.std_terms),
+			                              radius = UNIQUE(doc.geometry_point_radius),
+			                              points = UNIQUE(doc.geometry_point),
+			                              bounds = UNIQUE(doc.geometry_bounds),
+			                              count = COUNT()
+			    
+			            RETURN {
+			                count: count,
+			                std_dataset_id: set,
+			                std_date_start: start,
+			                std_date_end: end,
+			                std_terms: UNIQUE(FLATTEN(terms)),
+			                geometry_point_radius: UNIQUE(FLATTEN(radius)),
+			                geometry_point: UNIQUE(FLATTEN(points)),
+			                geometry_bounds: UNIQUE(FLATTEN(bounds))
+			            }
+			   )
 			
-			        RETURN {
-			            count: count,
-			            std_date_start: start,
-			            std_date_end: end,
-			            std_terms: UNIQUE(FLATTEN(terms)),
-			            std_dataset_id: set,
-			            geometry_point_radius: UNIQUE(FLATTEN(radius)),
-			            geometry_point: UNIQUE(FLATTEN(points)),
-			            geometry_bounds: UNIQUE(FLATTEN(bounds))
-			        }
-			)
+			RETURN save[0]
         `).toArray()
 	}
 
-		///
-		// Handle errors.
-		///
+	///
+	// Handle errors.
+	///
 	catch (error) {
 		throw error;
 	}
@@ -697,28 +689,28 @@ router.post('dataset/:lat/:lon', function (req, res)
 	// Collect body parameters.
 	///
 	const filters = [
-		aql`SEARCH ANALYZER(GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), probe.geometry_bounds), "geojson")`
+		aql`SEARCH ANALYZER(GEO_INTERSECTS(point, doc.geometry_bounds), "geojson")`
 	]
 	for(const [key, value] of Object.entries(req.body)) {
 		switch(key) {
 			case 'std_date_start':
-				filters.push(aql`AND probe.std_date >= ${value}`)
+				filters.push(aql`AND doc.std_date >= ${value}`)
 				break
 
 			case 'std_date_end':
-				filters.push(aql`AND probe.std_date <= ${value}`)
+				filters.push(aql`AND doc.std_date <= ${value}`)
 				break
 
 			case 'std_terms':
-				filters.push(aql`AND ${value} ANY IN probe.std_terms`)
+				filters.push(aql`AND ${value} ANY IN doc.std_terms`)
 				break
 
 			case 'std_dataset_ids':
-				filters.push(aql`AND ${value} ANY IN probe.std_dataset_ids`)
+				filters.push(aql`AND ${value} ANY IN doc.std_dataset_ids`)
 				break
 
 			case 'geometry_point_radius':
-				filters.push(aql`AND ${value} ANY IN probe.geometry_point_radius`)
+				filters.push(aql`AND ${value} ANY IN doc.geometry_point_radius`)
 				break
 		}
 	}
@@ -730,45 +722,39 @@ router.post('dataset/:lat/:lon', function (req, res)
 	let result
 	try {
 		result = db._query(aql`
-			LET sets = REMOVE_VALUE(
-			    UNIQUE(
-			        FLATTEN(
-			            (
-			                FOR probe IN VIEW_DROUGHT_OBSERVATORY
-			                    ${filter}
-			                    COLLECT AGGREGATE sets = UNIQUE(probe.std_dataset_ids)
-			                RETURN UNIQUE(FLATTEN(sets))
-			            )
-			        )
-			    ),
-			    null
-			)
+			LET point = GEO_POINT(${lon}, ${lat})
+			LET sets = UNIQUE(FLATTEN(
+			    FOR doc IN VIEW_DROUGHT_OBSERVATORY
+			        ${filter}
+			    RETURN doc.std_dataset_ids
+			))
 			
 			FOR set IN sets
-			RETURN (
-			    FOR probe IN VIEW_DROUGHT_OBSERVATORY
-			        ${filter} AND
-			        probe.std_dataset_ids == set
+			    LET save = (
+			        FOR doc IN VIEW_DROUGHT_OBSERVATORY
+			            ${filter}
 			    
-			        COLLECT AGGREGATE start = MIN(probe.std_date),
-			                          end   = MAX(probe.std_date),
-			                          terms = UNIQUE(probe.std_terms),
-			                          radius = UNIQUE(probe.geometry_point_radius),
-			                          points = UNIQUE(probe.geometry_point),
-			                          bounds = UNIQUE(probe.geometry_bounds),
-			                          count = COUNT()
+			            COLLECT AGGREGATE start = MIN(doc.std_date),
+			                              end   = MAX(doc.std_date),
+			                              terms = UNIQUE(doc.std_terms),
+			                              radius = UNIQUE(doc.geometry_point_radius),
+			                              points = UNIQUE(doc.geometry_point),
+			                              bounds = UNIQUE(doc.geometry_bounds),
+			                              count = COUNT()
+			    
+			            RETURN {
+			                count: count,
+			                std_dataset_id: set,
+			                std_date_start: start,
+			                std_date_end: end,
+			                std_terms: UNIQUE(FLATTEN(terms)),
+			                geometry_point_radius: UNIQUE(FLATTEN(radius)),
+			                geometry_point: UNIQUE(FLATTEN(points)),
+			                geometry_bounds: UNIQUE(FLATTEN(bounds))
+			            }
+			   )
 			
-			        RETURN {
-			            count: count,
-			            std_date_start: start,
-			            std_date_end: end,
-			            std_terms: UNIQUE(FLATTEN(terms)),
-			            std_dataset_id: set,
-			            geometry_point_radius: UNIQUE(FLATTEN(radius)),
-			            geometry_point: UNIQUE(FLATTEN(points)),
-			            geometry_bounds: UNIQUE(FLATTEN(bounds))
-			        }
-			)
+			RETURN save[0]
 		`).toArray()
 	}
 
@@ -795,7 +781,7 @@ router.post('dataset/:lat/:lon', function (req, res)
 	///
 	// Body parameters.
 	///
-	.body(ModelSelectionSummary, ModelSelectionSummaryDescription)
+	.body(ModelSelectionSummaryDataset, ModelSelectionSummaryDatasetDescription)
 
 	///
 	// Response schema.
