@@ -243,7 +243,7 @@ router.post('spans/:shape', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get shape data summary for selection criteria by time span')
+	.summary('Filter shape data summary by time span')
 
 	///
 	// Response schema.

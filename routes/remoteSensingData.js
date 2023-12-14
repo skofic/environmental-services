@@ -19,7 +19,6 @@ const createRouter = require('@arangodb/foxx/router')
 ///
 // Collections and models.
 ///
-const collection = db._collection('ShapeData')
 const ModelDateData = require('../models/rsDataByDate')
 const ModelDateDataDescription =
 	'Time span data by date.\n\n' +
@@ -49,7 +48,9 @@ const ModelSelectionDataDescription =
 	'- `std_terms`: List of selected variables, omit to consider all variables.\n' +
 	'- `std_dataset_ids`: List of dataset identifiers, omit to consider all datasets.\n' +
 	'- `paging`: Paging: provide offset and limit properties, or omit the property to return all available data.\n\n' +
-	'Either *provide a value* for the property to create a filter, or *omit the property* to ignore the filter.'
+	'To set a selection criteria fill the value, to ignore it omit the property.\n' +
+	'Note that if you filter variables you will be returned only those variable ' +
+	'values and the results will omit the list of datasets.'
 const spanSchema = joi.string()
 	.valid('std_date_span_day', 'std_date_span_month', 'std_date_span_year')
 	.required()
@@ -135,7 +136,7 @@ router.get(':shape', function (req, res)
 	///
 	res.send(result);
 
-}, 'getAllData')
+}, 'getAllDataBySpan')
 
 	///
 	// Path parameter schemas.
@@ -186,6 +187,7 @@ router.post(':shape/:span', function (req, res)
 	///
 	// Collect body parameters.
 	///
+	const terms = []
 	const filters = [
 		aql`SEARCH doc.geometry_hash == ${shape} AND doc.std_date_span == ${span}`
 	]
@@ -200,6 +202,7 @@ router.post(':shape/:span', function (req, res)
 				break
 
 			case 'std_terms':
+				terms.push(...value)
 				filters.push(aql`AND ${value} ANY IN doc.std_terms`)
 				break
 
@@ -218,6 +221,16 @@ router.post(':shape/:span', function (req, res)
 				 : aql``
 
 	///
+	// Handle descriptors selection.
+	///
+	const properties = (terms.length > 0)
+		? aql`KEEP(doc.properties, ${terms})`
+		: aql`doc.properties`
+	const datasets   = (terms.length > 0)
+		? aql``
+		: aql`,std_dataset_ids: doc.std_dataset_ids`
+
+	///
 	// Perform service.
 	///
 	let result
@@ -231,8 +244,8 @@ router.post(':shape/:span', function (req, res)
 			
 			RETURN {
 			    std_date: doc.std_date,
-			    properties: doc.properties,
-			    std_dataset_ids: doc.std_dataset_ids
+			    properties: ${properties}
+			    ${datasets}
 			}
         `).toArray()
 	}
@@ -265,7 +278,7 @@ router.post(':shape/:span', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get data for provided shape, span and selection criteria, by date')
+	.summary('Filter data for provided shape and span by date')
 
 	///
 	// Response schema.

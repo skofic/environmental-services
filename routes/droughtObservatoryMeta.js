@@ -16,12 +16,6 @@ const {aql, db} = require('@arangodb')
 const createRouter = require('@arangodb/foxx/router')
 
 ///
-// Collections.
-///
-const collection_dat = db._collection('DroughtObservatory')
-const collection_map = db._collection('DroughtObservatoryMap')
-
-///
 // Models.
 ///
 const ModelSummaryByDate = require('../models/doSummaryDataByDate')
@@ -48,18 +42,6 @@ const ModelSummaryByGeometryDescription =
 	'- `geometry_point_radius`: The radius of the observation area from the centroid.\n' +
 	'- `geometry_point`: GeoJSON centroid of the observation area.\n' +
 	'- `geometry_bounds`: The GeoJSON polygon describing the area from which the data was extracted.\n'
-const ModelSummaryByDataset = require('../models/doSummaryDataByDataset')
-const ModelSummaryByDatasetDescription =
-	'Data summary by dataset.\n\n' +
-	'The returned data is structured as follows:\n\n' +
-	'- `count`: Number of measurements.\n' +
-	'- `std_date_start`: Date range start.\n' +
-	'- `std_date_end`: Date range end.\n' +
-	'- `std_terms`: List of featured variables.\n' +
-	'- `std_dataset_id`: Dataset identifier.\n' +
-	'- `geometry_point_radius`: The radius of the observation area from the centroid.\n' +
-	'- `geometry_point`: GeoJSON centroid of the observation area.\n' +
-	'- `geometry_bounds`: The GeoJSON polygon describing the area from which the data was extracted.\n'
 const ModelSelectionSummary = require('../models/doSelectionSummaryData')
 const ModelSelectionSummaryDescription =
 	'Summary data selection.\n\n' +
@@ -69,15 +51,6 @@ const ModelSelectionSummaryDescription =
 	'- `std_date_end`: Date range end, included, omit to ignore end date\n' +
 	'- `std_terms`: List of selected variables, omit to consider all variables.\n' +
 	'- `std_dataset_ids`: List of dataset identifiers, omit to consider all datasets.\n' +
-	'- `geometry_point_radius`: List of observation area radius, omit to consider all areas.\n'
-const ModelSelectionSummaryDataset = require('../models/doSelectionSummaryDataset')
-const ModelSelectionSummaryDatasetDescription =
-	'Summary data selection by dataset.\n\n' +
-	'Fill property values, or omit the property to ignore selection.\n' +
-	'The body is structured as follows:\n\n' +
-	'- `std_date_start`: Date range start, included, omit to ignore start date.\n' +
-	'- `std_date_end`: Date range end, included, omit to ignore end date\n' +
-	'- `std_terms`: List of selected variables, omit to consider all variables.\n' +
 	'- `geometry_point_radius`: List of observation area radius, omit to consider all areas.\n'
 const latSchema = joi.number().min(-90).max(90).required()
 	.description('Coordinate decimal latitude.')
@@ -196,7 +169,7 @@ router.post(':lat/:lon', function (req, res)
 		res.send([])
 	}
 
-}, 'SelectForCoordinates')
+}, 'SummaryForCoordinates')
 
 	///
 	// Path parameters schemas.
@@ -217,7 +190,7 @@ router.post(':lat/:lon', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get data summary for provided coordinates and data filters')
+	.summary('Filter data summary for provided coordinates')
 
 	///
 	// Description.
@@ -330,7 +303,7 @@ router.post('shape/:lat/:lon', function (req, res)
 		res.send([])
 	}
 
-}, 'SelectForCoordinatesByShape')
+}, 'SummaryForCoordinatesByArea')
 
 	///
 	// Path parameters schemas.
@@ -351,7 +324,7 @@ router.post('shape/:lat/:lon', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get data summary for provided coordinates and data filters by geometry area')
+	.summary('Filter data summary for provided coordinates by measurement area')
 
 	///
 	// Description.
@@ -360,140 +333,4 @@ router.post('shape/:lat/:lon', function (req, res)
 		This service will return the summary of all data measurements \
 		available for the provided coordinate and data filters.
 		The summary data will be grouped by observation bounding boxes.
-	`);
-
-/**
- * Get data summary for provided coordinates and data selection by dataset.
- *
- * This service will return the data summary for the
- * provided coordinates and the provided data filters
- * grouping the results by dataset identifiers.
- *
- * Parameters:
- * - `:lat`: The latitude.
- * - `:lon`: The longitude.
- */
-router.post('dataset/:lat/:lon', function (req, res)
-{
-	///
-	// Parameters.
-	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
-
-	///
-	// Collect body parameters.
-	///
-	const filters = [
-		aql`SEARCH ANALYZER(GEO_INTERSECTS(point, doc.geometry_bounds), "geojson")`
-	]
-	for(const [key, value] of Object.entries(req.body)) {
-		switch(key) {
-			case 'std_date_start':
-				filters.push(aql`AND doc.std_date >= ${value}`)
-				break
-
-			case 'std_date_end':
-				filters.push(aql`AND doc.std_date <= ${value}`)
-				break
-
-			case 'std_terms':
-				filters.push(aql`AND ${value} ANY IN doc.std_terms`)
-				break
-
-			case 'std_dataset_ids':
-				filters.push(aql`AND ${value} ANY IN doc.std_dataset_ids`)
-				break
-
-			case 'geometry_point_radius':
-				filters.push(aql`AND ${value} ANY IN doc.geometry_point_radius`)
-				break
-		}
-	}
-	const filter = aql.join(filters)
-
-	///
-	// Perform service.
-	///
-	let result
-	try {
-		result = db._query(aql`
-			LET point = GEO_POINT(${lon}, ${lat})
-			LET sets = UNIQUE(FLATTEN(
-			    FOR doc IN VIEW_DROUGHT_OBSERVATORY
-			        ${filter}
-			    RETURN doc.std_dataset_ids
-			))
-			
-			FOR set IN sets
-			    LET save = (
-			        FOR doc IN VIEW_DROUGHT_OBSERVATORY
-			            ${filter}
-			    
-			            COLLECT AGGREGATE start = MIN(doc.std_date),
-			                              end   = MAX(doc.std_date),
-			                              terms = UNIQUE(doc.std_terms),
-			                              radius = UNIQUE(doc.geometry_point_radius),
-			                              points = UNIQUE(doc.geometry_point),
-			                              bounds = UNIQUE(doc.geometry_bounds),
-			                              count = COUNT()
-			    
-			            RETURN {
-			                count: count,
-			                std_dataset_id: set,
-			                std_date_start: start,
-			                std_date_end: end,
-			                std_terms: UNIQUE(FLATTEN(terms)),
-			                geometry_point_radius: UNIQUE(FLATTEN(radius)),
-			                geometry_point: UNIQUE(FLATTEN(points)),
-			                geometry_bounds: UNIQUE(FLATTEN(bounds))
-			            }
-			   )
-			
-			RETURN save[0]
-		`).toArray()
-	}
-
-	///
-	// Handle errors.
-	///
-	catch (error) {
-		throw error;
-	}
-
-	///
-	// Return result.
-	///
-	res.send(result)
-
-}, 'SelectForCoordinatesByDataset')
-
-	///
-	// Path parameters schemas.
-	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
-
-	///
-	// Body parameters.
-	///
-	.body(ModelSelectionSummaryDataset, ModelSelectionSummaryDatasetDescription)
-
-	///
-	// Response schema.
-	///
-	.response([ModelSummaryByDataset], ModelSummaryByDatasetDescription)
-
-	///
-	// Summary.
-	///
-	.summary('Get data summary for provided coordinates and data filters by dataset')
-
-	///
-	// Description.
-	///
-	.description(dd`
-		This service will return the summary of all data measurements \
-		available for the provided coordinate and data filters.
-		The summary data will be grouped by dataset identifier.
 	`);
