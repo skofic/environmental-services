@@ -365,11 +365,15 @@ router.post('search', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get shape record intersecting the provided coordinate')
+	.summary('Search shapes')
 
 	///
 	// Description.
 	///
 	.description(dd`
-		The service will return the shape record that intersects the provided coordinate.
+		The service provides a set of search criteria to select shapes, \
+		it allows selecting shapes by geometry hash, dataset, area, \
+		average and standard deviation elevation, slope, aspect, by \
+		intersecting with a provided shape and by distance. It allows \
+		to control results pagination.
 	`)
