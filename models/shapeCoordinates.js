@@ -6,13 +6,7 @@ const joi = require('joi')
 module.exports = {
 	schema: {
 		coordinates: joi.array()
-			.items(
-				joi.array()
-					.items(
-						joi.number(),
-						joi.array()
-					)
-			)
+			.items(joi.array())
 			.required()
 	},
 	forClient(obj) {

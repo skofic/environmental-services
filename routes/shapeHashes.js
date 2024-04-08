@@ -187,10 +187,12 @@ router.get(':lat/:lon', function (req, res)
  **/
 router.post('poly', function (req, res)
 {
+
 	///
 	// Parameters.
 	///
 	const reference = req.body.coordinates
+	const test = { "type": "Polygon", "coordinates": reference}
 
 	///
 	// Perform service.
@@ -206,9 +208,9 @@ router.post('poly', function (req, res)
         `).toArray()
 	}
 
-		///
-		// Handle errors.
-		///
+	///
+	// Handle errors.
+	///
 	catch (error) {
 		throw error;
 	}
