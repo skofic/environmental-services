@@ -160,9 +160,9 @@ router.post('shape/:lat/:lon', function (req, res)
 			      
 			        SORT data.std_date ASC
 			  
-				    COLLECT radius = data.geometry_point_radius,
-				            bounds = data.geometry_bounds,
-				            point = data.geometry_point
+				    COLLECT radius = shape.geometry_point_radius,
+				            bounds = shape.geometry,
+				            point = shape.geometry_point
 				    AGGREGATE sets = UNIQUE(data.std_dataset_ids)
 				    INTO groups
 			
@@ -182,9 +182,9 @@ router.post('shape/:lat/:lon', function (req, res)
         `).toArray()
 	}
 
-		///
-		// Handle errors.
-		///
+	///
+	// Handle errors.
+	///
 	catch (error) {
 		throw error;
 	}
@@ -317,6 +317,7 @@ router.post('date/:lat/:lon', function (req, res)
 			LET click = GEO_POINT(${lon}, ${lat})
 			FOR shape IN DroughtObservatoryMap
 				${filter_shape}
+				
 				FOR data IN DroughtObservatory
 					${filter_data}
 			      
