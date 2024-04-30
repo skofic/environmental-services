@@ -41,7 +41,7 @@ Simple Polygon:
 \`
 {
   "coordinates": [
-    [0.0, 0.0], [7.5, 2.5], [0.0, 5.0], [0.0, 0.0]
+    [[0.0, 0.0], [7.5, 2.5], [0.0, 5.0], [0.0, 0.0]]
   ]
 }
 \`
@@ -104,13 +104,14 @@ router.tag('Create shape hashes')
  * - `:lat`: The latitude.
  * - `:lon`: The longitude.
  **/
-router.get(':lat/:lon', function (req, res)
+// router.get(':lat/:lon', function (req, res)
+router.get(function (req, res)
 {
 	///
-	// Path parameters.
+	// Query parameters.
 	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
+	const lat = req.queryParams.lat
+	const lon = req.queryParams.lon
 
 	///
 	// Build query.
@@ -145,8 +146,8 @@ router.get(':lat/:lon', function (req, res)
 	///
 	// Path parameter schemas.
 	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
+	.queryParam('lat', latSchema)
+	.queryParam('lon', lonSchema)
 
 	///
 	// Response schema.

@@ -43,7 +43,7 @@ const ModelDataClickDescription =
 	'There will be one record per shape.'
 const ModelSelection = require('../models/rsSelectionShape')
 const ModelSelectionDescription =
-	'Shape selection criteris.\n\n' +
+	'Shape selection criteria.\n\n' +
 	'The selection data is structured as follows:\n\n' +
 	'- `geometry_hash`: List of shape geometry hashes.\n' +
 	'- `std_dataset_ids`: List of dataset identifiers.\n' +
@@ -96,12 +96,12 @@ router.tag('Unit Shapes')
  * Parameters:
  * - `:hash`: The shape geometry hash.
  */
-router.get(':hash', function (req, res)
+router.get(function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const hash = req.pathParams.hash
+	const hash = req.queryParams.geometry_hash
 
 	///
 	// Perform service.
@@ -138,7 +138,7 @@ router.get(':hash', function (req, res)
 	///
 	// Path parameter schemas.
 	///
-	.pathParam('hash', geometryHashSchema)
+	.queryParam('geometry_hash', geometryHashSchema)
 
 	///
 	// Summary.
@@ -168,13 +168,13 @@ router.get(':hash', function (req, res)
  * - `:lat`: The latitude.
  * - `:lon`: The longitude.
  **/
-router.get('click/:lat/:lon', function (req, res)
+router.get('click', function (req, res)
 {
 	///
 	// Path parameters.
 	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
+	const lat = req.queryParams.lat
+	const lon = req.queryParams.lon
 
 	///
 	// Build query.
@@ -218,8 +218,8 @@ router.get('click/:lat/:lon', function (req, res)
 	///
 	// Path parameter schemas.
 	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
+	.queryParam('lat', latSchema)
+	.queryParam('lon', lonSchema)
 
 	///
 	// Response schema.

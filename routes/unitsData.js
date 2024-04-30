@@ -78,12 +78,12 @@ router.tag('Units')
  * Parameters:
  * - `:number`: The genetic conservation unit number.
  */
-router.get('id/:num', function (req, res)
+router.get('id', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const num = req.pathParams.num
+	const num = req.queryParams.gcu_id_number
 
 	///
 	// Perform service.
@@ -93,18 +93,18 @@ router.get('id/:num', function (req, res)
 		result = db._query(aql`
 			FOR doc IN ${collection}
 			    FILTER doc.gcu_id_number == ${num}
-			    LET id = doc.\`gcu_id_unit-id\`
-			    COLLECT number = doc.gcu_id_number INTO items KEEP id
+			    COLLECT number = doc.gcu_id_number
+			    INTO items
 			RETURN {
 			    gcu_id_number: number,
-			    \`gcu_id_unit-id\`: UNIQUE(FLATTEN(items))
+			    \`gcu_id_unit-id\`: UNIQUE(FLATTEN(items[*].doc['gcu_id_unit-id']))
 			}
         `).toArray()
 	}
 
-		///
-		// Handle errors.
-		///
+	///
+	// Handle errors.
+	///
 	catch (error) {
 		throw error;
 	}
@@ -116,7 +116,7 @@ router.get('id/:num', function (req, res)
 
 }, 'list')
 
-	.pathParam('num', unitNumberSchema)
+	.queryParam('gcu_id_number', unitNumberSchema)
 	.response([ModelNumberRecord], UnitNumberRecordDescription)
 	.summary('Get unit IDs related to provided unit number')
 	.description(dd`
@@ -132,12 +132,12 @@ router.get('id/:num', function (req, res)
  * Parameters:
  * - `:id`: The genetic conservation unit ID.
  */
-router.get('shape/:id', function (req, res)
+router.get('shape', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const id = req.pathParams.id
+	const id = req.queryParams['gcu_id_unit-id']
 
 	///
 	// Perform service.
@@ -156,9 +156,9 @@ router.get('shape/:id', function (req, res)
         `).toArray()
 	}
 
-		///
-		// Handle errors.
-		///
+	///
+	// Handle errors.
+	///
 	catch (error) {
 		throw error;
 	}
@@ -170,11 +170,11 @@ router.get('shape/:id', function (req, res)
 
 }, 'list')
 
-	.pathParam('id', unitIdSchema)
+	.queryParam('gcu_id_unit-id', unitIdSchema)
 	.response([ModelIdRecord], UnitIdRecordDescription)
 	.summary('Get unit number and shape references list for provided unit ID')
 	.description(dd`
-		The service will return the *unit number* abd the *list* of *unit shape references* related to the *provided unit ID*.
+		The service will return the *unit number* and the *list* of *unit shape references* related to the *provided unit ID*.
 	`);
 
 /**
@@ -186,12 +186,12 @@ router.get('shape/:id', function (req, res)
  * Parameters:
  * - `:id`: The genetic conservation unit ID.
  */
-router.get('rec/:shape', function (req, res)
+router.get('rec', function (req, res)
 {
 	///
 	// Parameters.
 	///
-	const shape = req.pathParams.shape
+	const shape = req.queryParams.geometry_hash
 
 	///
 	// Perform service.
@@ -219,7 +219,7 @@ router.get('rec/:shape', function (req, res)
 
 }, 'list')
 
-	.pathParam('shape', geometryHashSchema)
+	.queryParam('geometry_hash', geometryHashSchema)
 	.response([ModelRecord], UnitRecordDescription)
 	.summary('Get unit data related to the provided shape reference')
 	.description(dd`

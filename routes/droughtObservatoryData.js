@@ -16,6 +16,11 @@ const {aql, db} = require('@arangodb')
 const createRouter = require('@arangodb/foxx/router')
 
 ///
+// Queries.
+///
+const queries = require('../utils/DroughtObservatoryAQL')
+
+///
 // Models.
 ///
 const ModelDataArea = require('../models/doDataByArea')
@@ -97,102 +102,29 @@ router.tag('Drought Observatory Data')
 router.post('shape/:lat/:lon', function (req, res)
 {
 	///
-	// Parameters.
+	// Get query.
 	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
-
-	///
-	// Filters.
-	///
-	let filters_shape = [
-		aql`FILTER GEO_INTERSECTS(click, shape.geometry)`
-	]
-	let filters_data = [
-		aql`FILTER data.geometry_hash == shape._key`
-	]
-
-	///
-	// Collect body parameters.
-	///
-	for(const [key, value] of Object.entries(req.body)) {
-		switch(key) {
-			case 'std_date_start':
-				filters_data.push(aql`FILTER data.std_date >= ${value}`)
-				break
-
-			case 'std_date_end':
-				filters_data.push(aql`FILTER data.std_date <= ${value}`)
-				break
-
-			case 'std_terms':
-				filters_data.push(aql`FILTER ${value} ANY IN data.std_terms`)
-				break
-
-			case 'std_dataset_ids':
-				filters_data.push(aql`FILTER ${value} ANY IN data.std_dataset_ids`)
-				break
-
-			case 'geometry_point_radius':
-				filters_shape.push(aql`FILTER shape.geometry_point_radius IN ${value}`)
-				break
-		}
-	}
-
-	///
-	// Aggregate filters.
-	///
-	const filter_shape = aql.join(filters_shape)
-	const filter_data = aql.join(filters_data)
+	const query =
+		queries.DataByGeometry(
+			req.pathParams.lat,
+			req.pathParams.lon,
+			req.body
+		)
 
 	///
 	// Perform service.
 	///
-	let result;
+	let result
 	try {
-		result = db._query(aql`
-			LET click = GEO_POINT(${lon}, ${lat})
-			FOR shape IN DroughtObservatoryMap
-				${filter_shape}
-				
-				FOR data IN DroughtObservatory
-					${filter_data}
-			      
-			        SORT data.std_date ASC
-			  
-				    COLLECT radius = shape.geometry_point_radius,
-				            bounds = shape.geometry,
-				            point = shape.geometry_point
-				    AGGREGATE sets = UNIQUE(data.std_dataset_ids)
-				    INTO groups
-			
-			RETURN {
-			    geometry_point_radius: radius,
-			    geometry_point: point,
-			    geometry_bounds: bounds,
-			    std_dataset_ids: UNIQUE(FLATTEN(sets)),
-			    properties: (
-			        FOR doc IN groups[*].data
-			        RETURN MERGE_RECURSIVE(
-			            { std_date: doc.std_date },
-			            doc.properties
-			        )
-			    )
-			}
-        `).toArray()
-	}
-
-	///
-	// Handle errors.
-	///
-	catch (error) {
-		throw error;
+		result = db._query(query).toArray()
+	} catch (error) {
+		throw error
 	}
 
 	///
 	// Return result.
 	///
-	res.send(result);
+	res.send(result)
 
 }, 'SelectDataByArea')
 
