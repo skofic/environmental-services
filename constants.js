@@ -9,8 +9,6 @@
 const documentCollections = {
 	"chelsa": "Chelsa",
 	"chelsa_map": "ChelsaMap",
-	"climate": "Climate",
-	"climate_map": "ClimateMap",
 	"shapes": "Shapes",
 	"shape_data": "ShapeData",
 	"unit_shapes": "UnitShapes",
