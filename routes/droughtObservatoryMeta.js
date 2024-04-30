@@ -146,9 +146,9 @@ router.post(':lat/:lon', function (req, res)
 				                      end   = MAX(data.std_date),
 				                      terms = UNIQUE(data.std_terms),
 				                      sets = UNIQUE(data.std_dataset_ids),
-				                      radius = UNIQUE(data.geometry_point_radius),
+				                      radius = UNIQUE(shape.geometry_point_radius),
 				                      points = UNIQUE(shape.geometry_point),
-				                      bounds = UNIQUE(data.geometry_bounds),
+				                      bounds = UNIQUE(shape.geometry),
 				                      count = COUNT()
 				                      
 				    RETURN {
