@@ -88,70 +88,87 @@ router.post(':lat/:lon', function (req, res)
 	const lon = req.pathParams.lon
 
 	///
+	// Filters.
+	///
+	let filters_shape = [
+		aql`FILTER GEO_INTERSECTS(click, shape.geometry)`
+	]
+	let filters_data = [
+		aql`FILTER data.geometry_hash == shape._key`
+	]
+
+	///
 	// Collect body parameters.
 	///
-	const filters = [
-		aql`SEARCH ANALYZER(GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), probe.geometry_bounds), "geojson")`
-	]
 	for(const [key, value] of Object.entries(req.body)) {
 		switch(key) {
 			case 'std_date_start':
-				filters.push(aql`AND probe.std_date >= ${value}`)
+				filters_data.push(aql`FILTER data.std_date >= ${value}`)
 				break
 
 			case 'std_date_end':
-				filters.push(aql`AND probe.std_date <= ${value}`)
+				filters_data.push(aql`FILTER data.std_date <= ${value}`)
 				break
 
 			case 'std_terms':
-				filters.push(aql`AND ${value} ANY IN probe.std_terms`)
+				filters_data.push(aql`FILTER ${value} ANY IN data.std_terms`)
 				break
 
 			case 'std_dataset_ids':
-				filters.push(aql`AND ${value} ANY IN probe.std_dataset_ids`)
+				filters_data.push(aql`FILTER ${value} ANY IN data.std_dataset_ids`)
 				break
 
 			case 'geometry_point_radius':
-				filters.push(aql`AND ${value} ANY IN probe.geometry_point_radius`)
+				filters_shape.push(aql`FILTER shape.geometry_point_radius IN ${value}`)
 				break
 		}
 	}
-	const filter = aql.join(filters)
+
+	///
+	// Aggregate filters.
+	///
+	const filter_shape = aql.join(filters_shape)
+	const filter_data = aql.join(filters_data)
 
 	///
 	// Perform service.
 	///
 	let result
-	try {
-		result = db._query(aql`
-			FOR probe IN VIEW_DROUGHT_OBSERVATORY
-			    ${filter}
+	const query = aql`
+			LET click = GEO_POINT(${lon}, ${lat})
+			FOR shape IN DroughtObservatoryMap
+			    ${filter_shape}
 			    
-			    COLLECT AGGREGATE start = MIN(probe.std_date),
-			                      end   = MAX(probe.std_date),
-			                      terms = UNIQUE(probe.std_terms),
-			                      sets = UNIQUE(probe.std_dataset_ids),
-			                      radius = UNIQUE(probe.geometry_point_radius),
-			                      points = UNIQUE(probe.geometry_point),
-			                      bounds = UNIQUE(probe.geometry_bounds),
-			                      count = COUNT()
-			                      
-			    RETURN {
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms)),
-			        std_dataset_ids: REMOVE_VALUE(UNIQUE(FLATTEN(sets)), null),
-			        geometry_point_radius: UNIQUE(FLATTEN(radius)),
-			        geometry_point: UNIQUE(FLATTEN(points)),
-			        geometry_bounds: UNIQUE(FLATTEN(bounds))
-			    }
-		`).toArray()
+			    FOR data IN DroughtObservatory
+					${filter_data}
+			    
+				    COLLECT AGGREGATE start = MIN(data.std_date),
+				                      end   = MAX(data.std_date),
+				                      terms = UNIQUE(data.std_terms),
+				                      sets = UNIQUE(data.std_dataset_ids),
+				                      radius = UNIQUE(data.geometry_point_radius),
+				                      points = UNIQUE(shape.geometry_point),
+				                      bounds = UNIQUE(data.geometry_bounds),
+				                      count = COUNT()
+				                      
+				    RETURN {
+				        count: count,
+				        std_date_start: start,
+				        std_date_end: end,
+				        std_terms: UNIQUE(FLATTEN(terms)),
+				        std_dataset_ids: REMOVE_VALUE(UNIQUE(FLATTEN(sets)), null),
+				        geometry_point_radius: UNIQUE(FLATTEN(radius)),
+				        geometry_point: UNIQUE(FLATTEN(points)),
+				        geometry_bounds: UNIQUE(FLATTEN(bounds))
+				    }
+		`
+	try {
+		result = db._query(query).toArray()
 	}
 
-		///
-		// Handle errors.
-		///
+	///
+	// Handle errors.
+	///
 	catch (error) {
 		throw error;
 	}
@@ -198,7 +215,7 @@ router.post(':lat/:lon', function (req, res)
 	.description(dd`
 		This service will return the summary of all data measurements \
 		available for the provided coordinate and data filters.
-		The summary data is not grouped.
+		The summary data will not grouped.
 	`);
 
 /**
@@ -221,6 +238,16 @@ router.post('shape/:lat/:lon', function (req, res)
 	const lon = req.pathParams.lon
 
 	///
+	// Filters.
+	///
+	let filters_shape = [
+		aql`FILTER GEO_INTERSECTS(click, shape.geometry)`
+	]
+	let filters_data = [
+		aql`FILTER data.geometry_hash == shape._key`
+	]
+
+	///
 	// Collect body parameters.
 	///
 	const filters = [
@@ -229,27 +256,32 @@ router.post('shape/:lat/:lon', function (req, res)
 	for(const [key, value] of Object.entries(req.body)) {
 		switch(key) {
 			case 'std_date_start':
-				filters.push(aql`AND probe.std_date >= ${value}`)
+				filters_data.push(aql`FILTER data.std_date >= ${value}`)
 				break
 
 			case 'std_date_end':
-				filters.push(aql`AND probe.std_date <= ${value}`)
+				filters_data.push(aql`FILTER data.std_date <= ${value}`)
 				break
 
 			case 'std_terms':
-				filters.push(aql`AND ${value} ANY IN probe.std_terms`)
+				filters_data.push(aql`FILTER ${value} ANY IN data.std_terms`)
 				break
 
 			case 'std_dataset_ids':
-				filters.push(aql`AND ${value} ANY IN probe.std_dataset_ids`)
+				filters_data.push(aql`FILTER ${value} ANY IN data.std_dataset_ids`)
 				break
 
 			case 'geometry_point_radius':
-				filters.push(aql`AND ${value} ANY IN probe.geometry_point_radius`)
+				filters_shape.push(aql`FILTER shape.geometry_point_radius IN ${value}`)
 				break
 		}
 	}
-	const filter = aql.join(filters)
+
+	///
+	// Aggregate filters.
+	///
+	const filter_shape = aql.join(filters_shape)
+	const filter_data = aql.join(filters_data)
 
 	///
 	// Perform service.
@@ -257,29 +289,33 @@ router.post('shape/:lat/:lon', function (req, res)
 	let result
 	try {
 		result = db._query(aql`
-			FOR probe IN VIEW_DROUGHT_OBSERVATORY
-			    ${filter}
+			LET click = GEO_POINT(${lon}, ${lat})
+			FOR shape IN DroughtObservatoryMap
+				${filter_shape}
+				
+				FOR data IN DroughtObservatory
+					${filter_data}
 			
-			    COLLECT bounds = probe.geometry_bounds,
-			            points = probe.geometry_point,
-			            radius = probe.geometry_point_radius
-			
-			    AGGREGATE start = MIN(probe.std_date),
-			              end   = MAX(probe.std_date),
-			              terms = UNIQUE(probe.std_terms),
-			              sets = UNIQUE(probe.std_dataset_ids),
-			              count = COUNT()
-			
-			    RETURN {
-			        count: count,
-			        std_date_start: start,
-			        std_date_end: end,
-			        std_terms: UNIQUE(FLATTEN(terms)),
-			        std_dataset_ids: REMOVE_VALUE(UNIQUE(FLATTEN(sets)), null),
-					geometry_point_radius: radius,
-					geometry_point: points,
-			        geometry_bounds: bounds
-			    }
+				    COLLECT bounds = shape.geometry,
+				            points = shape.geometry_point,
+				            radius = shape.geometry_point_radius
+				
+				    AGGREGATE start = MIN(data.std_date),
+				              end   = MAX(data.std_date),
+				              terms = UNIQUE(data.std_terms),
+				              sets = UNIQUE(data.std_dataset_ids),
+				              count = COUNT()
+				
+				    RETURN {
+				        count: count,
+				        std_date_start: start,
+				        std_date_end: end,
+				        std_terms: UNIQUE(FLATTEN(terms)),
+				        std_dataset_ids: REMOVE_VALUE(UNIQUE(FLATTEN(sets)), null),
+						geometry_point_radius: radius,
+						geometry_point: points,
+				        geometry_bounds: bounds
+				    }
 		`).toArray()
 	}
 
@@ -332,5 +368,5 @@ router.post('shape/:lat/:lon', function (req, res)
 	.description(dd`
 		This service will return the summary of all data measurements \
 		available for the provided coordinate and data filters.
-		The summary data will be grouped by observation bounding boxes.
+		The summary data will be grouped by observation resolution.
 	`);
