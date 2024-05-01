@@ -16,6 +16,11 @@ const {aql, db} = require('@arangodb')
 const createRouter = require('@arangodb/foxx/router')
 
 ///
+// Queries.
+///
+const queries = require('../utils/DroughtObservatoryAQL')
+
+///
 // Models.
 ///
 const ModelSummaryByDate = require('../models/doSummaryDataByDate')
@@ -79,98 +84,26 @@ router.tag('Drought Observatory Metadata')
  * - `:lat`: The latitude.
  * - `:lon`: The longitude.
  */
-router.post(':lat/:lon', function (req, res)
+router.post(function (req, res)
 {
 	///
-	// Parameters.
+	// Get query.
 	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
-
-	///
-	// Filters.
-	///
-	let filters_shape = [
-		aql`FILTER GEO_INTERSECTS(click, shape.geometry)`
-	]
-	let filters_data = [
-		aql`FILTER data.geometry_hash == shape._key`
-	]
-
-	///
-	// Collect body parameters.
-	///
-	for(const [key, value] of Object.entries(req.body)) {
-		switch(key) {
-			case 'std_date_start':
-				filters_data.push(aql`FILTER data.std_date >= ${value}`)
-				break
-
-			case 'std_date_end':
-				filters_data.push(aql`FILTER data.std_date <= ${value}`)
-				break
-
-			case 'std_terms':
-				filters_data.push(aql`FILTER ${value} ANY IN data.std_terms`)
-				break
-
-			case 'std_dataset_ids':
-				filters_data.push(aql`FILTER ${value} ANY IN data.std_dataset_ids`)
-				break
-
-			case 'geometry_point_radius':
-				filters_shape.push(aql`FILTER shape.geometry_point_radius IN ${value}`)
-				break
-		}
-	}
-
-	///
-	// Aggregate filters.
-	///
-	const filter_shape = aql.join(filters_shape)
-	const filter_data = aql.join(filters_data)
+	const query =
+		queries.Metadata(
+			req.queryParams.lat,
+			req.queryParams.lon,
+			req.body
+		)
 
 	///
 	// Perform service.
 	///
 	let result
-	const query = aql`
-			LET click = GEO_POINT(${lon}, ${lat})
-			FOR shape IN DroughtObservatoryMap
-			    ${filter_shape}
-			    
-			    FOR data IN DroughtObservatory
-					${filter_data}
-			    
-				    COLLECT AGGREGATE start = MIN(data.std_date),
-				                      end   = MAX(data.std_date),
-				                      terms = UNIQUE(data.std_terms),
-				                      sets = UNIQUE(data.std_dataset_ids),
-				                      radius = UNIQUE(shape.geometry_point_radius),
-				                      points = UNIQUE(shape.geometry_point),
-				                      bounds = UNIQUE(shape.geometry),
-				                      count = COUNT()
-				                      
-				    RETURN {
-				        count: count,
-				        std_date_start: start,
-				        std_date_end: end,
-				        std_terms: UNIQUE(FLATTEN(terms)),
-				        std_dataset_ids: REMOVE_VALUE(UNIQUE(FLATTEN(sets)), null),
-				        geometry_point_radius: UNIQUE(FLATTEN(radius)),
-				        geometry_point: UNIQUE(FLATTEN(points)),
-				        geometry_bounds: UNIQUE(FLATTEN(bounds))
-				    }
-		`
 	try {
 		result = db._query(query).toArray()
-	}
-
-	///
-	// Handle errors.
-	///
-	catch (error) {
-		throw error;
+	} catch (error) {
+		throw error
 	}
 
 	///
@@ -191,8 +124,8 @@ router.post(':lat/:lon', function (req, res)
 	///
 	// Path parameters schemas.
 	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
+	.queryParam('lat', latSchema)
+	.queryParam('lon', lonSchema)
 
 	///
 	// Body parameters.
@@ -229,101 +162,26 @@ router.post(':lat/:lon', function (req, res)
  * - `:lat`: The latitude.
  * - `:lon`: The longitude.
  */
-router.post('shape/:lat/:lon', function (req, res)
+router.post('shape', function (req, res)
 {
 	///
-	// Parameters.
+	// Get query.
 	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
-
-	///
-	// Filters.
-	///
-	let filters_shape = [
-		aql`FILTER GEO_INTERSECTS(click, shape.geometry)`
-	]
-	let filters_data = [
-		aql`FILTER data.geometry_hash == shape._key`
-	]
-
-	///
-	// Collect body parameters.
-	///
-	const filters = [
-		aql`SEARCH ANALYZER(GEO_INTERSECTS(GEO_POINT(${lon}, ${lat}), probe.geometry_bounds), "geojson")`
-	]
-	for(const [key, value] of Object.entries(req.body)) {
-		switch(key) {
-			case 'std_date_start':
-				filters_data.push(aql`FILTER data.std_date >= ${value}`)
-				break
-
-			case 'std_date_end':
-				filters_data.push(aql`FILTER data.std_date <= ${value}`)
-				break
-
-			case 'std_terms':
-				filters_data.push(aql`FILTER ${value} ANY IN data.std_terms`)
-				break
-
-			case 'std_dataset_ids':
-				filters_data.push(aql`FILTER ${value} ANY IN data.std_dataset_ids`)
-				break
-
-			case 'geometry_point_radius':
-				filters_shape.push(aql`FILTER shape.geometry_point_radius IN ${value}`)
-				break
-		}
-	}
-
-	///
-	// Aggregate filters.
-	///
-	const filter_shape = aql.join(filters_shape)
-	const filter_data = aql.join(filters_data)
+	const query =
+		queries.MetadataByGeometry(
+			req.queryParams.lat,
+			req.queryParams.lon,
+			req.body
+		)
 
 	///
 	// Perform service.
 	///
 	let result
 	try {
-		result = db._query(aql`
-			LET click = GEO_POINT(${lon}, ${lat})
-			FOR shape IN DroughtObservatoryMap
-				${filter_shape}
-				
-				FOR data IN DroughtObservatory
-					${filter_data}
-			
-				    COLLECT bounds = shape.geometry,
-				            points = shape.geometry_point,
-				            radius = shape.geometry_point_radius
-				
-				    AGGREGATE start = MIN(data.std_date),
-				              end   = MAX(data.std_date),
-				              terms = UNIQUE(data.std_terms),
-				              sets = UNIQUE(data.std_dataset_ids),
-				              count = COUNT()
-				
-				    RETURN {
-				        count: count,
-				        std_date_start: start,
-				        std_date_end: end,
-				        std_terms: UNIQUE(FLATTEN(terms)),
-				        std_dataset_ids: REMOVE_VALUE(UNIQUE(FLATTEN(sets)), null),
-						geometry_point_radius: radius,
-						geometry_point: points,
-				        geometry_bounds: bounds
-				    }
-		`).toArray()
-	}
-
-		///
-		// Handle errors.
-		///
-	catch (error) {
-		throw error;
+		result = db._query(query).toArray()
+	} catch (error) {
+		throw error
 	}
 
 	///
@@ -344,8 +202,8 @@ router.post('shape/:lat/:lon', function (req, res)
 	///
 	// Path parameters schemas.
 	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
+	.queryParam('lat', latSchema)
+	.queryParam('lon', lonSchema)
 
 	///
 	// Body parameters.

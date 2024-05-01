@@ -142,38 +142,133 @@ function DataByDate(theLatitude, theLongitude, theFilter = {})
 			}
  	`                                                                 // ==>
 
-	// return aql`
-	// 		LET click = GEO_POINT(${theLongitude}, ${theLatitude})
-	// 		FOR shape IN DroughtObservatoryMap
-	// 			${filter.shape}
-	//
-	// 			FOR data IN DroughtObservatory
-	// 				${filter.data}
-	//
-	// 		        SORT data.std_date ASC
-	//
-	// 			    COLLECT radius = shape.geometry_point_radius,
-	// 			            bounds = shape.geometry,
-	// 			            point = shape.geometry_point
-	// 			    AGGREGATE sets = UNIQUE(data.std_dataset_ids)
-	// 			    INTO groups
-	//
-	// 		RETURN {
-	// 		    geometry_point_radius: radius,
-	// 		    geometry_point: point,
-	// 		    geometry_bounds: bounds,
-	// 		    std_dataset_ids: UNIQUE(FLATTEN(sets)),
-	// 		    properties: (
-	// 		        FOR doc IN groups[*].data
-	// 		        RETURN MERGE_RECURSIVE(
-	// 		            { std_date: doc.std_date },
-	// 		            doc.properties
-	// 		        )
-	// 		    )
-	// 		}
-    //     `                                                               // ==>
-
 } // DataByDate()
+
+/**
+ * This function can be used to retrieve the summary drought observatory
+ * data related to the provided coordinates and selection criteria.
+ * The function expects the point coordinate provided in the path and
+ * the filter provided as an object in the body: the function will return
+ * the resulting AQL query.
+ * The filter contains the following elements:
+ * - std_date_start: The start date (string).
+ * - std_date_end: The end date (string).
+ * - std_terms: The list of variables (array of strings).
+ * - std_dataset_ids: the list of dataset identifiers (array of strings).
+ * - geometry_point_radius: the list of observation area radius (array of numbers).
+ *
+ * Parameters:
+ * - theLatitude {Number}: Point latitude.
+ * - theLongitude {Number}: Point longitude.
+ * - theFilter {Object}: Query filter in body.
+ *
+ * Returns:
+ * - {String}: The AQL query (aql\`query\`).
+ */
+function Metadata(theLatitude, theLongitude, theFilter = {})
+{
+	///
+	// Generate AQL filters.
+	///
+	const filter = QueryFilter(theFilter)
+
+	///
+	// Generate query.
+	///
+	return aql`
+		LET click = GEO_POINT(${theLongitude}, ${theLatitude})
+		FOR shape IN DroughtObservatoryMap
+		    ${filter.shape}
+		    
+		    FOR data IN DroughtObservatory
+				${filter.data}
+		    
+			    COLLECT AGGREGATE start = MIN(data.std_date),
+			                      end   = MAX(data.std_date),
+			                      terms = UNIQUE(data.std_terms),
+			                      sets = UNIQUE(data.std_dataset_ids),
+			                      radius = UNIQUE(shape.geometry_point_radius),
+			                      points = UNIQUE(shape.geometry_point),
+			                      bounds = UNIQUE(shape.geometry),
+			                      count = COUNT()
+			                      
+			    RETURN {
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: UNIQUE(FLATTEN(terms)),
+			        std_dataset_ids: REMOVE_VALUE(UNIQUE(FLATTEN(sets)), null),
+			        geometry_point_radius: UNIQUE(FLATTEN(radius)),
+			        geometry_point: UNIQUE(FLATTEN(points)),
+			        geometry_bounds: UNIQUE(FLATTEN(bounds))
+			    }
+        `                                                               // ==>
+
+} // Metadata()
+
+/**
+ * This function can be used to retrieve the summary drought observatory
+ * data related to the provided coordinates and selection criteria grouped
+ * by measurement geometry.
+ * The function expects the point coordinate provided in the path and
+ * the filter provided as an object in the body: the function will return
+ * the resulting AQL query.
+ * The filter contains the following elements:
+ * - std_date_start: The start date (string).
+ * - std_date_end: The end date (string).
+ * - std_terms: The list of variables (array of strings).
+ * - std_dataset_ids: the list of dataset identifiers (array of strings).
+ * - geometry_point_radius: the list of observation area radius (array of numbers).
+ *
+ * Parameters:
+ * - theLatitude {Number}: Point latitude.
+ * - theLongitude {Number}: Point longitude.
+ * - theFilter {Object}: Query filter in body.
+ *
+ * Returns:
+ * - {String}: The AQL query (aql\`query\`).
+ */
+function MetadataByGeometry(theLatitude, theLongitude, theFilter = {})
+{
+	///
+	// Generate AQL filters.
+	///
+	const filter = QueryFilter(theFilter)
+
+	///
+	// Generate query.
+	///
+	return aql`
+		LET click = GEO_POINT(${theLongitude}, ${theLatitude})
+		FOR shape IN DroughtObservatoryMap
+			${filter.shape}
+
+			FOR data IN DroughtObservatory
+				${filter.data}
+
+			    COLLECT bounds = shape.geometry,
+			            points = shape.geometry_point,
+			            radius = shape.geometry_point_radius
+
+			    AGGREGATE start = MIN(data.std_date),
+			              end   = MAX(data.std_date),
+			              terms = UNIQUE(data.std_terms),
+			              sets = UNIQUE(data.std_dataset_ids),
+			              count = COUNT()
+
+			    RETURN {
+			        count: count,
+			        std_date_start: start,
+			        std_date_end: end,
+			        std_terms: UNIQUE(FLATTEN(terms)),
+			        std_dataset_ids: REMOVE_VALUE(UNIQUE(FLATTEN(sets)), null),
+					geometry_point_radius: radius,
+					geometry_point: points,
+			        geometry_bounds: bounds
+			    }
+        `                                                               // ==>
+
+} // MetadataByGeometry()
 
 /**
  * This function can be used to convert query filter in body
@@ -263,5 +358,7 @@ function QueryFilter(theFilter)
 
 module.exports = {
 	DataByGeometry,
-	DataByDate
+	DataByDate,
+	Metadata,
+	MetadataByGeometry
 }
