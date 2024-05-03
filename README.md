@@ -51,7 +51,7 @@ This set of services can be used to query locations related to the provided coor
 
 This set of services can be used to retrieve daily historical drought indicators for the provided coordinates. The services will return all data, filter data by date and descriptors.
 
-### Drought Observatory Metadata
+### Drought Observatory EDOMetadata
 
 This set of services can be used to retrieve data summaries related to the provided coordinates. Since there can be a very large number of observations related to the provided coordinates, these services can be used to assess the time interval and variables selection, allowing clients to provide a user interface in which users can select manageable subsets of data using the previous set of services.
 
@@ -59,7 +59,7 @@ This set of services can be used to retrieve data summaries related to the provi
 
 This set of services can be used to query remote sensing data for a specific polygon or shape. All services expect the shape identifier as the first path parameter, other parameters include a start and end date to define a time range, a list of variable names to only retrieve data for selected descriptors and a list of time spans identifying observation time spans, such as daily, monthly and yearly data.
 
-### Remote Sensing Metadata
+### Remote Sensing EDOMetadata
 
 This set of services can be used to assess what date ranges, time spans and variables are contained in the data characyerising the provided shape. These services should typically be used to determine how data is subdivided, in order to serve only the data needed. This is especially relevant if you have twenty or more years of daily data, which will easily exceed 5MB.
 

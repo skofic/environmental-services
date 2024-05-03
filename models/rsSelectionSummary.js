@@ -5,6 +5,9 @@ const joi = require('joi')
 
 module.exports = {
 	schema: {
+		geometry_hash_list: joi.array()
+			.items(joi.string())
+			.required(),
 		std_date_span: joi.array()
 			.items(
 				joi.string()

@@ -18,7 +18,7 @@ const createRouter = require('@arangodb/foxx/router')
 ///
 // Queries.
 ///
-const queries = require('../utils/DroughtObservatoryAQL')
+const queries = require('../utils/servicesFiltersAQL')
 
 ///
 // Models.
@@ -105,7 +105,7 @@ router.post('shape', function (req, res)
 	// Get query.
 	///
 	const query =
-		queries.DataByGeometry(
+		queries.EDODataByGeometry(
 			req.queryParams.lat,
 			req.queryParams.lon,
 			req.body
@@ -176,7 +176,7 @@ router.post('date', function (req, res)
 	// Get query.
 	///
 	const query =
-		queries.DataByDate(
+		queries.EDODataByDate(
 			req.queryParams.lat,
 			req.queryParams.lon,
 			req.body
