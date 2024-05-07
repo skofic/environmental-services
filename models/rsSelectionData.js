@@ -5,6 +5,15 @@ const joi = require('joi')
 
 module.exports = {
 	schema: {
+		std_date_span: joi.array()
+			.items(
+				joi.string()
+				.valid(
+					'std_date_span_day',
+					'std_date_span_month',
+					'std_date_span_year'
+				)
+			),
 		std_date_start: joi.string()
 			.regex(/^[0-9]{4,8}$/),
 		std_date_end: joi.string()
@@ -12,17 +21,7 @@ module.exports = {
 		std_terms: joi.array()
 			.items(joi.string()),
 		std_dataset_ids: joi.array()
-			.items(joi.string()),
-		paging: joi.object({
-			offset: joi.number()
-				.integer()
-				.min(0)
-				.default(0),
-			limit: joi.number()
-				.integer()
-				.min(1)
-				.default(100)
-		})
+			.items(joi.string())
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here

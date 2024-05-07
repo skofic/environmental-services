@@ -1,0 +1,4114 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "GeoService API Document",
+    "description": "",
+    "version": "1.0.0",
+    "contact": {
+      "name": "milko",
+      "email": "skofic@gmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://echo.paw.cloud/",
+      "description": ""
+    }
+  ],
+  "paths": {
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/hash/": {
+      "get": {
+        "summary": "Point shape hash",
+        "description": "The service will return the *shape hash* related to the provided point coordinates.\n\nThe service expects two *query parameters*:\n\n- `lat`: The *latitude* of the point.\n- `lon`: The *longitude* of the point.\n\nThe service will return the following object:\n\n- `geometry`: The *GeoJSON* representation of the point.\n- `geometry_hash`: The *hash* for the point.",
+        "operationId": "5768bbe7-e8f3-47ee-aa50-5704f101da7e",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "42",
+              "description": ""
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "12",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return the *shape hash* related to the provided point coordinates.\n\nThe service expects two *query parameters*:\n\n- `lat`: The *latitude* of the point.\n- `lon`: The *longitude* of the point.\n\nThe service will return the following object:\n\n- `geometry`: The *GeoJSON* representation of the point.\n- `geometry_hash`: The *hash* for the point.",
+          "content": {
+            "text/plain": {}
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "geometry": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Point"
+                          },
+                          "coordinates": {
+                            "type": "number",
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      },
+                      "geometry_hash": {
+                        "type": "string",
+                        "example": "03e60242766181ff83965b8ae1815aa4"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "104"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/hash/poly/": {
+      "post": {
+        "summary": "Polygon shape hash",
+        "description": "The service will return the *shape hash* related to the provided polygon coordinates.\n\nThe service expects a `oordinates` *body parameter* containing the polygon coordinates.\nThe polygon shape should be provided at least as one array representing a *linear ring*.\nEach linear ring should consist of an array with at least *four longitude/latitude pairs*.\nThe *first* linear ring must be the *outermost*, while any *subsequent* linear rings will be interpreted as *holes*.\nThe *order* of the sequence of coordinates is important: *counter-clock* means the polygon *area* is *inside*, *clockwise* means the *area* of the polygon is *outside*.\n\nThe service will return the following object:\n\n- `geometry`: The *GeoJSON* representation of the polygon.\n- `geometry_hash`: The *hash* for the polygon.",
+        "operationId": "e95f1620-610e-4897-a571-2489e0176caa",
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return the *shape hash* related to the provided polygon coordinates.\n\nThe service expects a `oordinates` *body parameter* containing the polygon coordinates.\nThe polygon shape should be provided at least as one array representing a *linear ring*.\nEach linear ring should consist of an array with at least *four longitude/latitude pairs*.\nThe *first* linear ring must be the *outermost*, while any *subsequent* linear rings will be interpreted as *holes*.\nThe *order* of the sequence of coordinates is important: *counter-clock* means the polygon *area* is *inside*, *clockwise* means the *area* of the polygon is *outside*.\n\nThe service will return the following object:\n\n- `geometry`: The *GeoJSON* representation of the polygon.\n- `geometry_hash`: The *hash* for the polygon.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "coordinates": {
+                    "type": "object",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "geometry": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Polygon"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "integer"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "geometry_hash": {
+                        "type": "string",
+                        "example": "9c4036c3d6061ff705324dd0e1b157b4"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "176"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/hash/multipoly/": {
+      "post": {
+        "summary": "MultiPolygon shape hash",
+        "description": "The service will return the *shape hash* related to the provided multi-polygon coordinates.\n\nThe MultiPolygon shape should be provided as an *array* of *Polygon shapes*.\nThe polygon shape should be provided at least as *one array* representing a *linear ring*.\nEach linear ring should consist of an array with at least *four longitude/latitude pairs*.\nThe *first* linear ring must be the *outermost*, while any *subsequent* linear ring will be interpreted as *holes*.\nThe *order* of the sequence of coordinates is important: *ounter-clock* means the polygon area is *inside*, *clockwise* means the are of the polygon is *outside*.\n\nThe service will return the following object:\n\n- `geometry`: The *GeoJSON* representation of the multi-polygon.\n- `geometry_hash`: The *hash* for the multi-polygon.",
+        "operationId": "184bf6ce-7511-4de4-af57-8590e1c64db9",
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return the *shape hash* related to the provided multi-polygon coordinates.\n\nThe MultiPolygon shape should be provided as an *array* of *Polygon shapes*.\nThe polygon shape should be provided at least as *one array* representing a *linear ring*.\nEach linear ring should consist of an array with at least *four longitude/latitude pairs*.\nThe *first* linear ring must be the *outermost*, while any *subsequent* linear ring will be interpreted as *holes*.\nThe *order* of the sequence of coordinates is important: *ounter-clock* means the polygon area is *inside*, *clockwise* means the are of the polygon is *outside*.\n\nThe service will return the following object:\n\n- `geometry`: The *GeoJSON* representation of the multi-polygon.\n- `geometry_hash`: The *hash* for the multi-polygon.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "coordinates": {
+                    "type": "object",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "geometry": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "MultiPolygon"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "geometry_hash": {
+                        "type": "string",
+                        "example": "495e9c14434befb6421e218bfcf8bf51"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "226"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/gcu/id/": {
+      "get": {
+        "summary": "Unit ID list by unit number",
+        "description": "The service will return all *unit IDs* related to the provided *unit number*.\n\nThe service expects the `gcu_id_number` query parameter containing a unit number.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number*.\n- `gcu_id_unit-id`: The *list* of unit IDs associated with the *provided unit number*.",
+        "operationId": "5336a849-358f-4c9e-b045-f2f878fecab9",
+        "parameters": [
+          {
+            "name": "gcu_id_number",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "AUT00001",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return all *unit IDs* related to the provided *unit number*.\n\nThe service expects the `gcu_id_number` query parameter containing a unit number.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number*.\n- `gcu_id_unit-id`: The *list* of unit IDs associated with the *provided unit number*.",
+          "content": {
+            "text/plain": {}
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "gcu_id_number": {
+                        "type": "string",
+                        "example": "AUT00001"
+                      },
+                      "gcu_id_unit-id": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "AUT000011996"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "64"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/gcu/shape/": {
+      "get": {
+        "summary": "Unit number and shapes list by unit ID",
+        "description": "The service will return the *unit number* and the *list* of *unit shape references* related to the *provided unit ID*.\n\nThe service expects the `gcu_id_unit-id` query parameter containing a unit ID.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided unit ID*.\n- `gcu_id_unit-id`: The unit ID.\n- `geometry_hash_list`: The *list* of *shape references* associated with the *provided unit ID*.\n",
+        "operationId": "571d5e41-d1b3-4a23-af71-807200e790a2",
+        "parameters": [
+          {
+            "name": "gcu_id_unit-id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "GBR000012010",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return the *unit number* and the *list* of *unit shape references* related to the *provided unit ID*.\n\nThe service expects the `gcu_id_unit-id` query parameter containing a unit ID.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided unit ID*.\n- `gcu_id_unit-id`: The unit ID.\n- `geometry_hash_list`: The *list* of *shape references* associated with the *provided unit ID*.\n",
+          "content": {
+            "text/plain": {}
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "gcu_id_number": {
+                        "type": "string",
+                        "example": "GBR00001"
+                      },
+                      "gcu_id_unit-id": {
+                        "type": "string",
+                        "example": "GBR000012010"
+                      },
+                      "geometry_hash_list": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "0df76d46196094c8bade10e30faf6ae0",
+                          "e5c44ebd19d901b99c32484dd9f7b5ba",
+                          "88879eba502251bb0dd464c23d7689ad",
+                          "ba7013b70d93e6c65ad454c652e069f6",
+                          "f1f6f646677756e553f07a45d68425b1",
+                          "839b1ba75fb42816a0727992f79657c7",
+                          "76b818e86779e9986c35ddd66e9518e3",
+                          "0c7c89bc37a21d7124a9142584a8cd01",
+                          "5fa57aa81861b88b481425d37623f87a",
+                          "b9cd545fb32bc7bd666d121116e86e2c",
+                          "1452266466ea805f47fd125a4df1ea34",
+                          "f2206259d46778af212bdcdb1aae8604",
+                          "5fb007edbb946efc2cea8165ba5b4d45",
+                          "13e8f5d0ff66ba45c3c92c5bdbfb6aef",
+                          "548f6e928cac847ad6af89faa63882ec",
+                          "5ec0c5131905462bb9e124a1cceb8883",
+                          "3f5f5c711e1c04b577f194566219f3af",
+                          "8bbd3b141e894c145c295aaa3c4915a9",
+                          "0f42d4a85a2ae5f6e3ddad2646d3ae61",
+                          "0f78884849c4b8916add579beadb891f",
+                          "1ce3a7b36d3c12060b629b3d1434435e",
+                          "dbe56a1f94a03109062d480860561f83",
+                          "846da80e36b021ab7ff29784185fc881",
+                          "82545e6447a083b49fec03728acfd3b8",
+                          "40d39e171b2d3e37f6f20d191fe6c8be",
+                          "f940dfc9517d27c47ae3e5627cc9ed78",
+                          "55d3672bf5653007ca859e5e98244bbc",
+                          "a1f93ba0d351e93761b28e044cb892a9",
+                          "c9b70699ab9357a0326cd08a821b571f",
+                          "e0e8ced624fe50c757827ee1f4dd54fc",
+                          "1835af6f5e7aaad604d6a63e62498d05",
+                          "f3963d84957c9834dc4c7f6a09c36d79",
+                          "00552cd4c466ceb30d4a02aba6b46778",
+                          "0dc4e070ffd91e5f007ff01944083dbc",
+                          "38bc19f820a7c0a294325fc7d5806a94",
+                          "e3803694c68592b351ad2e23957fd972",
+                          "456967a370007ac25fe6c0d25a2849dd",
+                          "a4677b4f6ef7609155d17a0e70dfb3e3",
+                          "0fd0afc511979c1fd96a7bf2e3c24cdd",
+                          "de9d3a9ad14b90a0dc9458dad63678fb",
+                          "0fc8944e973a0cfac1189391777aaac3",
+                          "0f66cf731f833fe26f20d494f65fa2e4",
+                          "c41fe111ee2b952688259aff9ba88ab6",
+                          "a762323aeceff7ce1494518451ae0422",
+                          "bc3122dda4a6dcc0eef32234dce48819",
+                          "58860882fdbab1d620dfc59da75c8107",
+                          "b2e2d3ed7e06b5f94c1a68e6a8235c7d",
+                          "960736ceab673ce4e37354219d09a2d5",
+                          "75530454195dd7d0c85ae9895ebc8029",
+                          "b5da527978808f8b46688f889f2eb481",
+                          "64a76e8a050abe38e080bcf783195d9b",
+                          "3be752c474c961a81eaecc47a76922bd",
+                          "e8f97ddaa942a32bd454e781d1256205",
+                          "d342bad986490012a3ed718e3026c696",
+                          "8a5d8c18bc026c49eb5acc5b24e01b65",
+                          "0b29b06a768d471301b093b1c26efa74",
+                          "65918699e255e61ff287503944c8c5b6",
+                          "a3700491ff2b4d6e49ca715cf3353bd2",
+                          "c4812fa46dc4e59eae9c87a42e5c741c",
+                          "d8406527c1f96f4c03d8285d7c56efa3",
+                          "4aeacaeba2fbb16795bc3eaed780d860",
+                          "f38b3a9f24b3387c94ff054b4316b76e",
+                          "fcb8553aa41d42bde965b2e4dde9099a",
+                          "be76c9f543ac5ea495e89fd16313336f",
+                          "f5f0cd65f812e7d54b6a3056a83385b2",
+                          "58f889e0876ed594fe81641b04cf6a4e",
+                          "6cee94e4638747101605c6486ffa7eab",
+                          "806746655f7bebcb68b5a7c7920a59c2",
+                          "8a4071b4f49d76f45598dece70c3cdd1",
+                          "9db1d11fe0cfe7bd04b71dfdc9310577",
+                          "d2b329644f363d2939e6ef91f508287f",
+                          "d3ff7f19d47aa6a24f55d868a2d4cc22",
+                          "bed949d843c25ee0c012f5290ab6c58f",
+                          "ccebbe5610c5bcc847683a3faebb9589",
+                          "dd8d73d325c1d4d297972bfc48f99d94",
+                          "5d08caee463432e6bd56102ee9a05beb",
+                          "773e16a79d5bb6eaa8a986e88beb4582",
+                          "98c11e4ef2bc3adfcf4ab1855a798477",
+                          "ddcf86c7de9bc8a466412b8ad89a03bd",
+                          "cca39ead811272148df905f78d8fb561",
+                          "489f3f03ba0f7f181bd2feff3d7a420a",
+                          "68200d615204ae2f87009a2133b1c6bd",
+                          "d1c42e63e4dfbed2e833ac8e121ff92c",
+                          "eb19691b75ff8afbc8ea7548db085bc6",
+                          "e65870b177c4447ef9b9441fbfd9574a",
+                          "7b60edb4f8d7427a3406caab69a8bcf7",
+                          "92c6e51e9ea59f798bb0d11320daa95f",
+                          "e3e7e7ac9157f1b07c135c4088b6c5ee",
+                          "56f0e7d40b3f784b2cbbff3527d44726",
+                          "c75478527e431e117e8873802ea91a74",
+                          "28e0d6d4ba11b918b0be14e97940af77",
+                          "c0568f7fee185a7fa82c9bfbf013ca18",
+                          "69945c32993705cd68542d2ab7749692",
+                          "856724065b448ff816458cd59da784c7",
+                          "1f658faa158bc7195b10f4ac466d362f",
+                          "5f8a5c03e1624323873ca7cb61bd4f74",
+                          "925b565715b4f7405fdcf39327634fa8",
+                          "5d2e4fd3ce96dcb4036102f5fc737503",
+                          "0260dbb16b669a6a247ba4703b135deb",
+                          "0db99967250b3a834c50326b15df9ae8",
+                          "87ce5f52de2009698fd81ba012bdf7b4",
+                          "3018455f161dd84ca19e87c5d4990a24",
+                          "f1a7ad819726835700b2d08e86675e36",
+                          "29625cdcf13643d02c0d6dcc157d705d",
+                          "25c11694bfd73955f0e2d7b0e54ab847",
+                          "957b8749f47e1bb8d0c893b74125e5da",
+                          "5e4cf4f13de101cec6462a78048fc4d8",
+                          "de44373351df01dd52c9585532f67049",
+                          "a93e4de7bcb36cdbf3bd47af2399a9f5",
+                          "e29bf304aab88fd871efaf080c343103",
+                          "8c5dd0262e3bf15cb4374173e08af277",
+                          "c42e7f191d8713e413f97e2758f80762",
+                          "775a177fae0ec9eae6c7a92588eac820",
+                          "7317a0cb6d2e1c40439d381bd6796e57",
+                          "718f8689cb13a204426080c0a5cf7daf",
+                          "32708ba3e7cacbeaa58ec68f3ed18b58",
+                          "0d36a1678eefb995b9ab4fb6f5f83d18",
+                          "e58f7052e44e5f2ee65aa9e95a4308a1",
+                          "a06e58bc30048394048fe7dc8223fba9",
+                          "02b4d8c4271053a87e151c034b915417",
+                          "388bbf6d556e683d112de89787e768df",
+                          "d13cbf0bb2dfe604ab52285c135f2169",
+                          "8f4990739923320fed396c40131d9f77",
+                          "498b585295607166d72787b0ca4a1746",
+                          "aef2c14660644cc60d6f4590a4968fc7",
+                          "2caa0d305827354b25926cb826088953",
+                          "ea98a9c00e0dd22faf840976644de7f9",
+                          "07718255f4dfc24a62648c8f7649da61",
+                          "6fce9779951566440ab13d6117fb1d59",
+                          "8769fc5e0763b47de8e2bbd70781e71d",
+                          "7171a37dc1858a162e9cb4cf50687aee",
+                          "1d836d1f39d553be8aa85dfabe5a62d0",
+                          "23f57ecdcce7a15bb029aedcb7a2070f",
+                          "85fa45b40bdd6fe2a90344da2fa7f802",
+                          "df66f81955b7a6ce64be4302288d482a",
+                          "9778ec566be5dc6e3fb3eaec4588d8d9",
+                          "7ef9d2729b38dd56dfe9d97c09221d91",
+                          "c9e78cf30cb946e9afdded7d440e3019",
+                          "a9761e8228a50da108ba3eb7088e88b4",
+                          "83c654c882f359ac2c9078a500c31d8a",
+                          "e6e321d63a68af3bc1a66d1c076139e2",
+                          "6a081c432db93e57c5e497ea2b07dba9",
+                          "66daa3fa4338c15a5656e7d5626a62dc",
+                          "1a450accca44665ef0ab354da0a67f09",
+                          "6d816b2a0fbe26397e0150b132f288c1",
+                          "de293666e915accbb010d63b83d80e1d",
+                          "8c56fef40305d1257f5ad768c8ab23f1",
+                          "4a00ad585e0cd11623c8c2808e2440cd",
+                          "49b6f632d14ead16f40d0d3c25eb7b02",
+                          "583035d540ebaf042db7fd36815026a1",
+                          "27333d7e8fe49362ba846b438bc048dc",
+                          "b744f8a0aff70bef29c7790a8950d4a4",
+                          "84c57e718d863bf4f0a2d6966a646957",
+                          "09e190e18c304d2ea072fb6e042ae538",
+                          "6351007ed9f91c70f5f2aea998dcfc10",
+                          "1d0d2192943e359a2e4bc96aaab5c95c",
+                          "33a3909eeb4e3f89d63c815052fe838c",
+                          "a7a18c01d7a7c27d449a1059a2379ca4",
+                          "790bc28fcf458da2d3c3643136f6b38a",
+                          "5b1330e6e1c60c36ef857f94287fd8d4",
+                          "e6b0c5a77b351ff6d805457a4d706a1d",
+                          "10e22fb15f2d80cf20f0c67daec44b65",
+                          "aaca88ee657d3096281344085459ccaf",
+                          "7837efd719e89947466f1727d6628d7e",
+                          "bba43f405104be00b60888120569d430",
+                          "fa94ac9ec7eed7414a776c020b5b5368",
+                          "90619983b48bc823757df346ef320e89",
+                          "267727f125b9aee539b40efbbc303e48",
+                          "20525fec2d17336450a591aabb66ca73",
+                          "633feae17763722d5c87665d2f1661a4",
+                          "0a3b54b3f52a4c800acee4a860666762",
+                          "1aec44ef181f6fc85986c1d01e7a1e9b",
+                          "4e7195f0d6cbffb1c3a14f0b4736238a",
+                          "f02283a6f57f31391d5cfce12de44bee",
+                          "477bbc6bb6c4e5350b03258beeaa1d91",
+                          "d1f9d2c8380a247e8e80dd9a7603b348",
+                          "691f3513119a60c9064de529d80c453e",
+                          "0bda7796b683b85c2720b20e148561cb",
+                          "10e60b93a49df234fe3a8d2420dd2945",
+                          "90ca9d03978e003017f889002823000d",
+                          "4873c6d86bdddd3600606b6dff643e59",
+                          "7880ea7f87061f4ecd07ab95d4e4b789",
+                          "cc1b43327af27590273ce95d2e09fcbc",
+                          "2aa789c8d6cb042d5f3201ef4ace0a0d",
+                          "14814eddf024d0724cab982290e94e14",
+                          "161f54436511aba4bf6a02ff2542036a",
+                          "141e45120384b4d1cc5bb41c562f18be",
+                          "653c38d979a1c40e9e4e6ecffa6584d7",
+                          "85228ef88c27ceb8afcb7498f9e6c4cb",
+                          "466c77342e95c1692c4f4226978c0ff1",
+                          "2dea06ce28b0863feca07016a270ba02",
+                          "5600739fc905b27786d1813909cf25ce",
+                          "f5121934940d282e0a3a0a574b397148",
+                          "c1834355c9c0a18f1366d567d2e6c43c",
+                          "1111913180c9e6512b84d8b3e999ee9e",
+                          "fd9e2bf7f8e294cb6a764328df318101",
+                          "5ddcd6afba3bab61d98260ba3be24f62",
+                          "13f97befc3e6036aeeb6566a0c8238dd",
+                          "fb67b6e7332de6786f81460e5e17fe21",
+                          "9d3b2e6fbf57f848d6182b355322585e",
+                          "6ee4ff2841f354789aa6b3571110ad9d",
+                          "4323f2094f1a33a7e1ba9c0a0042466a",
+                          "6e598d5870250516d88ceec8d8cd6481",
+                          "d8285ad8613da3fa96e970663ff780b1",
+                          "6a36557b2f4d2e72935ae9f15772bea7",
+                          "a2c62656156b68546ea69ea03e5b82ad",
+                          "f2047e90c8552ab120898368e118ce59",
+                          "d169ba10897d07b6cf662a45d3e4625d",
+                          "295c2ac62c98f1e3af8aa16f32c4951b",
+                          "5bac4ec3a1572fdcde1ab691572333d1",
+                          "cbd712bc8d65613393db0a1011de60c5",
+                          "c0877b4e07ec546b81bb226db3bfca0e",
+                          "924d038162dc8d23fa4403c2b841ab93",
+                          "d3b2a4a2cce75b1c6dc7e1e1cdc08915",
+                          "6034ef4c192e4fc795823ca3b40c2829",
+                          "2cc08cdd3e103ae1e6762473897f1110",
+                          "6b1b04d776e0ebf1b0d3c27c411f7dd1",
+                          "f7898afd9e4131e26fd0cb7874c8693a",
+                          "c4dee57da9ff75cf8acc642b1aa46362",
+                          "b79e026ff1d7c4609839fe12009b710a",
+                          "a312891e3fb9e5951deed76e8b89f44d",
+                          "024e6cd2a6905d047ccb109b234cb038",
+                          "59720629e29c586da11ca45e8439cb29",
+                          "8433d28bc9239bd244371ffad0162784",
+                          "6fcf178ae0ad530bd8db8cca5f8fb6e8",
+                          "0f62cd2d99893f6ba85405b1b14bcab6",
+                          "131f42bfbfeef959c29fca102845e1fb",
+                          "2dcf871f71046530cdac83faed9f288c",
+                          "aab23ed486337cee73d4249e1bc23609",
+                          "0df91547cff31c0cd38190e6dc261d84",
+                          "67351e9c53c24097161a969e19556727",
+                          "ee3a281c623958eb078b87353b646e94",
+                          "508213d0392fbdf0bf43836a6b59c4a9",
+                          "330de0dafe435bb38b26c55a34d13626",
+                          "385029ab4d1e0de445e634d9fd8aa384",
+                          "67008201a6531d8dca78ed8aaf50bda3",
+                          "e46b732b4589da97ffff5a09aa76334d",
+                          "aaa3900638fe796b5934132e1bb60321",
+                          "214a9582abdd12852b1350a518cb48ce",
+                          "1f14187eb8a5345e352e1181f9b8ccc6",
+                          "5cf49511d6517bab8e2a3ef76ab766b4",
+                          "a9c3ad8e041f753914224b3f7580cbff",
+                          "95cf28b6753f47686e7d4c4e346db589",
+                          "0271cba9e1da53af131f0c4feff97642",
+                          "87ede36b7694c3338df99d26e94427d8",
+                          "a559cf17835055b9e6cbf07dd435d90c",
+                          "d70fd27274adb62fe90c2a25d944dc20",
+                          "d517076059958b0575dacd4365c3ae4d",
+                          "55baf314bbb41f928d13dc40f08ca37f",
+                          "0d8cf562ddf471d32a626c37bda27dfb",
+                          "abcd1c248103819ea1cf6dc002c40961",
+                          "add33d0180f323b726311ade4651c5a2",
+                          "a2603744ad2d1882c38a4e8e82efc0ee",
+                          "f917ce963dff3d00342b84d20ba36430",
+                          "061cfb732c56af491fdcaf7849c485dc",
+                          "a8ab6fda44b2b5d962a5d9f7c76486e0",
+                          "889ed630902a90889ad853912c708eda",
+                          "153103e8f4297e2526c7482e04244640",
+                          "68f0ade512c2d1d886689b4382c623cf",
+                          "1faa646803485ce5f7dea01bd095b3fb",
+                          "889a5c82d533154d3bb4814daa9274e8",
+                          "cce2e540ef5b117279f2587ab24b713f",
+                          "29c25445db8c29226f9b46417c606cd7",
+                          "d554db29bc1e03f5c4188fcf89db4e84",
+                          "dfb38d832f53fd07ff6e4419e693230c",
+                          "8fd66e382db071984f68c1adec75363b",
+                          "4c361e688dee3d626e58844f232cdf6c",
+                          "826ac16742319a92fc5bccfb7dfdd0fe",
+                          "b8c352d01afbf4326a1be2c05ccc8632",
+                          "1fccee7161456f49df8c5b7d1e060e35",
+                          "a0e2076baebcbcdacbe34f516b404024",
+                          "f3c55bc53f00bacbb63fbe095c90f290",
+                          "3fce6c323b8d52c8bad38e9da2f5a271",
+                          "bc28d8d85c9828a7207be3e487f3eb2f",
+                          "6f401d34efe82d0f924ac55e00f815c7",
+                          "303c22da2fac54517ee666c4f3172c72",
+                          "4cdae4fe6563da1961f2ce2cda208a7b",
+                          "82a9391f8f764b716f6ef8af61f1be0f",
+                          "4e79247e4a87b086bd598ae549622041",
+                          "f032fab22b0a5095509b08910542eab0",
+                          "edd27674b9f1344a86be2e89ad533307",
+                          "39aefbc4c19ca40ee53a116200192cc2",
+                          "cfc147d3a71c17e473402844379bdf6d",
+                          "e007461ca8b9bfcdb38ee887b00fc5b7",
+                          "31f563564bb3ac523975a3778ba7e924",
+                          "78d7d39a822c04e0b8e5e0623a63d629",
+                          "57991bae3ddef67f02773930724c6cc8",
+                          "f4a5bb885758e0a942289be4e96e435d",
+                          "950c81ea58f4e8702d805fc784fbf10d",
+                          "6907720989ea7fbefbd19f31a4b859ef",
+                          "0c50f2342a13b180b48d44ddb261548b",
+                          "383e5888dce2dcf023fcc156ffdcd28d",
+                          "93caf121c79c677ccfc583cd07f0099f",
+                          "e4513fb02e645cccd88326d2a4856fb7",
+                          "56e9b2d23612ccfdbdb8a4b1f0ac1851",
+                          "de0406e68b0f5c581566cad39e038416",
+                          "d63a964d8a5af3ee4376c3c4cd3cfc1b",
+                          "d559dc0cf1a2b17f512b8272918a576b",
+                          "b9a218173625e6eba925ec7f0b2dbb4b",
+                          "fb4d92023b924561f84698366c15cd14",
+                          "afb6b1102ff8f09a0920e51a18b796e9",
+                          "56eba10ece0a064c6654e5b45a9185bc",
+                          "d33f424fb8aa4a223b51c7353cb95489",
+                          "c7754a4db7008b04064453d67c40dbd1",
+                          "c6e25d6765fdc53609e6c4c2b71864ab",
+                          "3c994cab291c13bd8d67b679685f5729",
+                          "01a12b0f45d7076ea619d9ce12595fb9",
+                          "5ce7a3d4724b021c0e52de31dd929e6a",
+                          "c6fd52bc2357760fe7ca4490829e1b1a",
+                          "cf677b165b4c39f7cf9cea83e478dc9f",
+                          "7a3a93b16bb94828127d6e5d10f89eaf",
+                          "6d86010fd9017eaa0a11a2333b9293f2",
+                          "c3c0368f207376f1677b885d11043111",
+                          "22ed0117255932e24036962e31684859",
+                          "1b5db8fc1cabdbebdb3b5a1fcadb3188",
+                          "d961667cee1a33c4544d7fa2a3b4336c",
+                          "389bc6c180e88b9bc0bfd131f0761c84",
+                          "a83e1d49e8a28a15fda05340c3cc2d3b",
+                          "24645b6af987419eb2881c91f8b7fce9",
+                          "af2682864c1ee15d6cea546878049e62",
+                          "0e3bd7dca3dad2d6a88d53f247c85e93",
+                          "8db717d6edc7ae731769be2b3c6e0ed9",
+                          "a7295e756dd50e499601c0953c8b7ec6",
+                          "aca273ab523dbba6f6de7b601f4afb56",
+                          "8fe9cea6d1bd3121ae09125a314fd767",
+                          "6b01e5c96635cb24db12d4755d998915",
+                          "2df389de569d436ca83b0318148456f7",
+                          "a1deaa927921b41a3c5957a584031d71",
+                          "1b5cdb3038ff11b9663cec9b4b76e6e4",
+                          "266d02c59e6f10d5fd17992509df63c7",
+                          "2964ad4d430fe7f3d2b1e28ec341a209",
+                          "bac70d8c2e11aeedaeef04cd096c44a6",
+                          "293fb2d52d2083ef26d0841227b59638",
+                          "7bbcb49450dcfffcc38c26adb629ef1e",
+                          "3482e6dd796dbe031abeef9eb296000e",
+                          "0c53325d237b8d79e333ba591204a0b4",
+                          "9928f3477314554ceda6d673d770fc6e",
+                          "9b0f2dd9851abcc52407403ff389808d",
+                          "4618d01267593e17736d84ab63cb2d80",
+                          "d5ec9cd056eb06bc993b1997d5f29a10",
+                          "fef4e5ebad916ee105b2e62651b0f44c",
+                          "0fe976eb808e2b5af69702ec616ca77b",
+                          "263543a0006094a7ec599f98f4342816",
+                          "35b2c1bbcb26490861470f3c1a8517db",
+                          "1d92fc5dc2da5d3c77df1d63356369fa",
+                          "e5a3b2159feb3f30a6d86cc4c1c6a2c5",
+                          "8b754723fe06bc26061dfcff5ab0e374",
+                          "e2976ff35a844c01829ee316ff484811",
+                          "638517fc465c92940a51be72c11a0914",
+                          "446e958333c15476c44f47de71bb2f40",
+                          "bd3430471962e17cbce7e56c48bfe956",
+                          "9076618777f366cecdee85f512c1428e",
+                          "616fdf595857043a3b09e8f7a4e40989",
+                          "93bd03da8e3ffaecb83dca8fcf550914",
+                          "4923cac41e2cc97782460ff75f02fe3b",
+                          "83ace5fe36446b6a3f37d634b0594ba3",
+                          "537ca198a23456bfdbe841e59bcaf346",
+                          "97b4a66a1a869667b869818a367b2999",
+                          "f71c86a8ecc23fea0474803235fed571",
+                          "7ce86c9e31efce76aa4d094759bc2221",
+                          "fe0510127117bf1c8f06e9544dd6f3ee",
+                          "05a6180e4fb750bb37cc8badce7474e2",
+                          "e8b6382359ced591141cd98c94b99fa4",
+                          "559ce190f27176f28e4e723442529a7b",
+                          "55a9b10bfecff02842774e450684f90f",
+                          "75ae104354db33267c5fa59ae08f88b4",
+                          "71c089b6eb8c6af23086301f634aa978",
+                          "8f2b3219c2c9dada838af167f0ad4222",
+                          "3d615efeceebc4c89310de7bc6e90256",
+                          "64896eac2a832719d57c79baf108b01b",
+                          "945f0f96ed04c67548308132a5df581d",
+                          "f35d2de804d1d2662dc4d64598e027f1",
+                          "1c6797fc96af42d725f2027429dc6e89",
+                          "0fa9fc2d044cc9fa7263ef3c94fb110b",
+                          "29988d6d7124264c3ebf68e312319ba5",
+                          "198aea432fefc63c6b1c8c2309315f04",
+                          "8ca62cc2197663b6ed5eb54754f361cb",
+                          "11ffb56a446fca723923fd2ff2dcc84f",
+                          "dfac112d27d5e6ce2318778b7a3d9e0e",
+                          "eccdb8141a008bb3f3e3cf3116185dcd",
+                          "b0fef645a1fc6abe7bd1885d78091ff0",
+                          "e62721f0ddfad6a3cc537651a30d9e1e",
+                          "80b1741b32e86df70fe8d79f89e7cc4a",
+                          "548254ec00790d2627edccf35de5840e",
+                          "132815cd8b9f6e15c5a831925dc6a3a9",
+                          "b834e52c10776540d51204cf8cfa6aba",
+                          "485e141ba1b1ae2e727a464eb131b78b",
+                          "e9a59be5334f21b0df165b2a6a27c1b6",
+                          "679fe442badb51f016803eab17aecc84",
+                          "24d9500e63de35b511c3155c89020afa",
+                          "48dab1145b1ea1c0b7e6958de937ca98",
+                          "6435893200f6837fcf28f88fd2868b5c",
+                          "99a19b268a9f8f193da1b52e8ead6199",
+                          "fd4e881ec832da38b20d821d92574bdf",
+                          "77e5bdb72e4ef4acf2c092d82b74454c",
+                          "9d278ac8c7b45b80beb13f7cfd453634",
+                          "cace3fe5635b7523908b4c00fd08bb07",
+                          "f4f318f6dcaec6dec1969a68c86ab770",
+                          "20f340d49edc4cb1b1d805431ca3c9aa",
+                          "f73571297ac31ef2cdfbccb88666b0cc",
+                          "7842257f6471d141249cd87792f79d8e",
+                          "78e41abf9f09d621030ebd4a34a52781",
+                          "ab02a0a6a6171c1aed3bbe98105f76e6",
+                          "70262ce4b1e9e61d445dee95aa8148cf",
+                          "360d3f017c154cb17184488464a0f652",
+                          "b0fcf8d175c66c2c7316f7817c0f0bd7",
+                          "1569b3b9afec99eb803483d0f4cd0c1c",
+                          "efc1114292465bb5064d6860563b883f",
+                          "6fe9e5f1fa9c84930b2ca2af2416f1a7",
+                          "f5f51c93452f0f3e8e9b98f263fbd169",
+                          "f5e28f693828550e881461f79c5f1643",
+                          "aa2f4d150fb5cd908732bb47790617f1",
+                          "ce173b2a8945e2304f0c4c4c7f15bfda",
+                          "4c91cbe687441a4074fdec96179994e4",
+                          "d59bd40c173e34cbaa8ece3790b70730",
+                          "4150cf1c4bd2ad75879e81fd93c44699",
+                          "56c53ae147e297335501d82af8d80f3f",
+                          "1c480501566d03adf1b64307f799e294",
+                          "95ab6be1bca1748cf7fc726ff74fa2b9",
+                          "1383eddd8464328e08d8a1ce6a43dbcd",
+                          "cbaf75b3a00c4cec64e2511a07a1e2a9",
+                          "f420b6af4ed1c70d8488cc895e1d2cb8",
+                          "fba5d1f86529f13311c3e5394bb8f0e5",
+                          "8d0b409247df1d2e5d8ccda29e43a372",
+                          "34f6d907c72a20ff528566bf1bb67e1b",
+                          "f5cafe0b5c0eba06c602e24042c8cefe",
+                          "e719ff48f523cfa4031049a776e1d425",
+                          "3872856c3eb019438e07e714cf52d394",
+                          "438d7157b766300ef607f9052fd468cd",
+                          "a7011382e26207a43dc4ea55415bddee",
+                          "fb681d23c205a200969e677a1979585d",
+                          "ecb7b5ade3cab04ff9d0463beae05bd8",
+                          "9578f9913b4f6c22fcdf26f5582a352b",
+                          "fc270a6a3a821433ecf6f47444014c26",
+                          "ccc2306cca8f5e900bd0fdd7b47d8a4d",
+                          "6e34a7bccab5198626d60e45dd3573ee",
+                          "0a47a354887626c0ae8008d5d4b56390",
+                          "fc9f768a7e38800b88241c35e0647d88",
+                          "d079f6c41d9297c021b78379eb8bbdd0",
+                          "77b0d7ab3ec2781b6de1d0e95ea837d6",
+                          "23aeebbf17f72c66e421e4dd392c49b7",
+                          "6faed402703d3786ee569a5e2d0772b7",
+                          "93422e48157cd45234e48b19d32b96b3",
+                          "e55f1b9caa73ff8c8818a0727f382a31",
+                          "5b9a7005dde94b5c5744362cc9855f9d",
+                          "efe58f55a1cd3d938ec0db7c42ef77db",
+                          "1227954c44626387cff4447302f788fe",
+                          "0cef2ed64eb5ed88267fc2f3e62bbcdf",
+                          "0fb909b8a3ef541a7a39de1e544197cc",
+                          "dbc192413df73713e72fd53c3e90e47d",
+                          "67f15e40de242da2dfbb2d284710a72a",
+                          "4f32f1ebf544a8d78080e36cb85e9177",
+                          "c436bbd58a2502775def84c212ef5c72",
+                          "f546b180c9841fb7d85e3c9201d42977",
+                          "5e6960291786545c5d2f95544ac8d9ed",
+                          "d4a1b215232883cad692a08caaded569",
+                          "305b83ccb3d34dd9c024df0f16fa2618",
+                          "b7e5e71460865d84f96e0d186182f305",
+                          "7fbebbfa934f89d5b02ec5bf82dcc87b",
+                          "4cfaf48448f049c3da22e6e414e01156",
+                          "c2a81a9a025c244ed45e7b64f3192bd8",
+                          "9434cd3dcd524809e36360561eb6e802",
+                          "f373e702144df4b7932a9fa80ebb139e",
+                          "e79b55a5823e8b18d3233e3371f57ffa",
+                          "8f458ed65f89acd9e5d03dcc2c05ed90",
+                          "59cfa0a5eb565f0db8e4183e30589c2b",
+                          "b953b5ae584479d332ee0475b8edad07",
+                          "f1f689c17eb59d6fa13de0c634fafc98",
+                          "ddbf0937652d24ecbabe1c6a5b223e92",
+                          "0c4a49901b5633f3be5f1972d2e16bb0",
+                          "fea2a5d15823d6a4b9eff9488dc3ee55",
+                          "bc07f091009eec04786b8941e1e1e4d4",
+                          "3a48fad2b5a3cccdad118b151dfaf1c1",
+                          "64c78ea4dd19e651b3f0e70103f7c2c2",
+                          "4b9e8741121671d49ff133b1c07faf1b",
+                          "bb8d01e3adf6fcc89d2fdfcd4468454d",
+                          "d7426c93465827b880d4921f6fb12cfc",
+                          "0e61c896d3ce31b6d511c08e5069d7dd",
+                          "8e6fcb777bffb5e182cb95ae93af67ab",
+                          "3d2c7d585f04c165a7b3f7e45958a79f",
+                          "db5b66cf390d1ace778346dd61e0cbf2",
+                          "ffd4608b977fc58b77864a75d080475c",
+                          "5f3ff2f94992b08c3dc1adb4d11752d3",
+                          "7e884f19ad0aa649373101fb4b284da4",
+                          "f32a3a9e6d65414582cc126cf90e504e",
+                          "53332cf7e7a3a62f06514e3f19eb0985",
+                          "898f0215a798aeec635c96e6917d8a8a",
+                          "f90ac75211b66b7abf7c6c89476444f1",
+                          "e3afdf15c8d9f594f8d49452ab63e3ff",
+                          "e72bfdcee899c4b22ba34495f3149700",
+                          "1a9b4f519a35b11faa8619b20d722330",
+                          "e9e3b2efaa69efe08001a0c97201b888",
+                          "1bd66525fb5982b729abf28bda493cc0",
+                          "4db68f08c68e6c4f7e692eeee26eb795",
+                          "a2fec287c29240d3c13b02e9db091258",
+                          "1fcde3784acb0d4ea7e5f37675bba8cd",
+                          "edc0d000cfb311c4c1def0e2e1b91a3c",
+                          "d1961c9bae2b2b028e9b5c8162d284c9",
+                          "3020c8e99f8938deab4971d90d36d238",
+                          "d362eed7ada1ba53c93ec38529613e8e",
+                          "7d3f8022646f3b0a8926797f5a482a9b",
+                          "7e8f61e8bb41d67a970345bf7a25772f",
+                          "5a001a5e8f849c4d4fcb7081150a8c6e",
+                          "8dc7b0b820d4a51b31bee60f43332d13",
+                          "2779c2017f0b3afa2fa2563347724c57",
+                          "8030623f911986ab9fa9d043f5f0660e",
+                          "80791a0a7f8b28df8b84ceea1b797524",
+                          "a036da05d624a2f69cbbbdbf9aecdac5",
+                          "17840c6c0f66dff041d2f007479969bb",
+                          "e0d20c21a970e57b7ade3aabfc3bb38d",
+                          "2bf0acc73c272ab021ea9380fdece206",
+                          "144ee07398f1dc7788b1f90d4cbc911f",
+                          "f3e37b348d165ada3bfe24656a720735",
+                          "3e0c90f6262217b9fc5067cd43d0cb39",
+                          "041b353a977875d2563b883df27f9691",
+                          "04f95b2ecc7ddda21bbfecb47a6ec83f",
+                          "5115f242ba19cb140b8b2064f1b8366c",
+                          "66cc35ad3981135f4f2b57cd70842c4d",
+                          "2665201aa790a7f12151f7491c72c156",
+                          "7939dd1a8c33d3fd772abad4f3e3183a",
+                          "5ff7574726df0c03e489a51e0b4f1d32",
+                          "95dcf2563ea4f5b4779d0c5399989fd4",
+                          "5c3462336842dbf2e4c7534dd5e6dd2f",
+                          "a5a434a4d68ae488c115253051079a3e",
+                          "785ce5013ebb410944ffb745da5c07c9",
+                          "864f19c3b1161de0710a31dc6a27f496",
+                          "b67024267ccf61487efca7c0934e493b",
+                          "2dcc48327ff3c1e6a669ab7523a26f9e",
+                          "6719f6583c9d248e55629fb7c3634c05",
+                          "002b29ac83ca7cd44d2c0046ca2ad697",
+                          "f03a3c117690828f07430c6fbf185627",
+                          "e2c17fa447816769416dc7734b6aed9b",
+                          "ad7e770cfd39637350a0fb15cd37a009",
+                          "750f95a77ad40a542a2d83df999faf77",
+                          "6178892e48725252ef9d15ddbad3bf4c",
+                          "8c28dacc71b49122d10b5057d6cf89d3",
+                          "e9349d3f8b97a6e60f1a93bab0437abd",
+                          "da0bc5e61f172b8fa57bed150c01eed9",
+                          "8579b1a1632b6331cf7cb439d7bcc738",
+                          "eee0971d2a49c9e6b5c51e7b949e3142",
+                          "c243feb17e587c23fecd36215fc16de9",
+                          "dc5146c07ce086044aea3b52414cae17",
+                          "cc9774e28e3416733e507191733e1aca",
+                          "ec8c9c5bd26ac018d9e4ae0b70097807",
+                          "a58ebeaef5fd785149249aac619db9f7",
+                          "8bb5a224ab83a90a8e67b87e44bcf7e9",
+                          "d5164cabf47cfeec3149e385e2e3bb0d",
+                          "c6cefe4cb42fe9604032e6d74d66c264",
+                          "746b3ccdbcabdc4a044be070c09248e3",
+                          "475c296bf38f7f2dd7283dc4adbbc85c",
+                          "ad669ce6841a45b4760ba0d0823bc285",
+                          "dfa1d88d4a48ab0b58fb93d26d42a198",
+                          "dc36b39c0930347f41acee95b6b2502d",
+                          "d02b1405e70beb5ca98fb1938502807d",
+                          "40509a655a5132ffde5b5fcf727997d6",
+                          "c4af70c221e3da3b3ff8f5d7cc1c36a0",
+                          "bbbd7aaf9e866f078769f47f51192c7d",
+                          "5b51a8a26e8e468ef300a658d514a25e",
+                          "71a3108f48b334812b9d0510c27d5daa",
+                          "77013ac584aa38d94b5e1f44ed6493ed",
+                          "e1077d954f8dca15471d34a144ab040b",
+                          "6569cc4f682de138c83cc0a881711372",
+                          "8259038dacc0cde1e149ffee1daa9a97",
+                          "fd632e2a4eaaac383166f37587fa0c3d",
+                          "6739a8056bb22374b26abde1b168cb7f",
+                          "26b219f098e091ad82f8bd7727063e54",
+                          "fd5c4e8dec5f2b5ee72268a290d65b4a",
+                          "9d7249a28d6c78086ae222dfdabbd703",
+                          "b5b9b6f88e8826ffa49bd00ca2f91108",
+                          "9f62ab67c04c68e3864df2de868a8413",
+                          "f3a85c8834fe7c8b38a4a66a87089929",
+                          "1fdc3d36dd54d7f3c4ed597d3691d1a7",
+                          "4f28400eb69a5e01ce534ca3878915ea",
+                          "b013fcfbf1e21a2bea6ac0604cf51a93",
+                          "e3068d1959ae847b40b9c911275c52f0",
+                          "1f92a213db5aad8f06de5ab174577aaa",
+                          "ff5f84046d5aff858e9d09ccfb26a235",
+                          "a8f21e7f90081a12ca8bfa8c0030be9e",
+                          "799c49a9a6f5582c4d9126425d24465b",
+                          "15cf1cc8a3c3e74f6ae95176b994db91",
+                          "457d3ad2d07e3519cf73971434d9ed5e",
+                          "c8a57474c52da4c3643cdf86cda2f54b",
+                          "67004b85140a0167713220859c4dbad2",
+                          "9ba0985e54aae1ea09edd427509247a7",
+                          "ee381d1a57e84491e67fa63857f0ad88",
+                          "d2513267d597d0c2c7d2c0a87d202e36",
+                          "95a64c91e01036196611b0933f387280",
+                          "283c89a9a54d8c687c3c9cbc0fd848de",
+                          "8bc26f7d647dac7a09bdfda68ff73d6e",
+                          "272260ac1e17e4c65d33794fe3b05eec",
+                          "6e27c28e5de3a7f5d3721bef315845d7",
+                          "1b918bcb0413f8a0a84500e2f9b26d50",
+                          "be516902c9274921ed51350b4f6fb3ec",
+                          "aeeb3498d0596f897de16ce35200f312",
+                          "6be43c10aa511c5a9fbaafe4a56b6abf",
+                          "c935d591ee2c619abf227e15c79df305",
+                          "c835fa3e49b47d0d908f94f443aa2093",
+                          "412f24913e0d5431952ad5b145f105c4",
+                          "8df06bb0187c2d8b3c2b71ecc5cbc3bb",
+                          "4b368a668c35cf362ea8cfa38e60110e",
+                          "17eb39835719cba5830c99d2292500c7",
+                          "0039d996e5b3d7fb7e497559447a3023",
+                          "c3417ce32821a4b5b148170d2c5bfdde",
+                          "a5953a3aa711eb01059e80716b92bb43",
+                          "dd908f1de9fef18989ead871cce347a6",
+                          "4549b4d9ae165aefe1735ad23fce8d85",
+                          "6abfdfb50d76fa5a651ce55e633c6f45",
+                          "a22da9aabd9eadb07f5b72b38fe672d5",
+                          "b3f20d123177a91a4ca299ba5533bac5",
+                          "2055df95a6c731c88e744a64025dc2a8",
+                          "5812781c79a73c1b08ecd09273dd075e",
+                          "e41b36af43cb9138283e9544b5179d8d",
+                          "38903018b8ec5b58fe1045e44b1b1f10",
+                          "3c0204164b0c34c180ad0c5d70f51275",
+                          "5336b77aa4b24d7b7141af4e125616c0",
+                          "9c75e7cb42727dbdd45d5933a8bddd16",
+                          "79ed6e9d3c85a74d9c7668754ef0abe6",
+                          "af240825d29c3e407de0374203e3974a",
+                          "e2487a4b6b931a57aa8bf5390b2c76ff",
+                          "40a74873d7b60e092c568f9562d8c2e5",
+                          "19d37867a843e5ee5f9f7ae5d0e841f1",
+                          "efbab4c5a0ae0ccb14adbe8b30710bea",
+                          "947bbf95c1d545476559d43b43e48351",
+                          "07a3ce39ed3a6785f37fe7c2e931956d",
+                          "1abb62dfd7e21632e749a88761ef9a22",
+                          "cdb3a5a0f248ee109c2d36af3d41bb77",
+                          "b3e5cb39fad5d25f013f0e05e1d6ac00",
+                          "fd697a7ee569cec4eb0bd4d7a60e3aef",
+                          "2f45fa73573e986eabe9355ad2d0703b",
+                          "2117a4e897284de6ccdd524cce360fec",
+                          "aba88a8565f5208c4b5cf40e41d72490",
+                          "39331f51169797827469010f03668a04",
+                          "803c9e40dbea69899ec8b5869a211a17",
+                          "294f127af3051ae2743e046baae6b87d",
+                          "6ff861356141a7ffb7edd5514d83f073",
+                          "9958712bc4572ce84c50c7a588a317fd",
+                          "3f1138e3eeab60692e2a160bcee91a25",
+                          "6a7c861cb5641939a2ee45678fdff936",
+                          "17d80568a6ce90b10b8f25bffbdf1d1d",
+                          "44e47ae30ca7d1b7d982b89a428ab23c",
+                          "8594689040e87f9e2e37d21fc0f9015a",
+                          "97e94d1011ef421e238851abddfef42e",
+                          "95369958a1797dcc9ef0ceb90fb86570",
+                          "435db74e7264bcb2748b7710ee621c92",
+                          "b214951f6a931654d275e08b156fcae7",
+                          "02feba6177c3d339ac3e90d8a46eed1f",
+                          "d3df7ad33cb56956f9b73d4c6a825d11",
+                          "6b945766e474db47b5839fb956881f8d",
+                          "c979ae23d4f1e4f1c74f8a9d0c6f2adc",
+                          "f637b2f17631d0b6e5dd4319c574f9cf",
+                          "6633445b91b26922b3f0bbafd1e000ce",
+                          "07bff534875de3f01a9e318b4aa47718",
+                          "5f465319bfea646a19dfa57fc8ce228e",
+                          "fb471bceb8e990a7edaa3c6523092bc7",
+                          "49bf9419493d4a52c990fab5812f3746",
+                          "20e1a3fe710ae04219aefe7736c92f71",
+                          "af3800fe2ad37114c206b7411aea2095",
+                          "1ca9728def52d6ad2c8232f215be8534",
+                          "f99f23239416d5b6e38845379a3ec979",
+                          "ee927ccaaae3774fa5f79abd0fc45b10",
+                          "fe4eac4ba96047390e346f553802763c",
+                          "77681253e0d36e1cb8fd77e2ff77c593",
+                          "372b79d1aef7ddf9a15f1c3f80a7a658",
+                          "3fea9b001143a7518c3b15b21bdf1eeb",
+                          "2ee8fba8f2d4272dd6e7c49764a82ced",
+                          "a822bfba9a2a3d15b94a3f2ede10c2cd",
+                          "08b2ae8b1496bd7f60021727e0f5b327",
+                          "598eb211d69a6e684532aff88d61a8b8",
+                          "ed0202cb9bfd5f954173f1866a78485e",
+                          "383811c13a76881e0f0fd8eb52a87517",
+                          "944a54ffc2c7fb4cc2befc8e7bb8af60",
+                          "95eb7b812dd66fdd04391826cde80c98",
+                          "19db946812f0ff4964ed989eec25dc3a",
+                          "862b11b26c4663690980a8e6c99778ad",
+                          "a5c1b4c2c4b62c78751282ed843b540f",
+                          "1c4e13d06831498474aff25c9ce54d14",
+                          "599e00d690251fadcb385a51cd91e869",
+                          "64bf1b10b0bdbd777f3d899c06dd65d0",
+                          "8f2855e8dffea5fc09a89712156e3d8f",
+                          "a117d411c35950c3e9896e7bd609c79f",
+                          "d0b78be3d85ba1ae2a61a5e799eeefe2",
+                          "a7a7a4e4b8f4cb109334787a071a094e",
+                          "d80aba4cb23c5e51d46986631a4fdb57",
+                          "1d784154c6f5c0d21b6fecda736591b4",
+                          "c1ad27e7eef0bc6bf9bf7f79f1a54051",
+                          "df1e58680d16cdcb350542219e2362a3",
+                          "445500079083cc41fce2ebed9a987454",
+                          "97a18b6721de8ee6ce6792cb1d9fb558",
+                          "ca1dbb2f344f11978257eb57e5fba6a9",
+                          "3a27ccfeba62402bbbcec0e305f5eab4",
+                          "9d815fec333a23644ce63fb391c2324a",
+                          "024020549058fc03ea94b3a1a3d01850",
+                          "4ca5f2598cc01089a8c6dcf6349e81f1",
+                          "79e4fdf72853380d8074025cf10415a9",
+                          "200f33799a429753c3fdc79cccedbccc",
+                          "f3a9b31584441b10efe540e13486aea5",
+                          "df5acecd1e875b3132384f20fd5e0e87",
+                          "801659adbbeead9b2f074500c65ac890",
+                          "99db6144090b8ec014b42381c2d25be0",
+                          "e20c6029603142acc16204f128ea4706",
+                          "88e287bcfb5742289bf33d3dc22dc06d",
+                          "def4b27860eb3d84a59bb44bf5625af1",
+                          "a3086075a7e335bf14f3bcb755114e80",
+                          "4bf5c9894b0c3726ab6a92cb22b24c19",
+                          "16a60bdd1c3c9eb93c2cf9ef2d5ba241",
+                          "585e5c2f5de75a11e578d86784ef1a92",
+                          "3f7ff477644a166c5066ccd81cf15235",
+                          "5b0fad80574526453a418f8f665012c8",
+                          "a21876d08054fba3782a91fc8100e0f9",
+                          "313e768f33ad125fb19a736354ad4e7f",
+                          "23807e8bfb8487a260548d756afb4284",
+                          "b65faf6bb6e4f9bd696d80c9149e70ed",
+                          "f2b62c40ce9eea1f3c897fba33adb57c",
+                          "1baccd4534fa1d7ae6efd28472b71446",
+                          "77faad6a422b633450d09c0422b22d46",
+                          "58c9e566f8cd54d16cb1ca68d1a2b37e",
+                          "cd5ee218228ec8b4e2845ab1735b9d31",
+                          "4a818634337ed7597a70610e92bebeb1",
+                          "41b6e95f36f49cc4c73a5eaec67c86d0",
+                          "51c31a9934ca2434de2c2f3a0af29607",
+                          "cdea9a606c56169f48c870b40ca2476d",
+                          "01f56df6ab9115493be2394ca4a8504b",
+                          "f71f12df91c5a23a1195a93373651c68",
+                          "552f014e33253f8d470f4d8f8a445eed",
+                          "29f9658c530537530126d82c6f8729be",
+                          "f4d3720b4a7846a0dbed5b53341a7c96",
+                          "3cb305b178b08b8cc7966ca420297436",
+                          "873eb9c1ee6447f5258e6386d993ebae",
+                          "86d8d9113cc8d120498d3027084d4e07",
+                          "b18b0f19cea62d3c1fa41edc01537dfe",
+                          "2b703c3e29ecf9d83540aa6ba4b0157a",
+                          "e0bd6db942e8a123323f8ae9a5a40f53"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "25705"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/gcu/rec/": {
+      "get": {
+        "summary": "Unit by shape reference",
+        "description": "The service will return the *unit number and ID* associated with the provided *shape reference*.\n\nThe service expects the `geometry_hash` query parameter containing a *unit shape geometry reference*.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided shape reference*.\n- `gcu_id_unit-id`: The unit ID associated with the *provided shape reference*.\n- `geometry_hash_list`: The *provided shape reference*.\n",
+        "operationId": "8ebe0f0f-bdc5-4829-a62c-b45e989b7dd4",
+        "parameters": [
+          {
+            "name": "geometry_hash",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "0df76d46196094c8bade10e30faf6ae0",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return the *unit number and ID* associated with the provided *shape reference*.\n\nThe service expects the `geometry_hash` query parameter containing a *unit shape geometry reference*.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided shape reference*.\n- `gcu_id_unit-id`: The unit ID associated with the *provided shape reference*.\n- `geometry_hash_list`: The *provided shape reference*.\n",
+          "content": {
+            "text/plain": {}
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "gcu_id_number": {
+                        "type": "string",
+                        "example": "GBR00001"
+                      },
+                      "gcu_id_unit-id": {
+                        "type": "string",
+                        "example": "GBR000012010"
+                      },
+                      "geometry_hash": {
+                        "type": "string",
+                        "example": "0df76d46196094c8bade10e30faf6ae0"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "113"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/shape/": {
+      "get": {
+        "summary": "Shape by geometry hash",
+        "description": "The service will return the *shape record* identified by the *provided geometry hash*.\n\nThe service expects the `geometry_hash` query parameter with the *shape reference*.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
+        "operationId": "0a34efec-a7a8-43e0-a37c-a2ed7786941a",
+        "parameters": [
+          {
+            "name": "geometry_hash",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "0df76d46196094c8bade10e30faf6ae0",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return the *shape record* identified by the *provided geometry hash*.\n\nThe service expects the `geometry_hash` query parameter with the *shape reference*.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
+          "content": {
+            "text/plain": {}
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "geometry_hash": {
+                        "type": "string",
+                        "example": "0df76d46196094c8bade10e30faf6ae0"
+                      },
+                      "std_dataset_ids": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "814b4937-3bbd-47c7-99d5-2cd51a0f3469"
+                        ]
+                      },
+                      "properties": {
+                        "type": "object",
+                        "properties": {
+                          "chr_AvElevation": {
+                            "type": "number"
+                          },
+                          "chr_AvSlope": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 0
+                          },
+                          "chr_StdElevation": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 0
+                          },
+                          "geo_shape_area": {
+                            "type": "number"
+                          },
+                          "chr_AvAspect": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 0
+                          }
+                        }
+                      },
+                      "geometry": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Polygon"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "geometry_bounds": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Polygon"
+                          },
+                          "geodesic": {
+                            "type": "boolean"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "1006"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/shape/click/": {
+      "get": {
+        "summary": "Shape by point",
+        "description": "The service will return the *shape record* containing the *provided point* coordinate.\n\nThe service expects the `lat` and `lon` query parameters representing respectively the *latitude* and *longitude* of the point coordinate.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
+        "operationId": "e34797a0-0576-42f0-a89d-323eea8e1e9d",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "41.83",
+              "description": ""
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "16.02",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return the *shape record* containing the *provided point* coordinate.\n\nThe service expects the `lat` and `lon` query parameters representing respectively the *latitude* and *longitude* of the point coordinate.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
+          "content": {
+            "text/plain": {}
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "geometry_hash": {
+                        "type": "string",
+                        "example": "2267e230b707c3939dd06f139bce9f64"
+                      },
+                      "std_dataset_ids": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "814b4937-3bbd-47c7-99d5-2cd51a0f3469"
+                        ]
+                      },
+                      "properties": {
+                        "type": "object",
+                        "properties": {
+                          "chr_AvElevation": {
+                            "type": "number"
+                          },
+                          "chr_AvSlope": {
+                            "type": "number"
+                          },
+                          "chr_StdElevation": {
+                            "type": "number"
+                          },
+                          "geo_shape_area": {
+                            "type": "number"
+                          },
+                          "chr_AvAspect": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "geometry_point": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Point"
+                          },
+                          "coordinates": {
+                            "type": "number",
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      },
+                      "geometry": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Polygon"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "geometry_bounds": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Polygon"
+                          },
+                          "geodesic": {
+                            "type": "boolean"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "2786"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/shape/search/": {
+      "post": {
+        "summary": "Shape search",
+        "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shapes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
+        "operationId": "07d3ee03-91b6-4ae4-9f65-aae121675f20",
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shapes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "paging": {
+                    "type": "object",
+                    "properties": {
+                      "limit": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 100
+                      },
+                      "offset": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 0
+                      }
+                    }
+                  },
+                  "chr_AvElevation": {
+                    "type": "object",
+                    "properties": {
+                      "min": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 220
+                      },
+                      "max": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 930
+                      }
+                    }
+                  },
+                  "distance": {
+                    "type": "object",
+                    "properties": {
+                      "range": {
+                        "type": "object",
+                        "properties": {
+                          "min": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 0
+                          },
+                          "max": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 500000000
+                          }
+                        }
+                      },
+                      "reference": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Point"
+                          },
+                          "coordinates": {
+                            "type": "number",
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "chr_AvAspect": {
+                    "type": "object",
+                    "properties": {
+                      "min": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 150
+                      },
+                      "max": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 190
+                      }
+                    }
+                  },
+                  "geometry_hash": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "034ee0b07b3f7bf680396cd7a551d6e1",
+                      "5930def0e729e382651e07f39b7909c7",
+                      "4bee1683207b0baecee58e23bba9c5c2"
+                    ]
+                  },
+                  "std_dataset_ids": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "814b4937-3bbd-47c7-99d5-2cd51a0f3469"
+                    ]
+                  },
+                  "intersects": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "Polygon"
+                      },
+                      "coordinates": {
+                        "type": "object",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "chr_AvSlope": {
+                    "type": "object",
+                    "properties": {
+                      "min": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                      },
+                      "max": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 30
+                      }
+                    }
+                  },
+                  "geo_shape_area": {
+                    "type": "object",
+                    "properties": {
+                      "min": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 32922692
+                      },
+                      "max": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 39275174
+                      }
+                    }
+                  },
+                  "chr_StdElevation": {
+                    "type": "object",
+                    "properties": {
+                      "min": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 5
+                      },
+                      "max": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 450
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "distance": {
+                        "type": "number"
+                      },
+                      "geometry_hash": {
+                        "type": "string",
+                        "example": "034ee0b07b3f7bf680396cd7a551d6e1"
+                      },
+                      "std_dataset_ids": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "814b4937-3bbd-47c7-99d5-2cd51a0f3469"
+                        ]
+                      },
+                      "properties": {
+                        "type": "object",
+                        "properties": {
+                          "chr_AvElevation": {
+                            "type": "number"
+                          },
+                          "chr_AvSlope": {
+                            "type": "number"
+                          },
+                          "chr_StdElevation": {
+                            "type": "number"
+                          },
+                          "geo_shape_area": {
+                            "type": "number"
+                          },
+                          "chr_AvAspect": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "geometry": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Polygon"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "geometry_bounds": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Polygon"
+                          },
+                          "geodesic": {
+                            "type": "boolean"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "3917"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/rs/meta/span/": {
+      "post": {
+        "summary": "GCU shape metadata by date span",
+        "description": "This service will return the *summary* of *all data measurements* selected by the provided search parameters *grouped by date span*.\n\nThe service expects a series of search parameters in the body object:\n\n- `geometry_hash_list`: *Required* list of GCU shape references, as MD5 hash of geometry.\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each date span:\n\n- `count`: The number of selected data records.\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.",
+        "operationId": "d7fc2260-724a-4bbc-9223-e8b95602ec71",
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "This service will return the *summary* of *all data measurements* selected by the provided search parameters *grouped by date span*.\n\nThe service expects a series of search parameters in the body object:\n\n- `geometry_hash_list`: *Required* list of GCU shape references, as MD5 hash of geometry.\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each date span:\n\n- `count`: The number of selected data records.\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "geometry_hash_list": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "c8ebeade136c209a7d6b40dc2cc3a72d",
+                      "02713e2716b7e8eec36ac6a61223f8a3"
+                    ]
+                  },
+                  "std_date_start": {
+                    "type": "string",
+                    "example": "2000"
+                  },
+                  "std_date_span": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "std_date_span_day",
+                      "std_date_span_month",
+                      "std_date_span_year"
+                    ]
+                  },
+                  "std_date_end": {
+                    "type": "string",
+                    "example": "2023"
+                  },
+                  "std_dataset_ids": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e",
+                      "9f0b933b-a6e7-435d-a1ba-c49c10c94c52",
+                      "647be387-4dda-4257-a7c8-e5c47e90ccc9",
+                      "750b614a-8dbc-49e0-85e2-8279c2b80269",
+                      "08e0810c-c259-409b-8626-e8699540cfaa",
+                      "d9f9676f-d31e-4f31-80d7-fd00909039aa",
+                      "5161a461-1fb1-46df-89de-fd1caab906e7",
+                      "cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51",
+                      "2a9ca201-0b15-495f-ad65-c138886986df"
+                    ]
+                  },
+                  "std_terms": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "chr_RelHumid",
+                      "env_climate_temp-2m",
+                      "chr_LandSurfTemp",
+                      "chr_AvLeafAreaIdx",
+                      "chr_AvBiomass"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "count": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 8378
+                      },
+                      "std_date_span": {
+                        "type": "string",
+                        "example": "std_date_span_day"
+                      },
+                      "std_date_start": {
+                        "type": "string",
+                        "example": "20000101"
+                      },
+                      "std_date_end": {
+                        "type": "string",
+                        "example": "20221230"
+                      },
+                      "std_terms": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "chr_RelHumid",
+                          "env_climate_wind",
+                          "env_climate_slhf",
+                          "env_climate_snsrad",
+                          "env_climate_soil_temp_100",
+                          "env_climate_tpr",
+                          "env_climate_soil_temp_28",
+                          "env_climate_soil_water_289",
+                          "env_climate_soil_temp_289",
+                          "env_climate_temp-2m",
+                          "env_climate_soil_temp_7",
+                          "env_climate_soil_water_100",
+                          "env_climate_soil_water_28",
+                          "env_climate_soil_water_7"
+                        ]
+                      },
+                      "std_dataset_ids": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "1139"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/rs/meta/shape/": {
+      "post": {
+        "summary": "GCU shape metadata by shape and date span",
+        "description": "This service will return the *summary* of *all data measurements* selected by the provided search parameters grouped by *shape* and *date span*.\n\nThe service expects a series of search parameters in the body object:\n\n- `geometry_hash_list`: *Required* list of GCU shape references, as MD5 hash of geometry.\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each shape:\n\n- `geometry_hash`: The shape reference.\n- `properties`: Shape summary data grouped by date span, described below:\n- `count`: The number of selected data records.\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.",
+        "operationId": "d64a4a3f-3744-4da3-80cf-13b8be9bddc5",
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "This service will return the *summary* of *all data measurements* selected by the provided search parameters grouped by *shape* and *date span*.\n\nThe service expects a series of search parameters in the body object:\n\n- `geometry_hash_list`: *Required* list of GCU shape references, as MD5 hash of geometry.\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each shape:\n\n- `geometry_hash`: The shape reference.\n- `properties`: Shape summary data grouped by date span, described below:\n- `count`: The number of selected data records.\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "geometry_hash_list": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "c8ebeade136c209a7d6b40dc2cc3a72d",
+                      "02713e2716b7e8eec36ac6a61223f8a3"
+                    ]
+                  },
+                  "std_date_start": {
+                    "type": "string",
+                    "example": "2000"
+                  },
+                  "std_date_span": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "std_date_span_day",
+                      "std_date_span_month",
+                      "std_date_span_year"
+                    ]
+                  },
+                  "std_date_end": {
+                    "type": "string",
+                    "example": "2023"
+                  },
+                  "std_dataset_ids": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e",
+                      "9f0b933b-a6e7-435d-a1ba-c49c10c94c52",
+                      "647be387-4dda-4257-a7c8-e5c47e90ccc9",
+                      "750b614a-8dbc-49e0-85e2-8279c2b80269",
+                      "08e0810c-c259-409b-8626-e8699540cfaa",
+                      "d9f9676f-d31e-4f31-80d7-fd00909039aa",
+                      "5161a461-1fb1-46df-89de-fd1caab906e7",
+                      "cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51",
+                      "2a9ca201-0b15-495f-ad65-c138886986df"
+                    ]
+                  },
+                  "std_terms": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "chr_RelHumid",
+                      "env_climate_temp-2m",
+                      "chr_LandSurfTemp",
+                      "chr_AvLeafAreaIdx",
+                      "chr_AvBiomass"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "geometry_hash": {
+                        "type": "string",
+                        "example": "02713e2716b7e8eec36ac6a61223f8a3"
+                      },
+                      "properties": {
+                        "type": "object",
+                        "items": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "1459"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/rs/data/": {
+      "post": {
+        "summary": "GCU shape data by shape and date span",
+        "description": "This service will return *all data measurements* selected by the required *geometry hash* in the query path and *search parameters* in the body. The results will be grouped by *date span* and *measurement date*.\n\nThe service *requires* the shape reference to be provided in the query path and an *optional* series of search parameters in the body object:\n\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each selected date span, and within the span, one element for each measurement date:\n\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_series`: Shape data measurments for current date span:\n- `std_date`: Measurement date.\n- `properties`: Measurement variables.",
+        "operationId": "e56b916f-7711-4262-a380-dc65bc8aa731",
+        "parameters": [
+          {
+            "name": "geometry_hash",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "0000ba761f60e527dec3dedbebcf4911",
+              "description": ""
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "This service will return *all data measurements* selected by the required *geometry hash* in the query path and *search parameters* in the body. The results will be grouped by *date span* and *measurement date*.\n\nThe service *requires* the shape reference to be provided in the query path and an *optional* series of search parameters in the body object:\n\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each selected date span, and within the span, one element for each measurement date:\n\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_series`: Shape data measurments for current date span:\n- `std_date`: Measurement date.\n- `properties`: Measurement variables.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "std_date_start": {
+                    "type": "string",
+                    "example": "2010"
+                  },
+                  "std_date_span": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "std_date_span_day",
+                      "std_date_span_month",
+                      "std_date_span_year"
+                    ]
+                  },
+                  "std_date_end": {
+                    "type": "string",
+                    "example": "20101231"
+                  },
+                  "std_dataset_ids": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e",
+                      "9f0b933b-a6e7-435d-a1ba-c49c10c94c52",
+                      "647be387-4dda-4257-a7c8-e5c47e90ccc9",
+                      "750b614a-8dbc-49e0-85e2-8279c2b80269",
+                      "08e0810c-c259-409b-8626-e8699540cfaa",
+                      "d9f9676f-d31e-4f31-80d7-fd00909039aa",
+                      "5161a461-1fb1-46df-89de-fd1caab906e7",
+                      "cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51",
+                      "2a9ca201-0b15-495f-ad65-c138886986df"
+                    ]
+                  },
+                  "std_terms": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "chr_RelHumid",
+                      "env_climate_temp-2m",
+                      "chr_LandSurfTemp",
+                      "chr_AvLeafAreaIdx",
+                      "chr_AvBiomass"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "std_date_span": {
+                        "type": "string",
+                        "example": "std_date_span_day"
+                      },
+                      "std_date_series": {
+                        "type": "object",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "std_date": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "properties": {
+                              "type": "object",
+                              "properties": {
+                                "chr_RelHumid": {
+                                  "type": "number"
+                                },
+                                "env_climate_slhf": {
+                                  "type": "number"
+                                },
+                                "env_climate_snsrad": {
+                                  "type": "number"
+                                },
+                                "env_climate_soil_temp_100": {
+                                  "type": "number"
+                                },
+                                "env_climate_soil_temp_28": {
+                                  "type": "number"
+                                },
+                                "env_climate_soil_temp_289": {
+                                  "type": "number"
+                                },
+                                "env_climate_soil_temp_7": {
+                                  "type": "number"
+                                },
+                                "env_climate_soil_water_100": {
+                                  "type": "number"
+                                },
+                                "env_climate_soil_water_28": {
+                                  "type": "number"
+                                },
+                                "env_climate_soil_water_289": {
+                                  "type": "number"
+                                },
+                                "env_climate_soil_water_7": {
+                                  "type": "number"
+                                },
+                                "env_climate_tpr": {
+                                  "type": "number"
+                                },
+                                "env_climate_wind": {
+                                  "type": "number"
+                                },
+                                "env_climate_temp-2m": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "232872"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/do/meta/": {
+      "post": {
+        "summary": "EDO metadata",
+        "description": "This service will return the *summary* of *all data measurements* available for the *provided coordinate* and *data filters*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will contain a single record:\n\n- `count`: The number of selected records.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.\n- `geometry_point_radius`: List of featured measurement area radius.\n- `geometry_point`: List of featured measurement points.\n- `geometry_bounds`: List of featured measurement geometries.",
+        "operationId": "9bf737a1-c8bd-47a6-93c3-72b302f1e283",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "42",
+              "description": ""
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "12",
+              "description": ""
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "This service will return the *summary* of *all data measurements* available for the *provided coordinate* and *data filters*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will contain a single record:\n\n- `count`: The number of selected records.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.\n- `geometry_point_radius`: List of featured measurement area radius.\n- `geometry_point`: List of featured measurement points.\n- `geometry_bounds`: List of featured measurement geometries.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "std_date_start": {
+                    "type": "string",
+                    "example": "2004"
+                  },
+                  "std_date_end": {
+                    "type": "string",
+                    "example": "2005"
+                  },
+                  "std_dataset_ids": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "056e569a-66ef-4033-8d15-5c4c3c36c1bb",
+                      "9eda6111-c840-4862-9759-4a805cd6fc35"
+                    ]
+                  },
+                  "geometry_point_radius": {
+                    "type": "number",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "std_terms": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "env_climate_fapar",
+                      "env_climate_fapan",
+                      "env_climate_sma",
+                      "env_climate_smi"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "count": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 72
+                      },
+                      "std_date_start": {
+                        "type": "string",
+                        "example": "20040101"
+                      },
+                      "std_date_end": {
+                        "type": "string",
+                        "example": "20041221"
+                      },
+                      "std_terms": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "env_climate_fapar",
+                          "env_climate_fapan",
+                          "env_climate_smi",
+                          "env_climate_sma"
+                        ]
+                      },
+                      "std_dataset_ids": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "056e569a-66ef-4033-8d15-5c4c3c36c1bb",
+                          "9eda6111-c840-4862-9759-4a805cd6fc35"
+                        ]
+                      },
+                      "geometry_point_radius": {
+                        "type": "number",
+                        "items": {
+                          "type": "number"
+                        }
+                      },
+                      "geometry_point": {
+                        "type": "object",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string"
+                            },
+                            "coordinates": {
+                              "type": "array",
+                              "items": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "geometry_bounds": {
+                        "type": "object",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string"
+                            },
+                            "coordinates": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "837"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/do/meta/shape/": {
+      "post": {
+        "summary": "EDO metadata by geometry",
+        "description": "This service will return the *summary* of *all data measurements* available for the *provided coordinate* and *data filters* *grouped by measurement area*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will contain one record for each measurement resolution:\n\n- `count`: The number of selected records.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.\n- `geometry_point_radius`: List of featured measurement area radius.\n- `geometry_point`: List of featured measurement points.\n- `geometry_bounds`: List of featured measurement geometries.",
+        "operationId": "cbe34618-acea-444d-880c-e4ae397b74b9",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "42",
+              "description": ""
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "12",
+              "description": ""
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "This service will return the *summary* of *all data measurements* available for the *provided coordinate* and *data filters* *grouped by measurement area*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will contain one record for each measurement resolution:\n\n- `count`: The number of selected records.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.\n- `geometry_point_radius`: List of featured measurement area radius.\n- `geometry_point`: List of featured measurement points.\n- `geometry_bounds`: List of featured measurement geometries.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "std_date_start": {
+                    "type": "string",
+                    "example": "2004"
+                  },
+                  "std_date_end": {
+                    "type": "string",
+                    "example": "2005"
+                  },
+                  "std_dataset_ids": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "056e569a-66ef-4033-8d15-5c4c3c36c1bb",
+                      "9eda6111-c840-4862-9759-4a805cd6fc35"
+                    ]
+                  },
+                  "geometry_point_radius": {
+                    "type": "number",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "std_terms": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "env_climate_fapar",
+                      "env_climate_fapan",
+                      "env_climate_sma",
+                      "env_climate_smi"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "count": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 36
+                      },
+                      "std_date_start": {
+                        "type": "string",
+                        "example": "20040101"
+                      },
+                      "std_date_end": {
+                        "type": "string",
+                        "example": "20041221"
+                      },
+                      "std_terms": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "env_climate_smi",
+                          "env_climate_sma"
+                        ]
+                      },
+                      "std_dataset_ids": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "9eda6111-c840-4862-9759-4a805cd6fc35"
+                        ]
+                      },
+                      "geometry_point_radius": {
+                        "type": "number"
+                      },
+                      "geometry_point": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Point"
+                          },
+                          "coordinates": {
+                            "type": "number",
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      },
+                      "geometry_bounds": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Polygon"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "991"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/do/data/shape/": {
+      "post": {
+        "summary": "EDO data by geometry",
+        "description": "The service will return *European Drought Observatory* data *grouped by resolution*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data is sorted ascending by date and will be *grouped* by *resolution*, which is expressed by the *area radius*. Each record will contain *all* properties satisfying the query parameters.",
+        "operationId": "54a20b15-f48a-4772-bb35-e93ad55b4093",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "42",
+              "description": ""
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "12",
+              "description": ""
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return *European Drought Observatory* data *grouped by resolution*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data is sorted ascending by date and will be *grouped* by *resolution*, which is expressed by the *area radius*. Each record will contain *all* properties satisfying the query parameters.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "std_date_start": {
+                    "type": "string",
+                    "example": "2004"
+                  },
+                  "std_date_end": {
+                    "type": "string",
+                    "example": "2005"
+                  },
+                  "std_dataset_ids": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "056e569a-66ef-4033-8d15-5c4c3c36c1bb",
+                      "9eda6111-c840-4862-9759-4a805cd6fc35"
+                    ]
+                  },
+                  "geometry_point_radius": {
+                    "type": "number",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "std_terms": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "env_climate_fapar",
+                      "env_climate_fapan",
+                      "env_climate_sma",
+                      "env_climate_smi"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "geometry_point_radius": {
+                        "type": "number"
+                      },
+                      "geometry_point": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Point"
+                          },
+                          "coordinates": {
+                            "type": "number",
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      },
+                      "geometry_bounds": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Polygon"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "std_dataset_ids": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "056e569a-66ef-4033-8d15-5c4c3c36c1bb"
+                        ]
+                      },
+                      "properties": {
+                        "type": "object",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "std_date": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "env_climate_fapar": {
+                              "type": "number"
+                            },
+                            "env_climate_fapan": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "6272"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/do/data/date/": {
+      "post": {
+        "summary": "EDO data by date",
+        "description": "The service will return *European Drought Observatory* data *grouped by date*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n- `paging`: Results paging information. It is an object expecting `offset` and `limit`.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will be *grouped* and *sorted* by *date*, properties will be *merged by date*, so the records will *not contain geometry information*.\n\nIf you *omit* the `std_terms` selector, each record will *feature* the list of *dataset references*, `std_dataset_ids`, if you *select specific variables*, the *dataset references will be omitted*.\n",
+        "operationId": "dabd8a18-f4cb-4706-a23d-75cafdd38174",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "42",
+              "description": ""
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "12",
+              "description": ""
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return *European Drought Observatory* data *grouped by date*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n- `paging`: Results paging information. It is an object expecting `offset` and `limit`.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will be *grouped* and *sorted* by *date*, properties will be *merged by date*, so the records will *not contain geometry information*.\n\nIf you *omit* the `std_terms` selector, each record will *feature* the list of *dataset references*, `std_dataset_ids`, if you *select specific variables*, the *dataset references will be omitted*.\n",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "std_date_start": {
+                    "type": "string",
+                    "example": "2004"
+                  },
+                  "paging": {
+                    "type": "object",
+                    "properties": {
+                      "limit": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 10
+                      },
+                      "offset": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 0
+                      }
+                    }
+                  },
+                  "std_date_end": {
+                    "type": "string",
+                    "example": "2005"
+                  },
+                  "std_dataset_ids": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "056e569a-66ef-4033-8d15-5c4c3c36c1bb",
+                      "9eda6111-c840-4862-9759-4a805cd6fc35"
+                    ]
+                  },
+                  "geometry_point_radius": {
+                    "type": "number",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "std_terms": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "env_climate_fapar",
+                      "env_climate_fapan",
+                      "env_climate_sma",
+                      "env_climate_smi"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "std_date": {
+                        "type": "string",
+                        "example": "20040101"
+                      },
+                      "properties": {
+                        "type": "object",
+                        "properties": {
+                          "env_climate_fapan": {
+                            "type": "number"
+                          },
+                          "env_climate_fapar": {
+                            "type": "number"
+                          },
+                          "env_climate_sma": {
+                            "type": "number"
+                          },
+                          "env_climate_smi": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "1434"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {}
+}

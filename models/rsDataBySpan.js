@@ -22,8 +22,7 @@ module.exports = {
 			.items(
 				joi.object({
 					std_date: joi.string(),
-					properties: joi.object(),
-					std_dataset_ids: joi.array().items(joi.string())
+					properties: joi.object()
 				})
 			)
 	},

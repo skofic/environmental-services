@@ -295,7 +295,7 @@ function ShapeMetadataBySpan(theFilter = {})
 	///
 	// Generate AQL filters.
 	///
-	const filter = ShapeQueryFilter(theFilter)
+	const filter = ShapesQueryFilter(theFilter)
 
 	///
 	// Generate query.
@@ -352,7 +352,7 @@ function ShapeMetadataByShape(theFilter = {})
 	///
 	// Generate AQL filters.
 	///
-	const filter = ShapeQueryFilter(theFilter)
+	const filter = ShapesQueryFilter(theFilter)
 
 	///
 	// Generate query.
@@ -389,6 +389,61 @@ function ShapeMetadataByShape(theFilter = {})
         `                                                               // ==>
 
 } // ShapeMetadataByShape()
+
+/**
+ * This function can be used to generate the AQL query required to return
+ * GCU shape data related to the provided search criteria,
+ * grouped by shaoe and date span.
+ * The function expects the filter provided as an object in the body,
+ * the function will return the resulting AQL query.
+ * The filter contains the following elements:
+ * - geometry_hash_list: List of shape references.
+ * - std_date_span: List of date spans (array of strings).
+ * - std_date_start: The start date (string).
+ * - std_date_end: The end date (string).
+ * - std_terms: The list of variables (array of strings).
+ * - std_dataset_ids: the list of dataset identifiers (array of strings).
+ * - paging: Paging parameters as an object with `offset` and `limit` properties.
+ *
+ * Parameters:
+ * - theFilter {Object}: Query filter in body.
+ * - theShape: {String}: The shape reference.
+ *
+ * Returns:
+ * - {String}: The AQL query (aql\`query\`).
+ */
+function ShapeDataByShape(theFilter, theShape = {})
+{
+	///
+	// Generate AQL filters.
+	///
+	const filter = ShapeQueryFilter(theFilter, theShape)
+
+	///
+	// Generate query.
+	///
+	return aql`
+		FOR data IN ShapeData
+			${filter.data}
+			
+			SORT data.std_date_span, data.std_date ASC
+			
+			LET props = {
+				std_date: data.std_date,
+				properties: data.properties
+			}
+			
+			COLLECT span = data.std_date_span
+			INTO groups
+			KEEP props
+			
+			RETURN {
+				std_date_span: span,
+				std_date_series: groups[*].props
+			}
+    `                                                                   // ==>
+
+} // ShapeDataByShape()
 
 /**
  * LOCAL FUNCTIONS
@@ -487,6 +542,73 @@ function EDOQueryFilter(theFilter)
 } // EDOQueryFilter()
 
 /**
+ * This function can be used to convert remote sensing data query clauses
+ * into a series of AQL filters.
+ * The function expects the filter provided as an object in the body:
+ * - std_date_span: Date span, daily, monthly and yearly.
+ * - std_date_start: The start date (string).
+ * - std_date_end: The end date (string).
+ * - std_terms: The list of variables (array of strings).
+ * - std_dataset_ids: the list of dataset identifiers (array of strings).
+ * - geometry_point_radius: the list of observation area radius (array of numbers).
+ *
+ * Parameters:
+ * - theFilter {Object}: Query filter in body.
+ * - theShape {Object}: Shape reference.
+ *
+ * Returns:
+ * - {Object}: An object composed of two elements: `data` containing
+ *             the AQL filter applying to the data and `terms` containing
+ *             the list of eventual requested variables.
+ */
+function ShapeQueryFilter(theFilter, theShape)
+{
+	///
+	// Init filters.
+	///
+	const filter = {
+		data: [
+			aql`FILTER data.geometry_hash == ${theShape}`
+		],
+		terms: []
+	}
+
+	///
+	// Collect body parameters.
+	///
+	for(const [key, value] of Object.entries(theFilter)) {
+		switch(key) {
+			case 'std_date_span':
+				filter.data.push(aql`FILTER data.std_date_span IN ${value}`)
+				break
+
+			case 'std_date_start':
+				filter.data.push(aql`FILTER data.std_date >= ${value}`)
+				break
+
+			case 'std_date_end':
+				filter.data.push(aql`FILTER data.std_date <= ${value}`)
+				break
+
+			case 'std_terms':
+				filter.terms.push(...value)
+				filter.data.push(aql`FILTER ${value} ANY IN data.std_terms`)
+				break
+
+			case 'std_dataset_ids':
+				filter.data.push(aql`FILTER ${value} ANY IN data.std_dataset_ids`)
+				break
+		}
+	}
+
+	return {
+		data: aql.join(filter.data),
+		terms: filter.terms
+	}                                                                   // ==>
+
+} // ShapeQueryFilter()
+
+/**
  * This function can be used to convert remote sensing query clauses
  * into a series of AQL filters.
  * The function expects the filter provided as an object in the body:
@@ -511,7 +633,7 @@ function EDOQueryFilter(theFilter)
  *             the list of requested variables and `paging` containing
  *             query paging information.
  */
-function ShapeQueryFilter(theFilter)
+function ShapesQueryFilter(theFilter)
 {
 	///
 	// Init filters.
@@ -577,7 +699,7 @@ function ShapeQueryFilter(theFilter)
 		paging: filter.paging
 	}                                                                   // ==>
 
-} // ShapeQueryFilter()
+} // ShapesQueryFilter()
 
 
 module.exports = {
@@ -586,5 +708,6 @@ module.exports = {
 	EDODataByGeometry,
 	EDODataByDate,
 	ShapeMetadataBySpan,
-	ShapeMetadataByShape
+	ShapeMetadataByShape,
+	ShapeDataByShape
 }
