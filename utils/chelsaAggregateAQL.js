@@ -40,8 +40,8 @@ function ChelsaDistanceAQL(theCollection, theCollectionMap, theGeometry, theWhat
 			query = (theSort === 'NO') ?
 				aql`
 				    LET target = ${theGeometry}
-					FOR doc IN ${theCollectionMap}
-						LET distance = GEO_DISTANCE(target, doc.geometry)
+					FOR doc IN ${theCollection}
+						LET distance = GEO_DISTANCE(target, doc.geometry_bounds)
 						FILTER distance >= ${theMin}
 						FILTER distance <= ${theMax}
 						LIMIT ${theStart}, ${theLimit}
@@ -49,8 +49,8 @@ function ChelsaDistanceAQL(theCollection, theCollectionMap, theGeometry, theWhat
 				` :
 				aql`
 				    LET target = ${theGeometry}
-					FOR doc IN ${theCollectionMap}
-						LET distance = GEO_DISTANCE(target, doc.geometry)
+					FOR doc IN ${theCollection}
+						LET distance = GEO_DISTANCE(target, doc.geometry_bounds)
 						FILTER distance >= ${theMin}
 						FILTER distance <= ${theMax}
 						SORT distance ${theSort}
@@ -58,6 +58,28 @@ function ChelsaDistanceAQL(theCollection, theCollectionMap, theGeometry, theWhat
 					RETURN doc._key
 				`
 			break
+		// case 'KEY':
+		// 	query = (theSort === 'NO') ?
+		// 		aql`
+		// 		    LET target = ${theGeometry}
+		// 			FOR doc IN ${theCollectionMap}
+		// 				LET distance = GEO_DISTANCE(target, doc.geometry)
+		// 				FILTER distance >= ${theMin}
+		// 				FILTER distance <= ${theMax}
+		// 				LIMIT ${theStart}, ${theLimit}
+		// 			RETURN doc._key
+		// 		` :
+		// 		aql`
+		// 		    LET target = ${theGeometry}
+		// 			FOR doc IN ${theCollectionMap}
+		// 				LET distance = GEO_DISTANCE(target, doc.geometry)
+		// 				FILTER distance >= ${theMin}
+		// 				FILTER distance <= ${theMax}
+		// 				SORT distance ${theSort}
+		// 				LIMIT ${theStart}, ${theLimit}
+		// 			RETURN doc._key
+		// 		`
+		// 	break
 
 		///
 		// Return data record geometries.

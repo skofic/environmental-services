@@ -221,30 +221,6 @@ router.get('click/:lat/:lon', function (req, res)
 		}
 	`
 
-	/*
-		LET radius = 0.004166665
-		LET box = GEO_POLYGON([
-		    [ ${lon}-radius, ${lat}-radius ],
-		    [ ${lon}+radius, ${lat}-radius ],
-		    [ ${lon}+radius, ${lat}+radius ],
-		    [ ${lon}-radius, ${lat}+radius ],
-		    [ ${lon}-radius, ${lat}-radius ]
-		])
-		FOR doc IN ${collection_map}
-			FOR dat IN ${collection_data}
-				FILTER dat._key == doc._key
-				FILTER GEO_CONTAINS(
-					box,
-					doc.geometry
-				)
-		RETURN {
-			geometry_hash: doc._key,
-			geometry_point: doc.geometry,
-			geometry_bounds: doc.geometry_bounds,
-			properties: dat.properties
-		}
-	 */
-
 	///
 	// Perform service.
 	///
