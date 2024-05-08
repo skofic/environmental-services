@@ -22,9 +22,7 @@ for (const [key, collection] of Object.entries(documentCollections)) {
 		///
 		switch(key) {
 			case 'chelsa':
-			case 'chelsa_map':
 			case 'worldclim':
-			case 'worldclim_map':
 			case 'shapes':
 				coll.ensureIndex({
 					type: 'geo',

@@ -13,13 +13,11 @@ module.exports = {
 					).required(),
 				coordinates: joi.array()
 					.items(
-						joi.number(),
-						joi.array()
-					)
+						joi.array())
 					.required()
 			}).required(),
-		start: joi.number().default(0),
-		limit: joi.number().default(10)
+		start: joi.number(),
+		limit: joi.number()
 	},
 	forClient(obj) {
 		// Implement outgoing transformations here

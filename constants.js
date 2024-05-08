@@ -8,12 +8,10 @@
 ///
 const documentCollections = {
 	"chelsa": "Chelsa",
-	"chelsa_map": "ChelsaMap",
 	"shapes": "Shapes",
 	"shape_data": "ShapeData",
 	"unit_shapes": "UnitShapes",
-	"worldclim": "WorldClim",
-	"worldclim_map": "WorldClimMap"
+	"worldclim": "WorldClim"
 }
 const edgeCollections = {}
 
