@@ -152,7 +152,7 @@ for (const [key, view] of Object.entries(views)) {
 		///
 		switch(key) {
 			case 'shapes':
-				db._createView(view, "arangosearch")
+				db._createView("VIEW_SHAPE", "arangosearch", {"Shapes": {"analyzers": ["identity"]}})
 				// db._createView(
 				// 	view,
 				// 	"arangosearch",
