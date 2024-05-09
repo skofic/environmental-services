@@ -23,7 +23,7 @@ const edgeCollections = {}
 ///
 const views = {
 	"shapes": {
-		"name": "VIEW_SHAPES",
+		"name": "VIEW_SHAPE",
 		"type": "arangosearch",
 		"properties": {
 			"links": {

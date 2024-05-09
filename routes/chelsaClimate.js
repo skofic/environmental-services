@@ -17,7 +17,6 @@ const createRouter = require('@arangodb/foxx/router')
 ///
 // Collections.
 ///
-const collection_map = db._collection('ChelsaMap')
 const collection_data = db._collection('Chelsa')
 
 ///
@@ -306,7 +305,7 @@ router.get('click', function (req, res)
 	// Description.
 	///
 	.description(dd`
-		The service will return the Chelsa data record that contains the provided coordinate.
+		The service will return the Chelsa data record that contains the provided coordinates.
 	`)
 
 /**

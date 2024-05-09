@@ -17,7 +17,6 @@ const createRouter = require('@arangodb/foxx/router')
 ///
 // Collections.
 ///
-const collection_map = db._collection('WorldClimMap')
 const collection_data = db._collection('WorldClim')
 
 ///
@@ -28,15 +27,16 @@ const ModelShapeContains = require("../models/shapePoly");
 const ModelClick = require('../models/click')
 const ModelRecord = require('../models/climate')
 
-const whatSchema = joi.string().valid('KEY', 'SHAPE', 'DATA', 'MIN', 'AVG', 'MAX', 'STD', 'VAR').required()
+const whatSchema = joi.string().valid('KEY', 'SHAPE', 'DATA', 'MIN', 'AVG', 'MAX', 'STD', 'VAR')
+	.required()
 	.description(`
 Return a *selection* of records:
 
-- \`KEY\`: Return the record *primary keys*.
+- \`KEY\`: Return *only* the record *primary keys*.
 - \`SHAPE\`: Return the record *primary keys* and *geometries*.
 - \`DATA\`: Return the record *primary keys*, *geometries* and *data properties*.
 
-Return selection's quantitative data *aggregation*:
+Return *one record* containing the selection's quantitative data *aggregation*:
 
 - \`MIN\`: *Minimum*.
 - \`AVG\`: *Mean*.
@@ -58,9 +58,11 @@ Results selection *sort* order:
 
 This parameter is only relevant for *selection of records* result, you can ignore it when *aggregating*.
 	`)
-const latSchema = joi.number().min(-90).max(90).required()
+const latSchema = joi.number().min(-90).max(90)
+	.required()
 	.description('Coordinate decimal latitude.')
-const lonSchema = joi.number().min(-180).max(180).required()
+const lonSchema = joi.number().min(-180).max(180)
+	.required()
 	.description('Coordinate decimal longitude.')
 
 ///
@@ -74,19 +76,43 @@ The service returns the following data record:
 - \`geometry_bounds\`: The data bounding box as a GeoJSON polygon.
 - \`properties\`: The data properties.
 `
+const DescriptionModelDistance = `
+The service body record contains the following properties:
+
+- \`geometry\`: The *GeoJSON geometry* whose *wgs84 centroid* is compared \
+with the *WorldClim measurement wgs84 centroids* to determine the *distance*. \
+It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* \
+or *MultiPolygon*. *This parameter is required*.
+- \`start\`: The zero-based *start index* of the returned *selection*. \
+The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`, \
+if omitted it defaults to 0.
+- \`limit\`: The *number of records* to return. \
+The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`.
+`
 const DescriptionModelContains = `
 The service body record contains the following properties:
 
-- \`geometry\`: The *GeoJSON geometry* compared with the WorldClim records. It may be a *Polygon* or *MultiPolygon*. This parameter is required.
-- \`start\`: The zero-based *start index* of the returned *selection*. This parameter is ignored for aggregated results.
-- \`limit\`: The *number of records* to return. This parameter is ignored for aggregated results.
+- \`geometry\`: The *GeoJSON geometry* that *fully contains* the *wgs84 centroids* \
+of the *WorldClim measurements*. It may be a *Polygon* or *MultiPolygon*. \
+*This parameter is required*.
+- \`start\`: The zero-based *start index* of the returned *selection*. \
+The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`, \
+if omitted it defaults to 0.
+- \`limit\`: The *number of records* to return. \
+The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`.
 `
 const DescriptionModelIntersects = `
 The service body record contains the following properties:
 
-- \`geometry\`: The *GeoJSON geometry* compared with the WorldClim records. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*. This parameter is required.
-- \`start\`: The zero-based *start index* of the returned *selection*. This parameter is ignored for aggregated results.
-- \`limit\`: The *number of records* to return. This parameter is ignored for aggregated results.
+- \`geometry\`: The *GeoJSON geometry* that is used to *select* all \
+*measurement areas* that *intersect* with it. It may be a *Point*, \
+*MultiPoint*, *LineString*, *MultiLineString*, *Polygon* \
+or *MultiPolygon*. *This parameter is required*.
+- \`start\`: The zero-based *start index* of the returned *selection*. \
+The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`, \
+if omitted it defaults to 0.
+- \`limit\`: The *number of records* to return. \
+The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`.
 `
 const DescriptionModelRecord = `
 WorldClim records.
@@ -117,50 +143,65 @@ The \`what\` path parameter defines what *type of result* the service should ret
 - \`VAR\`: The *variance*.
 `
 const DescriptionDistance = `
-The service will select all WorldClim records that lie in the *provided distance range* from the *provided reference geometry*. The distance is calculated from the *wgs84 centroids* of both the provided *reference geometry* and the *shape geometry*.
+The service will select all WorldClim records that lie within a \
+*distance range* from the *reference geometry*. \
+The distance is calculated from the *wgs84 centroids* of both \
+the *reference geometry* and the *shape geometry*.
 
-The service expects the following *path parameters*:
+The service expects the following *query path parameters*:
 
-- \`what\`: This parameter determines the *type* of *service result*: \`KEY\`, \`SHAPE\` and \`DATA\` for a selection of records, and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` and \`VAR\` for the selection's quantitative data aggregation.
-- \`min\`: This parameter represents the range's *minimum distance*. The value is inclusive.
-- \`max\`: This parameter represents the range's *maximum distance*. The value is inclusive.
-- \`sort\`: This parameter determines whether results should be *sorted* and in what *order*.
+- \`what\`: This *required* parameter determines the *type* of *service result*: \
+\`KEY\`, \`SHAPE\` and \`DATA\` for a *selection of records*, \
+and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` or \`VAR\` for the selection's \
+quantitative *data aggregation*.
+- \`min\`: This *required* parameter represents the range's *minimum distance*. The value is inclusive.
+- \`max\`: This *required* parameter represents the range's *maximum distance*. The value is inclusive.
+- \`sort\`: This *optional* parameter determines whether results should be *sorted* and in what *order*. \
+The parameter is required only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`. \
+The sort order is determined by the *distance*.
 
-And the following body parameters:
+And the following *body parameters*:
 
-- \`geometry\`: This parameter represents the *reference geometry* whose *centroid* will be used to select all WorldClim records within the provided distance range.
+- \`geometry\`: This parameter represents the *reference geometry* whose *centroid* \
+will be used to select all WorldClim records *within* the provided *distance range*.
 - \`start\`: *Initial record index*, zero based, for returned selection of records.
 - \`limit\`: *Number of records* to return.
 `
 const DescriptionContains = `
-The service will select all WorldClim records whose *data bounds centroid* is *fully contained* by the *provided reference geometry*. Since the data bounds extend for a *radius* of *0.004166665* decimal degrees from the bounds *centroid*, this means that the service will *not* select *all* records that intersect with the provided reference geometry.
+The service will select all WorldClim records whose *measurement area centroid* is \
+*fully contained* by the *provided reference geometry*. This means that the \
+measurement is located in the point at the center of the measurement area.
 
-The service expects the following *path parameters*:
+The service expects the following *query path parameter*:
 
-- \`what\`: This parameter determines the *type* of *service result*: \`KEY\`, \`SHAPE\` and \`DATA\` for a selection of records, and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` and \`VAR\` for the selection's quantitative data aggregation.
-- \`min\`: This parameter represents the range's *minimum distance*. The value is inclusive.
-- \`max\`: This parameter represents the range's *maximum distance*. The value is inclusive.
-- \`sort\`: This parameter determines whether results should be *sorted* and in what *order*.
+- \`what\`: This *required* parameter determines the *type* of *service result*: \
+\`KEY\`, \`SHAPE\` and \`DATA\` for a *selection of records*, \
+and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` or \`VAR\` for the selection's \
+quantitative *data aggregation*.
 
-And the following body parameters:
+And the following *body parameters*:
 
-- \`geometry\`: This parameter represents the *reference geometry* whose *centroid* will be used to select all WorldClim records within the provided distance range.
+- \`geometry\`: This parameter represents the *reference geometry* that fully \
+contains the *measurement area centroids*, in *GeoJSON format*.
 - \`start\`: *Initial record index*, zero based, for returned selection of records.
 - \`limit\`: *Number of records* to return.
 `
 const DescriptionIntersects = `
-The service will select all WorldClim records whose *data bounds* is intersect the *provided reference geometry*. Since the data bounds extend for a *radius* of *0.004166665* decimal degrees from the bounds *centroid*, this means that the service will select *all* records whose data bounds intersect with the provided reference geometry.
+The service will select all WorldClim records whose *data bounds* intersect \
+with the *provided reference geometry*.
 
-The service expects the following *path parameters*:
+The service expects the following *query path parameter*:
 
-- \`what\`: This parameter determines the *type* of *service result*: \`KEY\`, \`SHAPE\` and \`DATA\` for a selection of records, and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` and \`VAR\` for the selection's quantitative data aggregation.
-- \`min\`: This parameter represents the range's *minimum distance*. The value is inclusive.
-- \`max\`: This parameter represents the range's *maximum distance*. The value is inclusive.
-- \`sort\`: This parameter determines whether results should be *sorted* and in what *order*.
+- \`what\`: This *required* parameter determines the *type* of *service result*: \
+\`KEY\`, \`SHAPE\` and \`DATA\` for a *selection of records*, \
+and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` or \`VAR\` for the selection's \
+quantitative *data aggregation*.
 
-And the following body parameters:
+And the following *body parameters*:
 
-- \`geometry\`: This parameter represents the *reference geometry* whose *centroid* will be used to select all WorldClim records within the provided distance range.
+- \`geometry\`: This parameter represents the *reference geometry* \
+in *GeoJSON format*. It will be used to select all records whose \
+measurement areas intersect with it.
 - \`start\`: *Initial record index*, zero based, for returned selection of records.
 - \`limit\`: *Number of records* to return.
 `
@@ -196,13 +237,13 @@ router.tag('WorldClim')
  * - `:lat`: The latitude.
  * - `:lon`: The longitude.
  **/
-router.get('click/:lat/:lon', function (req, res)
+router.get('click', function (req, res)
 {
 	///
 	// Path parameters.
 	///
-	const lat = req.pathParams.lat
-	const lon = req.pathParams.lon
+	const lat = req.queryParams.lat
+	const lon = req.queryParams.lon
 
 	///
 	// Build query.
@@ -220,30 +261,6 @@ router.get('click/:lat/:lon', function (req, res)
 			properties: dat.properties
 		}
 	`
-
-	/*
-		LET radius = 0.004166665
-		LET box = GEO_POLYGON([
-		    [ ${lon}-radius, ${lat}-radius ],
-		    [ ${lon}+radius, ${lat}-radius ],
-		    [ ${lon}+radius, ${lat}+radius ],
-		    [ ${lon}-radius, ${lat}+radius ],
-		    [ ${lon}-radius, ${lat}-radius ]
-		])
-		FOR doc IN ${collection_map}
-			FOR dat IN ${collection_data}
-				FILTER dat._key == doc._key
-				FILTER GEO_CONTAINS(
-					box,
-					doc.geometry
-				)
-		RETURN {
-			geometry_hash: doc._key,
-			geometry_point: doc.geometry,
-			geometry_bounds: doc.geometry_bounds,
-			properties: dat.properties
-		}
-	 */
 
 	///
 	// Perform service.
@@ -267,8 +284,8 @@ router.get('click/:lat/:lon', function (req, res)
 	///
 	// Path parameter schemas.
 	///
-	.pathParam('lat', latSchema)
-	.pathParam('lon', lonSchema)
+	.queryParam('lat', latSchema)
+	.queryParam('lon', lonSchema)
 
 	///
 	// Response schema.
@@ -278,13 +295,13 @@ router.get('click/:lat/:lon', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Return record that contains the provided point')
+	.summary('Return record that contains the provided coordinates')
 
 	///
 	// Description.
 	///
 	.description(dd`
-		The service will return the WorldClim data record that contains the provided coordinate.
+		The service will return the WorldClim data record that contains the provided coordinates.
 	`)
 
 /**
@@ -305,22 +322,22 @@ router.get('click/:lat/:lon', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  **/
-router.post('dist/:what/:min/:max/:sort', function (req, res)
+router.post('dist', function (req, res)
 {
 	///
 	// Path parameters.
 	///
-	const what = req.pathParams.what
-	const min = req.pathParams.min
-	const max = req.pathParams.max
-	const sort = req.pathParams.sort
+	const what = req.queryParams.what
+	const min = req.queryParams.min
+	const max = req.queryParams.max
+	const sort = req.queryParams.sort
 
 	///
 	// Body parameters.
 	///
 	const reference = req.body.geometry
-	const start = req.body.start
-	const limit = req.body.limit
+	const start = (req.body.hasOwnProperty('start')) ? req.body.start : null
+	const limit = (req.body.hasOwnProperty('limit')) ? req.body.limit : null
 
 	///
 	// Build query.
@@ -328,7 +345,6 @@ router.post('dist/:what/:min/:max/:sort', function (req, res)
 	let query =
 		WorldClimDistanceAQL(
 			collection_data,
-			collection_map,
 			reference,
 			what,
 			min,
@@ -360,15 +376,15 @@ router.post('dist/:what/:min/:max/:sort', function (req, res)
 	///
 	// Path parameter schemas.
 	///
-	.pathParam('what', whatSchema)
-	.pathParam('min', minDistanceSchema)
-	.pathParam('max', maxDistanceSchema)
-	.pathParam('sort', sortSchema)
+	.queryParam('what', whatSchema)
+	.queryParam('min', minDistanceSchema)
+	.queryParam('max', maxDistanceSchema)
+	.queryParam('sort', sortSchema)
 
 	///
 	// Body parameters schema.
 	///
-	.body(ModelShape, DescriptionModelIntersects)
+	.body(ModelShape, DescriptionModelDistance)
 
 	///
 	// Response schema.
@@ -378,7 +394,7 @@ router.post('dist/:what/:min/:max/:sort', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Return selection or aggregation of records within a distance range')
+	.summary('Return selection or aggregation of records within a distance range from the provided reference geometry')
 
 	///
 	// Description.
@@ -396,19 +412,19 @@ router.post('dist/:what/:min/:max/:sort', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  **/
-router.post('contain/:what', function (req, res)
+router.post('contain', function (req, res)
 {
 	///
 	// Path parameters.
 	///
-	const what = req.pathParams.what
+	const what = req.queryParams.what
 
 	///
 	// Body parameters.
 	///
 	const reference = req.body.geometry
-	const start = req.body.start
-	const limit = req.body.limit
+	const start = (req.body.hasOwnProperty('start')) ? req.body.start : null
+	const limit = (req.body.hasOwnProperty('limit')) ? req.body.limit : null
 
 	///
 	// Build query.
@@ -416,7 +432,6 @@ router.post('contain/:what', function (req, res)
 	let query =
 		WorldClimContainsAQL(
 			collection_data,
-			collection_map,
 			reference,
 			what,
 			start,
@@ -445,7 +460,7 @@ router.post('contain/:what', function (req, res)
 	///
 	// Path parameter schemas.
 	///
-	.pathParam('what', whatSchema)
+	.queryParam('what', whatSchema)
 
 	///
 	// Body parameters schema.
@@ -478,19 +493,19 @@ router.post('contain/:what', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  **/
-router.post('intersect/:what', function (req, res)
+router.post('intersect', function (req, res)
 {
 	///
 	// Path parameters.
 	///
-	const what = req.pathParams.what
+	const what = req.queryParams.what
 
 	///
 	// Body parameters.
 	///
 	const reference = req.body.geometry
-	const start = req.body.start
-	const limit = req.body.limit
+	const start = (req.body.hasOwnProperty('start')) ? req.body.start : null
+	const limit = (req.body.hasOwnProperty('limit')) ? req.body.limit : null
 
 	///
 	// Build query.
@@ -498,7 +513,6 @@ router.post('intersect/:what', function (req, res)
 	let query =
 		WorldClimIntersectsAQL(
 			collection_data,
-			collection_map,
 			reference,
 			what,
 			start,
@@ -527,7 +541,7 @@ router.post('intersect/:what', function (req, res)
 	///
 	// Path parameter schemas.
 	///
-	.pathParam('what', whatSchema)
+	.queryParam('what', whatSchema)
 
 	///
 	// Body parameters schema.
@@ -542,7 +556,7 @@ router.post('intersect/:what', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Return selection or aggregation of records that intersect the provided reference geometry')
+	.summary('Return selection or aggregation of records that intersect with the provided reference geometry')
 
 	///
 	// Description.

@@ -1487,6 +1487,1083 @@
         "security": []
       }
     },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/worldclim/click/": {
+      "get": {
+        "summary": "Contains point",
+        "description": "The service will return the *WorldClim climate record* that contains the *provided point coordinates*.\n\nProvide the decimal *latitude* and *longitude* respectively in the **lat** and **lon** *query path required parameters*.\n\nThe resulting record will contain the following properties:\n\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *center* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding to the *measurement area's rect*.\n- `properties`: Chelsa climate data subdivided into the following historical and modelled time periods: `1970-2000`, `2021-2040`, `2041-2060`, `2061-2080` and `2081-2100`.",
+        "operationId": "9d15eeb6-133e-4230-876a-e0d1dc4c4545",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "46.30140",
+              "description": ""
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "7.50134",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return the *WorldClim climate record* that contains the *provided point coordinates*.\n\nProvide the decimal *latitude* and *longitude* respectively in the **lat** and **lon** *query path required parameters*.\n\nThe resulting record will contain the following properties:\n\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *center* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding to the *measurement area's rect*.\n- `properties`: Chelsa climate data subdivided into the following historical and modelled time periods: `1970-2000`, `2021-2040`, `2041-2060`, `2061-2080` and `2081-2100`.",
+          "content": {
+            "text/plain": {}
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "geometry_hash": {
+                        "type": "string",
+                        "example": "ff80a0aa21b54af2f47ab6addbc2b1d4WORLDCLIM"
+                      },
+                      "geometry_point": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Point"
+                          },
+                          "coordinates": {
+                            "type": "number",
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      },
+                      "geometry_bounds": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "Polygon"
+                          },
+                          "coordinates": {
+                            "type": "object",
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "properties": {
+                        "type": "object",
+                        "properties": {
+                          "topography": {
+                            "type": "object",
+                            "properties": {
+                              "geo_shape_elevation": {
+                                "type": "integer",
+                                "format": "int64",
+                                "example": 1047
+                              }
+                            }
+                          },
+                          "1970-2000": {
+                            "type": "object",
+                            "properties": {
+                              "env_climate_bio01": {
+                                "type": "number"
+                              },
+                              "env_climate_bio02": {
+                                "type": "number"
+                              },
+                              "env_climate_bio03": {
+                                "type": "number"
+                              },
+                              "env_climate_bio04": {
+                                "type": "number"
+                              },
+                              "env_climate_bio05": {
+                                "type": "number"
+                              },
+                              "env_climate_bio06": {
+                                "type": "number"
+                              },
+                              "env_climate_bio07": {
+                                "type": "number"
+                              },
+                              "env_climate_bio08": {
+                                "type": "number"
+                              },
+                              "env_climate_bio09": {
+                                "type": "number"
+                              },
+                              "env_climate_bio10": {
+                                "type": "number"
+                              },
+                              "env_climate_bio11": {
+                                "type": "number"
+                              },
+                              "env_climate_bio12": {
+                                "type": "integer",
+                                "format": "int64",
+                                "example": 973
+                              },
+                              "env_climate_bio13": {
+                                "type": "integer",
+                                "format": "int64",
+                                "example": 95
+                              },
+                              "env_climate_bio14": {
+                                "type": "integer",
+                                "format": "int64",
+                                "example": 63
+                              },
+                              "env_climate_bio15": {
+                                "type": "number"
+                              },
+                              "env_climate_bio16": {
+                                "type": "integer",
+                                "format": "int64",
+                                "example": 268
+                              },
+                              "env_climate_bio17": {
+                                "type": "integer",
+                                "format": "int64",
+                                "example": 211
+                              },
+                              "env_climate_bio18": {
+                                "type": "integer",
+                                "format": "int64",
+                                "example": 268
+                              },
+                              "env_climate_bio19": {
+                                "type": "integer",
+                                "format": "int64",
+                                "example": 257
+                              },
+                              "std_date_span_month": {
+                                "type": "object",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "env_climate_pr": {
+                                      "type": "integer"
+                                    },
+                                    "env_climate_srad": {
+                                      "type": "integer"
+                                    },
+                                    "env_climate_tas": {
+                                      "type": "number"
+                                    },
+                                    "env_climate_tasmax": {
+                                      "type": "number"
+                                    },
+                                    "env_climate_tasmin": {
+                                      "type": "number"
+                                    },
+                                    "env_climate_vapr": {
+                                      "type": "number"
+                                    },
+                                    "std_month": {
+                                      "type": "integer"
+                                    },
+                                    "env_climate_wind": {
+                                      "type": "number"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "2021-2040": {
+                            "type": "object",
+                            "properties": {
+                              "MPI-ESM1-2-HR": {
+                                "type": "object",
+                                "properties": {
+                                  "ssp370": {
+                                    "type": "object",
+                                    "properties": {
+                                      "env_climate_bio01": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio02": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio03": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio04": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio05": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio06": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio07": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio08": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 4
+                                      },
+                                      "env_climate_bio09": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio10": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio11": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio12": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 987
+                                      },
+                                      "env_climate_bio13": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 101
+                                      },
+                                      "env_climate_bio14": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 61
+                                      },
+                                      "env_climate_bio15": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio16": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 270
+                                      },
+                                      "env_climate_bio17": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 215
+                                      },
+                                      "env_climate_bio18": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 269
+                                      },
+                                      "env_climate_bio19": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 262
+                                      },
+                                      "std_date_span_month": {
+                                        "type": "object",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "std_month": {
+                                              "type": "integer"
+                                            },
+                                            "env_climate_pr": {
+                                              "type": "integer"
+                                            },
+                                            "env_climate_tasmax": {
+                                              "type": "number"
+                                            },
+                                            "env_climate_tasmin": {
+                                              "type": "number"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "2041-2060": {
+                            "type": "object",
+                            "properties": {
+                              "MPI-ESM1-2-HR": {
+                                "type": "object",
+                                "properties": {
+                                  "ssp370": {
+                                    "type": "object",
+                                    "properties": {
+                                      "env_climate_bio01": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio02": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio03": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio04": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio05": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio06": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio07": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio08": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio09": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio10": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio11": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio12": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 960
+                                      },
+                                      "env_climate_bio13": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 92
+                                      },
+                                      "env_climate_bio14": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 59
+                                      },
+                                      "env_climate_bio15": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio16": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 267
+                                      },
+                                      "env_climate_bio17": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 209
+                                      },
+                                      "env_climate_bio18": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 241
+                                      },
+                                      "env_climate_bio19": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 267
+                                      },
+                                      "std_date_span_month": {
+                                        "type": "object",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "std_month": {
+                                              "type": "integer"
+                                            },
+                                            "env_climate_pr": {
+                                              "type": "integer"
+                                            },
+                                            "env_climate_tasmax": {
+                                              "type": "number"
+                                            },
+                                            "env_climate_tasmin": {
+                                              "type": "number"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "2061-2080": {
+                            "type": "object",
+                            "properties": {
+                              "MPI-ESM1-2-HR": {
+                                "type": "object",
+                                "properties": {
+                                  "ssp370": {
+                                    "type": "object",
+                                    "properties": {
+                                      "env_climate_bio01": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio02": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 10
+                                      },
+                                      "env_climate_bio03": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio04": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio05": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio06": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio07": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio08": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio09": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio10": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio11": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio12": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 954
+                                      },
+                                      "env_climate_bio13": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 95
+                                      },
+                                      "env_climate_bio14": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 56
+                                      },
+                                      "env_climate_bio15": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 15
+                                      },
+                                      "env_climate_bio16": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 273
+                                      },
+                                      "env_climate_bio17": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 199
+                                      },
+                                      "env_climate_bio18": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 230
+                                      },
+                                      "env_climate_bio19": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 273
+                                      },
+                                      "std_date_span_month": {
+                                        "type": "object",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "std_month": {
+                                              "type": "integer"
+                                            },
+                                            "env_climate_pr": {
+                                              "type": "integer"
+                                            },
+                                            "env_climate_tasmax": {
+                                              "type": "number"
+                                            },
+                                            "env_climate_tasmin": {
+                                              "type": "number"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "2081-2100": {
+                            "type": "object",
+                            "properties": {
+                              "MPI-ESM1-2-HR": {
+                                "type": "object",
+                                "properties": {
+                                  "ssp370": {
+                                    "type": "object",
+                                    "properties": {
+                                      "env_climate_bio01": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio02": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio03": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio04": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio05": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio06": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio07": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio08": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio09": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio10": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio11": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio12": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 935
+                                      },
+                                      "env_climate_bio13": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 99
+                                      },
+                                      "env_climate_bio14": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 51
+                                      },
+                                      "env_climate_bio15": {
+                                        "type": "number"
+                                      },
+                                      "env_climate_bio16": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 284
+                                      },
+                                      "env_climate_bio17": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 180
+                                      },
+                                      "env_climate_bio18": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 180
+                                      },
+                                      "env_climate_bio19": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "example": 284
+                                      },
+                                      "std_date_span_month": {
+                                        "type": "object",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "std_month": {
+                                              "type": "integer"
+                                            },
+                                            "env_climate_pr": {
+                                              "type": "integer"
+                                            },
+                                            "env_climate_tasmax": {
+                                              "type": "number"
+                                            },
+                                            "env_climate_tasmin": {
+                                              "type": "number"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "9412"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/worldclim/dist/": {
+      "post": {
+        "summary": "Is within distance",
+        "description": "The service will *select* all *WorldClim records* that lie within a *distance range* from the provided *reference geometry*. The distance is calculated from the *wgs84 centroids* of both the *reference geometry* and the WorldClim *measurement geometries*.\n\nThe service expects the following *query path* parameters:\n\n- **what**: This *required* parameter determines the type of service result: `KEY`, `SHAPE` or `DATA` to return a *selection of records*; `MIN`, `AVG`, `MAX`, `STD` or `VAR` for the *data aggregation* of the selection's *quantitative data*.\n- **min**: This *required* parameter represents the *minimum distance*. The value is expressed in *meters* and is *inclusive*.\n- **max**: This *required* parameter represents the *maximum distance*. The value is expressed in *meters* and is *inclusive*.\n- **sort**: This *optional* parameter determines whether results should be *sorted* and in what order. `NO` means no sorting, `ASC` means ascending order and `DESC` means descending order. The parameter is required only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. The *sort order* is determined by the *distance*.\n\nThe service also expects the following body parameters:\n\n- **geometry**: The *GeoJSON geometry* used to calculate the *distance*. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*. *This parameter is required*.\n- **start**: The zero-based start index of the returned selection. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`, if omitted it defaults to 0.\n- **limit**: The number of records to return. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. If omitted the full selection will be returned, so it is advisable to use it.\n\nThe result of the service depends on the value of the `what` parameter:\n\n`KEY` will return only the *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n\n`SHAPE` will return the geometries of the selected measurement areas:\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*.\n- `distance`: The *distance in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the Chelsa *measurement geometries*.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *centroid* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding the *measurement area*.\n\n`DATA` will return the full selected records, corresponding to the elements of the `DATA` option, plus:\n- `properties`: WorldClim climate data subdivided into the following historical and modelled time periods: `1970-2000`, `2021-2040`, `2041-2060`, `2061-2080` and `2081-2100`.\n\n`MIN`, `AVG`, `MAX`, `STD` or `VAR` will respectively return the aggregated *minimuum*, *average*, *maximum*, *standard deviation* or *variance* of the selection's *quantitative data*. The service will return a single record containing:\n- `count`: The number of selected records.\n- `distance`: The *distances in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*, *aggregated* according to the *selected aggregation function*.\n- `properties`: WorldClim *quantitative data* subdivided into the following historical and modelled time periods: `1970-2000`, `2021-2040`, `2041-2060`, `2061-2080` and `2081-2100`, *aggregated* according to the *selected aggregation function*.\n",
+        "operationId": "f27f4bfb-104b-47f6-9947-2b89f8ee6875",
+        "parameters": [
+          {
+            "name": "max",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "10000",
+              "description": ""
+            }
+          },
+          {
+            "name": "min",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "0",
+              "description": ""
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "ASC",
+              "description": ""
+            }
+          },
+          {
+            "name": "what",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "KEY",
+              "description": ""
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will *select* all *WorldClim records* that lie within a *distance range* from the provided *reference geometry*. The distance is calculated from the *wgs84 centroids* of both the *reference geometry* and the WorldClim *measurement geometries*.\n\nThe service expects the following *query path* parameters:\n\n- **what**: This *required* parameter determines the type of service result: `KEY`, `SHAPE` or `DATA` to return a *selection of records*; `MIN`, `AVG`, `MAX`, `STD` or `VAR` for the *data aggregation* of the selection's *quantitative data*.\n- **min**: This *required* parameter represents the *minimum distance*. The value is expressed in *meters* and is *inclusive*.\n- **max**: This *required* parameter represents the *maximum distance*. The value is expressed in *meters* and is *inclusive*.\n- **sort**: This *optional* parameter determines whether results should be *sorted* and in what order. `NO` means no sorting, `ASC` means ascending order and `DESC` means descending order. The parameter is required only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. The *sort order* is determined by the *distance*.\n\nThe service also expects the following body parameters:\n\n- **geometry**: The *GeoJSON geometry* used to calculate the *distance*. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*. *This parameter is required*.\n- **start**: The zero-based start index of the returned selection. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`, if omitted it defaults to 0.\n- **limit**: The number of records to return. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. If omitted the full selection will be returned, so it is advisable to use it.\n\nThe result of the service depends on the value of the `what` parameter:\n\n`KEY` will return only the *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n\n`SHAPE` will return the geometries of the selected measurement areas:\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*.\n- `distance`: The *distance in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the Chelsa *measurement geometries*.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *centroid* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding the *measurement area*.\n\n`DATA` will return the full selected records, corresponding to the elements of the `DATA` option, plus:\n- `properties`: WorldClim climate data subdivided into the following historical and modelled time periods: `1970-2000`, `2021-2040`, `2041-2060`, `2061-2080` and `2081-2100`.\n\n`MIN`, `AVG`, `MAX`, `STD` or `VAR` will respectively return the aggregated *minimuum*, *average*, *maximum*, *standard deviation* or *variance* of the selection's *quantitative data*. The service will return a single record containing:\n- `count`: The number of selected records.\n- `distance`: The *distances in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*, *aggregated* according to the *selected aggregation function*.\n- `properties`: WorldClim *quantitative data* subdivided into the following historical and modelled time periods: `1970-2000`, `2021-2040`, `2041-2060`, `2061-2080` and `2081-2100`, *aggregated* according to the *selected aggregation function*.\n",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "geometry": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "Point"
+                      },
+                      "coordinates": {
+                        "type": "number",
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  },
+                  "start": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 0
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 10
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "441"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/worldclim/contain/": {
+      "post": {
+        "summary": "Intersects",
+        "description": "The service will *select* all *WorldClim records* whose *measurement area* intersects the provided *referWorldClimence geometry*.\n\nThe service expects the following *query path* parameters:\n\n- **what**: This *required* parameter determines the type of service result: `KEY`, `SHAPE` or `DATA` to return a *selection of records*; `MIN`, `AVG`, `MAX`, `STD` or `VAR` for the *data aggregation* of the selection's *quantitative data*.\n\nThe service also expects the following body parameters:\n\n- **geometry**: The *GeoJSON geometry* that is used to *elect* all records whose *measurement area intersects* with it. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*. *This parameter is required*.\n- **start**: The zero-based start index of the returned selection. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`, if omitted it defaults to 0.\n- **limit**: The number of records to return. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. If omitted the full selection will be returned, so it is advisable to use it.\n\nThe result of the service depends on the value of the `what` parameter:\n\n`KEY` will return only the *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n\n`SHAPE` will return the geometries of the selected measurement areas:\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*.\n- `distance`: The *distance in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *centroid* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding the *measurement area*.\n\n`DATA` will return the full selected records, corresponding to the elements of the `DATA` option, plus:\n- `properties`: WorldClim climate data subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`.\n\n`MIN`, `AVG`, `MAX`, `STD` or `VAR` will respectively return the aggregated *minimuum*, *average*, *maximum*, *standard deviation* or *variance* of the selection's *quantitative data*. The service will return a single record containing:\n- `count`: The number of selected records.\n- `distance`: The *distances in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*, *aggregated* according to the *selected aggregation function*.\n- `properties`: WorldClim *quantitative data* subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`, *aggregated* according to the *selected aggregation function*.\n",
+        "operationId": "c283c7e4-8ea3-414e-b15d-2cf08112d272",
+        "parameters": [
+          {
+            "name": "what",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "KEY",
+              "description": ""
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will *select* all *WorldClim records* whose *measurement area* intersects the provided *referWorldClimence geometry*.\n\nThe service expects the following *query path* parameters:\n\n- **what**: This *required* parameter determines the type of service result: `KEY`, `SHAPE` or `DATA` to return a *selection of records*; `MIN`, `AVG`, `MAX`, `STD` or `VAR` for the *data aggregation* of the selection's *quantitative data*.\n\nThe service also expects the following body parameters:\n\n- **geometry**: The *GeoJSON geometry* that is used to *elect* all records whose *measurement area intersects* with it. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*. *This parameter is required*.\n- **start**: The zero-based start index of the returned selection. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`, if omitted it defaults to 0.\n- **limit**: The number of records to return. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. If omitted the full selection will be returned, so it is advisable to use it.\n\nThe result of the service depends on the value of the `what` parameter:\n\n`KEY` will return only the *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n\n`SHAPE` will return the geometries of the selected measurement areas:\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*.\n- `distance`: The *distance in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *centroid* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding the *measurement area*.\n\n`DATA` will return the full selected records, corresponding to the elements of the `DATA` option, plus:\n- `properties`: WorldClim climate data subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`.\n\n`MIN`, `AVG`, `MAX`, `STD` or `VAR` will respectively return the aggregated *minimuum*, *average*, *maximum*, *standard deviation* or *variance* of the selection's *quantitative data*. The service will return a single record containing:\n- `count`: The number of selected records.\n- `distance`: The *distances in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*, *aggregated* according to the *selected aggregation function*.\n- `properties`: WorldClim *quantitative data* subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`, *aggregated* according to the *selected aggregation function*.\n",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "geometry": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "Polygon"
+                      },
+                      "coordinates": {
+                        "type": "object",
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "start": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 0
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 10
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "141"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
     "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/hash/": {
       "get": {
         "summary": "Point shape hash",

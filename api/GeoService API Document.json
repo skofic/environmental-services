@@ -201,6 +201,202 @@
       "response": []
     },
     {
+      "name": "WORLDCLIM CLIMATE",
+      "item": [
+        {
+          "name": "Contains point",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/worldclim/click?lat=46.30140&lon=7.50134",
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "46.30140",
+                  "disabled": false,
+                  "description": "Reference point latitude"
+                },
+                {
+                  "key": "lon",
+                  "value": "7.50134",
+                  "disabled": false,
+                  "description": "Reference point longitude"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/worldclim/click"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return the *WorldClim climate record* that contains the *provided point coordinates*.\n\nProvide the decimal *latitude* and *longitude* respectively in the **lat** and **lon** *query path required parameters*.\n\nThe resulting record will contain the following properties:\n\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *center* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding to the *measurement area's rect*.\n- `properties`: Chelsa climate data subdivided into the following historical and modelled time periods: `1970-2000`, `2021-2040`, `2041-2060`, `2061-2080` and `2081-2100`.",
+            "header": [],
+            "body": null,
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Is within distance",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/worldclim/dist?what=KEY&min=0&max=10000&sort=ASC",
+              "query": [
+                {
+                  "key": "what",
+                  "value": "KEY",
+                  "disabled": false,
+                  "description": "Selection result type: KEY, SHAPE, DATA, MIN, AVG, MAX, STD, VAR"
+                },
+                {
+                  "key": "min",
+                  "value": "0",
+                  "disabled": false,
+                  "description": "Minimum distance"
+                },
+                {
+                  "key": "max",
+                  "value": "10000",
+                  "disabled": false,
+                  "description": "Maximum distance"
+                },
+                {
+                  "key": "sort",
+                  "value": "ASC",
+                  "disabled": false,
+                  "description": "Sort order: NO, ASC, DESC"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/worldclim/dist"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will *select* all *WorldClim records* that lie within a *distance range* from the provided *reference geometry*. The distance is calculated from the *wgs84 centroids* of both the *reference geometry* and the WorldClim *measurement geometries*.\n\nThe service expects the following *query path* parameters:\n\n- **what**: This *required* parameter determines the type of service result: `KEY`, `SHAPE` or `DATA` to return a *selection of records*; `MIN`, `AVG`, `MAX`, `STD` or `VAR` for the *data aggregation* of the selection's *quantitative data*.\n- **min**: This *required* parameter represents the *minimum distance*. The value is expressed in *meters* and is *inclusive*.\n- **max**: This *required* parameter represents the *maximum distance*. The value is expressed in *meters* and is *inclusive*.\n- **sort**: This *optional* parameter determines whether results should be *sorted* and in what order. `NO` means no sorting, `ASC` means ascending order and `DESC` means descending order. The parameter is required only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. The *sort order* is determined by the *distance*.\n\nThe service also expects the following body parameters:\n\n- **geometry**: The *GeoJSON geometry* used to calculate the *distance*. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*. *This parameter is required*.\n- **start**: The zero-based start index of the returned selection. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`, if omitted it defaults to 0.\n- **limit**: The number of records to return. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. If omitted the full selection will be returned, so it is advisable to use it.\n\nThe result of the service depends on the value of the `what` parameter:\n\n`KEY` will return only the *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n\n`SHAPE` will return the geometries of the selected measurement areas:\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*.\n- `distance`: The *distance in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the Chelsa *measurement geometries*.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *centroid* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding the *measurement area*.\n\n`DATA` will return the full selected records, corresponding to the elements of the `DATA` option, plus:\n- `properties`: WorldClim climate data subdivided into the following historical and modelled time periods: `1970-2000`, `2021-2040`, `2041-2060`, `2061-2080` and `2081-2100`.\n\n`MIN`, `AVG`, `MAX`, `STD` or `VAR` will respectively return the aggregated *minimuum*, *average*, *maximum*, *standard deviation* or *variance* of the selection's *quantitative data*. The service will return a single record containing:\n- `count`: The number of selected records.\n- `distance`: The *distances in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*, *aggregated* according to the *selected aggregation function*.\n- `properties`: WorldClim *quantitative data* subdivided into the following historical and modelled time periods: `1970-2000`, `2021-2040`, `2041-2060`, `2061-2080` and `2081-2100`, *aggregated* according to the *selected aggregation function*.\n",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"geometry\":{\"type\":\"Point\",\"coordinates\":[7.50134,46.30140]},\"start\":0,\"limit\":10}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Is contained",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/worldclim/contain?what=KEY",
+              "query": [
+                {
+                  "key": "what",
+                  "value": "KEY",
+                  "disabled": false,
+                  "description": "Selection result type: KEY, SHAPE, DATA, MIN, AVG, MAX, STD, VAR"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/worldclim/contain"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will *select* all *WorldClim records* that are *fully contained* by the provided *reference geometry*.\n\nThe service expects the following *query path* parameters:\n\n- **what**: This *required* parameter determines the type of service result: `KEY`, `SHAPE` or `DATA` to return a *selection of records*; `MIN`, `AVG`, `MAX`, `STD` or `VAR` for the *data aggregation* of the selection's *quantitative data*.\n\nThe service also expects the following body parameters:\n\n- **geometry**: The *GeoJSON geometry* that *fully contains* the *centroid* of the *measurement areas*. It may be a *Polygon* or *MultiPolygon*. *This parameter is required*.\n- **start**: The zero-based start index of the returned selection. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`, if omitted it defaults to 0.\n- **limit**: The number of records to return. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. If omitted the full selection will be returned, so it is advisable to use it.\n\nThe result of the service depends on the value of the `what` parameter:\n\n`KEY` will return only the *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n\n`SHAPE` will return the geometries of the selected measurement areas:\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*.\n- `distance`: The *distance in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *centroid* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding the *measurement area*.\n\n`DATA` will return the full selected records, corresponding to the elements of the `DATA` option, plus:\n- `properties`: WorldClim climate data subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`.\n\n`MIN`, `AVG`, `MAX`, `STD` or `VAR` will respectively return the aggregated *minimuum*, *average*, *maximum*, *standard deviation* or *variance* of the selection's *quantitative data*. The service will return a single record containing:\n- `count`: The number of selected records.\n- `distance`: The *distances in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*, *aggregated* according to the *selected aggregation function*.\n- `properties`: WorldClim *quantitative data* subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`, *aggregated* according to the *selected aggregation function*.\n",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[7.495,46.307],[7.495,46.294],[7.51,46.294],[7.51,46.307],[7.495,46.307]]]},\"start\":0,\"limit\":10}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Intersects",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/worldclim/contain?what=KEY",
+              "query": [
+                {
+                  "key": "what",
+                  "value": "KEY",
+                  "disabled": false,
+                  "description": "Selection result type: KEY, SHAPE, DATA, MIN, AVG, MAX, STD, VAR"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/worldclim/contain"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will *select* all *WorldClim records* whose *measurement area* intersects the provided *referWorldClimence geometry*.\n\nThe service expects the following *query path* parameters:\n\n- **what**: This *required* parameter determines the type of service result: `KEY`, `SHAPE` or `DATA` to return a *selection of records*; `MIN`, `AVG`, `MAX`, `STD` or `VAR` for the *data aggregation* of the selection's *quantitative data*.\n\nThe service also expects the following body parameters:\n\n- **geometry**: The *GeoJSON geometry* that is used to *elect* all records whose *measurement area intersects* with it. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*. *This parameter is required*.\n- **start**: The zero-based start index of the returned selection. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`, if omitted it defaults to 0.\n- **limit**: The number of records to return. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. If omitted the full selection will be returned, so it is advisable to use it.\n\nThe result of the service depends on the value of the `what` parameter:\n\n`KEY` will return only the *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n\n`SHAPE` will return the geometries of the selected measurement areas:\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*.\n- `distance`: The *distance in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *centroid* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding the *measurement area*.\n\n`DATA` will return the full selected records, corresponding to the elements of the `DATA` option, plus:\n- `properties`: WorldClim climate data subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`.\n\n`MIN`, `AVG`, `MAX`, `STD` or `VAR` will respectively return the aggregated *minimuum*, *average*, *maximum*, *standard deviation* or *variance* of the selection's *quantitative data*. The service will return a single record containing:\n- `count`: The number of selected records.\n- `distance`: The *distances in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the WorldClim *measurement geometries*, *aggregated* according to the *selected aggregation function*.\n- `properties`: WorldClim *quantitative data* subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`, *aggregated* according to the *selected aggregation function*.\n",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[7.495,46.307],[7.495,46.294],[7.51,46.294],[7.51,46.307],[7.495,46.307]]]},\"start\":0,\"limit\":10}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": null,
+      "response": []
+    },
+    {
       "name": "HASH SHAPES",
       "item": [
         {
@@ -214,13 +410,13 @@
                   "key": "lat",
                   "value": "42",
                   "disabled": false,
-                  "description": null
+                  "description": "Coordinates latitude"
                 },
                 {
                   "key": "lon",
                   "value": "12",
                   "disabled": false,
-                  "description": null
+                  "description": "Coordinates longitde"
                 }
               ],
               "protocol": null,
@@ -334,7 +530,7 @@
                   "key": "gcu_id_number",
                   "value": "AUT00001",
                   "disabled": false,
-                  "description": null
+                  "description": "Conservation unit number"
                 }
               ],
               "protocol": null,
@@ -367,7 +563,7 @@
                   "key": "gcu_id_unit-id",
                   "value": "GBR000012010",
                   "disabled": false,
-                  "description": null
+                  "description": "Conservation unit ID"
                 }
               ],
               "protocol": null,
@@ -400,7 +596,7 @@
                   "key": "geometry_hash",
                   "value": "0df76d46196094c8bade10e30faf6ae0",
                   "disabled": false,
-                  "description": null
+                  "description": "Geometry MD5 hash"
                 }
               ],
               "protocol": null,
@@ -440,7 +636,7 @@
                   "key": "geometry_hash",
                   "value": "0df76d46196094c8bade10e30faf6ae0",
                   "disabled": false,
-                  "description": null
+                  "description": "Geometry MD5 hash"
                 }
               ],
               "protocol": null,
@@ -473,13 +669,13 @@
                   "key": "lat",
                   "value": "41.83",
                   "disabled": false,
-                  "description": null
+                  "description": "Coordinate latitude"
                 },
                 {
                   "key": "lon",
                   "value": "16.02",
                   "disabled": false,
-                  "description": null
+                  "description": "Coordinate longitude"
                 }
               ],
               "protocol": null,
@@ -637,7 +833,7 @@
                   "key": "geometry_hash",
                   "value": "0000ba761f60e527dec3dedbebcf4911",
                   "disabled": false,
-                  "description": null
+                  "description": "Geometry MD5 hash"
                 }
               ],
               "protocol": null,
@@ -688,7 +884,7 @@
                   "key": "lat",
                   "value": "42",
                   "disabled": false,
-                  "description": null
+                  "description": "Coordinate latitude"
                 },
                 {
                   "key": "lon",
@@ -738,13 +934,13 @@
                   "key": "lat",
                   "value": "42",
                   "disabled": false,
-                  "description": null
+                  "description": "Coordinates latitude"
                 },
                 {
                   "key": "lon",
                   "value": "12",
                   "disabled": false,
-                  "description": null
+                  "description": "Coordinates longitude"
                 }
               ],
               "protocol": null,
@@ -789,17 +985,23 @@
           "request": {
             "method": "POST",
             "url": {
-              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/data/shape?lat=42&lon=12",
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/data/shape?lat=42&lon=12&=Coordinates%20longitude",
               "query": [
                 {
                   "key": "lat",
                   "value": "42",
                   "disabled": false,
-                  "description": null
+                  "description": "Coordinates latitude"
                 },
                 {
                   "key": "lon",
                   "value": "12",
+                  "disabled": false,
+                  "description": null
+                },
+                {
+                  "key": "",
+                  "value": "Coordinates longitude",
                   "disabled": false,
                   "description": null
                 }
@@ -845,13 +1047,13 @@
                   "key": "lat",
                   "value": "42",
                   "disabled": false,
-                  "description": null
+                  "description": "Coordinates latitude"
                 },
                 {
                   "key": "lon",
                   "value": "12",
                   "disabled": false,
-                  "description": null
+                  "description": "Coordinates longitude"
                 }
               ],
               "protocol": null,
