@@ -4853,7 +4853,7 @@ function WorldClimContainsAQL(theCollection, theGeometry, theWhat, theStart = 0,
 				FOR doc IN ${theCollection}
 					FILTER GEO_CONTAINS(${theGeometry}, doc.geometry_point)
 					${paging}
-				RETURN doc.geometry_hash
+				RETURN doc._key
 			`
 			break
 
