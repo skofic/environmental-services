@@ -31,5 +31,6 @@ const views = {
 ///
 module.exports = {
 	documentCollections,
-	edgeCollections
+	edgeCollections,
+	views
 }
