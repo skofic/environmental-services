@@ -143,7 +143,7 @@ if(analyzers.analyzer(analyzer_name) === null) {
 for (const [key, view] of Object.entries(views)) {
 
 	///
-	// Handle existing view.
+	// Handle missing view.
 	///
 	if(db._view(view) === null) {
 
@@ -156,32 +156,32 @@ for (const [key, view] of Object.entries(views)) {
 					view,
 					"arangosearch",
 					{
-						links: {
-							Shapes: {
-								analyzers: [
+						"links": {
+							"Shapes": {
+								"analyzers": [
 									"identity"
 								],
-								fields: {
-									_key: {},
-									std_dataset_ids: {},
-									geometry: {
-										analyzers: [
+								"fields": {
+									"_key": {},
+									"std_dataset_ids": {},
+									"geometry": {
+										"analyzers": [
 											"geojson"
 										]
 									},
-									properties: {
-										fields: {
-											chr_AvElevation: {},
-											chr_AvSlope: {},
-											chr_StdElevation: {},
-											geo_shape_area: {},
-											chr_AvAspect: {}
+									"properties": {
+										"fields": {
+											"chr_AvElevation": {},
+											"chr_AvSlope": {},
+											"chr_StdElevation": {},
+											"geo_shape_area": {},
+											"chr_AvAspect": {}
 										}
 									},
 								},
-								includeAllFields: false,
-								storeValues: "none",
-								trackListPositions: false
+								"includeAllFields": false,
+								"storeValues": "none",
+								"trackListPositions": false
 							}
 						}
 					}
