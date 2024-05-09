@@ -8,6 +8,11 @@ const {context} = require('@arangodb/locals')
 const {documentCollections, edgeCollections, views} = require('../constants')
 
 ///
+// Analyzers.
+///
+var analyzers = require("@arangodb/analyzers");
+
+///
 // Create document collections.
 ///
 for (const [key, collection] of Object.entries(documentCollections)) {
@@ -108,6 +113,28 @@ for (const [key, collection] of Object.entries(edgeCollections)) {
 	} else if (context.isProduction) {
 		console.debug(`collection ${collection} already exists. Leaving it untouched.`)
 	}
+}
+
+///
+// Create analyzers.
+///
+var analyzer_name
+const db_name = db._name()
+analyzer_name = `${db_name}::geojson`
+if(analyzers.analyzer(analyzer_name) === null) {
+	analyzers.save(
+		analyzer_name,
+		"geojson",
+		{ type: "shape", "legacy": false}
+	)
+}
+analyzer_name = `${db_name}::geojsonpoint`
+if(analyzers.analyzer(analyzer_name) === null) {
+	analyzers.save(
+		analyzer_name,
+		"geojson",
+		{ type: "point", "legacy": false}
+	)
 }
 
 ///
