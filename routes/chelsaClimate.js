@@ -106,6 +106,19 @@ if omitted it defaults to 0.
 - \`limit\`: The *number of records* to return. \
 The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`.
 `
+const DescriptionModelIntersects = `
+The service body record contains the following properties:
+
+- \`geometry\`: The *GeoJSON geometry* that is used to *select* all \
+*measurement areas* that *intersect* with it. It may be a *Point*, \
+*MultiPoint*, *LineString*, *MultiLineString*, *Polygon* \
+or *MultiPolygon*. *This parameter is required*.
+- \`start\`: The zero-based *start index* of the returned *selection*. \
+The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`, \
+if omitted it defaults to 0.
+- \`limit\`: The *number of records* to return. \
+The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`.
+`
 const DescriptionModelRecord = `
 Chelsa records.
 
@@ -161,9 +174,10 @@ will be used to select all Chelsa records *within* the provided *distance range*
 `
 const DescriptionContains = `
 The service will select all Chelsa records whose *measurement area centroid* is \
-*fully contained* by the *provided reference geometry*.
+*fully contained* by the *provided reference geometry*. This means that the \
+measurement is located in the point at the center of the measurement area.
 
-The service expects the following *query path parameters*:
+The service expects the following *query path parameter*:
 
 - \`what\`: This *required* parameter determines the *type* of *service result*: \
 \`KEY\`, \`SHAPE\` and \`DATA\` for a *selection of records*, \
@@ -178,18 +192,21 @@ contains the *measurement area centroids*, in *GeoJSON format*.
 - \`limit\`: *Number of records* to return.
 `
 const DescriptionIntersects = `
-The service will select all Chelsa records whose *data bounds* is intersect the *provided reference geometry*. Since the data bounds extend for a *radius* of *0.004166665* decimal degrees from the bounds *centroid*, this means that the service will select *all* records whose data bounds intersect with the provided reference geometry.
+The service will select all Chelsa records whose *data bounds* intersect \
+with the *provided reference geometry*.
 
-The service expects the following *path parameters*:
+The service expects the following *query path parameter*:
 
-- \`what\`: This parameter determines the *type* of *service result*: \`KEY\`, \`SHAPE\` and \`DATA\` for a selection of records, and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` and \`VAR\` for the selection's quantitative data aggregation.
-- \`min\`: This parameter represents the range's *minimum distance*. The value is inclusive.
-- \`max\`: This parameter represents the range's *maximum distance*. The value is inclusive.
-- \`sort\`: This parameter determines whether results should be *sorted* and in what *order*.
+- \`what\`: This *required* parameter determines the *type* of *service result*: \
+\`KEY\`, \`SHAPE\` and \`DATA\` for a *selection of records*, \
+and \`MIN\`, \`AVG\`, \`MAX\`, \`STD\` or \`VAR\` for the selection's \
+quantitative *data aggregation*.
 
-And the following body parameters:
+And the following *body parameters*:
 
-- \`geometry\`: This parameter represents the *reference geometry* whose *centroid* will be used to select all Chelsa records within the provided distance range.
+- \`geometry\`: This parameter represents the *reference geometry* \
+in *GeoJSON format*. It will be used to select all records whose \
+measurement areas intersect with it.
 - \`start\`: *Initial record index*, zero based, for returned selection of records.
 - \`limit\`: *Number of records* to return.
 `
@@ -481,19 +498,19 @@ router.post('contain', function (req, res)
  * - `:start`: The start index.
  * - `:limit`: The number of records.
  **/
-router.post('intersect/:what', function (req, res)
+router.post('intersect', function (req, res)
 {
 	///
 	// Path parameters.
 	///
-	const what = req.pathParams.what
+	const what = req.queryParams.what
 
 	///
 	// Body parameters.
 	///
 	const reference = req.body.geometry
-	const start = req.body.start
-	const limit = req.body.limit
+	const start = (req.body.hasOwnProperty('start')) ? req.body.start : null
+	const limit = (req.body.hasOwnProperty('limit')) ? req.body.limit : null
 
 	///
 	// Build query.
@@ -501,7 +518,6 @@ router.post('intersect/:what', function (req, res)
 	let query =
 		ChelsaIntersectsAQL(
 			collection_data,
-			collection_map,
 			reference,
 			what,
 			start,
@@ -530,12 +546,12 @@ router.post('intersect/:what', function (req, res)
 	///
 	// Path parameter schemas.
 	///
-	.pathParam('what', whatSchema)
+	.queryParam('what', whatSchema)
 
 	///
 	// Body parameters schema.
 	///
-	.body(ModelShape, DescriptionModelDistance)
+	.body(ModelShape, DescriptionModelIntersects)
 
 	///
 	// Response schema.

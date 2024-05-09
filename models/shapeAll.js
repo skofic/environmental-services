@@ -14,9 +14,6 @@ module.exports = {
 						"LineString", "MultiLineString"
 					).required(),
 				coordinates: joi.array()
-					.items(
-						joi.number(),
-						joi.array())
 					.required()
 			}).required(),
 		start: joi.number(),

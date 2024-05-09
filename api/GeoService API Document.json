@@ -1,0 +1,892 @@
+{
+  "info": {
+    "name": "GeoService API Document",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "CHELSA CLIMATE",
+      "item": [
+        {
+          "name": "Contains point",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/chelsa/click?lat=46.30140&lon=7.50134",
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "46.30140",
+                  "disabled": false,
+                  "description": "Reference point latitude"
+                },
+                {
+                  "key": "lon",
+                  "value": "7.50134",
+                  "disabled": false,
+                  "description": "Reference point longitude"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/chelsa/click"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return the *Chelsa climate record* that contains the *provided point coordinates*.\n\nProvide the decimal *latitude* and *longitude* respectively in the **lat** and **lon** *query path required parameters*.\n\nThe resulting record will contain the following properties:\n\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *center* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding to the *measurement area's rect*.\n- `properties`: Chelsa climate data subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`.",
+            "header": [],
+            "body": null,
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Is within distance",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/chelsa/dist?what=KEY&min=0&max=10000&sort=ASC",
+              "query": [
+                {
+                  "key": "what",
+                  "value": "KEY",
+                  "disabled": false,
+                  "description": "Selection result type: KEY, SHAPE, DATA, MIN, AVG, MAX, STD, VAR"
+                },
+                {
+                  "key": "min",
+                  "value": "0",
+                  "disabled": false,
+                  "description": "Minimum distance"
+                },
+                {
+                  "key": "max",
+                  "value": "10000",
+                  "disabled": false,
+                  "description": "Maximum distance"
+                },
+                {
+                  "key": "sort",
+                  "value": "ASC",
+                  "disabled": false,
+                  "description": "Sort order: NO, ASC, DESC"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/chelsa/dist"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will *select* all *Chelsa records* that lie within a *distance range* from the provided *reference geometry*. The distance is calculated from the *wgs84 centroids* of both the *reference geometry* and the Chelsa *measurement geometries*.\n\nThe service expects the following *query path* parameters:\n\n- **what**: This *required* parameter determines the type of service result: `KEY`, `SHAPE` or `DATA` to return a *selection of records*; `MIN`, `AVG`, `MAX`, `STD` or `VAR` for the *data aggregation* of the selection's *quantitative data*.\n- **min**: This *required* parameter represents the *minimum distance*. The value is expressed in *meters* and is *inclusive*.\n- **max**: This *required* parameter represents the *maximum distance*. The value is expressed in *meters* and is *inclusive*.\n- **sort**: This *optional* parameter determines whether results should be *sorted* and in what order. `NO` means no sorting, `ASC` means ascending order and `DESC` means descending order. The parameter is required only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. The *sort order* is determined by the *distance*.\n\nThe service also expects the following body parameters:\n\n- **geometry**: The *GeoJSON geometry* used to calculate the *distance*. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*. *This parameter is required*.\n- **start**: The zero-based start index of the returned selection. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`, if omitted it defaults to 0.\n- **limit**: The number of records to return. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. If omitted the full selection will be returned, so it is advisable to use it.\n\nThe result of the service depends on the value of the `what` parameter:\n\n`KEY` will return only the *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n\n`SHAPE` will return the geometries of the selected measurement areas:\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*.\n- `distance`: The *distance in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the Chelsa *measurement geometries*.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *centroid* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding the *measurement area*.\n\n`DATA` will return the full selected records, corresponding to the elements of the `DATA` option, plus:\n- `properties`: Chelsa climate data subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`.\n\n`MIN`, `AVG`, `MAX`, `STD` or `VAR` will respectively return the aggregated *minimuum*, *average*, *maximum*, *standard deviation* or *variance* of the selection's *quantitative data*. The service will return a single record containing:\n- `count`: The number of selected records.\n- `distance`: The *distances in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the Chelsa *measurement geometries*, *aggregated* according to the *selected aggregation function*.\n- `properties`: Chelsa *quantitative data* subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`, *aggregated* according to the *selected aggregation function*.\n",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"geometry\":{\"type\":\"Point\",\"coordinates\":[7.50134,46.30140]},\"start\":0,\"limit\":10}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Is contained",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/chelsa/contain?what=KEY",
+              "query": [
+                {
+                  "key": "what",
+                  "value": "KEY",
+                  "disabled": false,
+                  "description": "Selection result type: KEY, SHAPE, DATA, MIN, AVG, MAX, STD, VAR"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/chelsa/contain"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will *select* all *Chelsa records* that are *fully contained* by the provided *reference geometry*.\n\nThe service expects the following *query path* parameters:\n\n- **what**: This *required* parameter determines the type of service result: `KEY`, `SHAPE` or `DATA` to return a *selection of records*; `MIN`, `AVG`, `MAX`, `STD` or `VAR` for the *data aggregation* of the selection's *quantitative data*.\n\nThe service also expects the following body parameters:\n\n- **geometry**: The *GeoJSON geometry* that *fully contains* the *centroid* of the *measurement areas*. It may be a *Polygon* or *MultiPolygon*. *This parameter is required*.\n- **start**: The zero-based start index of the returned selection. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`, if omitted it defaults to 0.\n- **limit**: The number of records to return. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. If omitted the full selection will be returned, so it is advisable to use it.\n\nThe result of the service depends on the value of the `what` parameter:\n\n`KEY` will return only the *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n\n`SHAPE` will return the geometries of the selected measurement areas:\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*.\n- `distance`: The *distance in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the Chelsa *measurement geometries*.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *centroid* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding the *measurement area*.\n\n`DATA` will return the full selected records, corresponding to the elements of the `DATA` option, plus:\n- `properties`: Chelsa climate data subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`.\n\n`MIN`, `AVG`, `MAX`, `STD` or `VAR` will respectively return the aggregated *minimuum*, *average*, *maximum*, *standard deviation* or *variance* of the selection's *quantitative data*. The service will return a single record containing:\n- `count`: The number of selected records.\n- `distance`: The *distances in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the Chelsa *measurement geometries*, *aggregated* according to the *selected aggregation function*.\n- `properties`: Chelsa *quantitative data* subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`, *aggregated* according to the *selected aggregation function*.\n",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[7.495,46.307],[7.495,46.294],[7.51,46.294],[7.51,46.307],[7.495,46.307]]]},\"start\":0,\"limit\":10}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Intersects",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/chelsa/contain?what=KEY",
+              "query": [
+                {
+                  "key": "what",
+                  "value": "KEY",
+                  "disabled": false,
+                  "description": "Selection result type: KEY, SHAPE, DATA, MIN, AVG, MAX, STD, VAR"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/chelsa/contain"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will *select* all *Chelsa records* whose *measurement area* intersects the provided *reference geometry*.\n\nThe service expects the following *query path* parameters:\n\n- **what**: This *required* parameter determines the type of service result: `KEY`, `SHAPE` or `DATA` to return a *selection of records*; `MIN`, `AVG`, `MAX`, `STD` or `VAR` for the *data aggregation* of the selection's *quantitative data*.\n\nThe service also expects the following body parameters:\n\n- **geometry**: The *GeoJSON geometry* that is used to *elect* all records whose *measurement area intersects* with it. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*. *This parameter is required*.\n- **start**: The zero-based start index of the returned selection. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`, if omitted it defaults to 0.\n- **limit**: The number of records to return. The property is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. If omitted the full selection will be returned, so it is advisable to use it.\n\nThe result of the service depends on the value of the `what` parameter:\n\n`KEY` will return only the *MD5 hash* of the *measurement area's rect*; corresponding to the `geometry_bounds` property.\n\n`SHAPE` will return the geometries of the selected measurement areas:\n- `geometry_hash`: The *MD5 hash* of the *measurement area's rect*.\n- `distance`: The *distance in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the Chelsa *measurement geometries*.\n- `geometry_point`: The *GeoJSON point geometry* corresponding to the *centroid* of the *measurement area*.\n- `geometry_bounds`: The *GeoJSON polygon geometry* corresponding the *measurement area*.\n\n`DATA` will return the full selected records, corresponding to the elements of the `DATA` option, plus:\n- `properties`: Chelsa climate data subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`.\n\n`MIN`, `AVG`, `MAX`, `STD` or `VAR` will respectively return the aggregated *minimuum*, *average*, *maximum*, *standard deviation* or *variance* of the selection's *quantitative data*. The service will return a single record containing:\n- `count`: The number of selected records.\n- `distance`: The *distances in meters* between the *wgs84 centroid* of the *reference geometry* and the *wgs84 centroid* of the Chelsa *measurement geometries*, *aggregated* according to the *selected aggregation function*.\n- `properties`: Chelsa *quantitative data* subdivided into the following historical and modelled time periods: `1981-2010`, `2011-2040`, `2041-2070` and `2071-2100`, *aggregated* according to the *selected aggregation function*.\n",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[7.495,46.307],[7.495,46.294],[7.51,46.294],[7.51,46.307],[7.495,46.307]]]},\"start\":0,\"limit\":10}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": null,
+      "response": []
+    },
+    {
+      "name": "HASH SHAPES",
+      "item": [
+        {
+          "name": "Point shape hash",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/hash?lat=42&lon=12",
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "42",
+                  "disabled": false,
+                  "description": null
+                },
+                {
+                  "key": "lon",
+                  "value": "12",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/hash"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return the *shape hash* related to the provided point coordinates.\n\nThe service expects two *query parameters*:\n\n- `lat`: The *latitude* of the point.\n- `lon`: The *longitude* of the point.\n\nThe service will return the following object:\n\n- `geometry`: The *GeoJSON* representation of the point.\n- `geometry_hash`: The *hash* for the point.",
+            "header": [],
+            "body": null,
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Polygon shape hash",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/hash/poly",
+              "query": null,
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/hash/poly"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return the *shape hash* related to the provided polygon coordinates.\n\nThe service expects a `oordinates` *body parameter* containing the polygon coordinates.\nThe polygon shape should be provided at least as one array representing a *linear ring*.\nEach linear ring should consist of an array with at least *four longitude/latitude pairs*.\nThe *first* linear ring must be the *outermost*, while any *subsequent* linear rings will be interpreted as *holes*.\nThe *order* of the sequence of coordinates is important: *counter-clock* means the polygon *area* is *inside*, *clockwise* means the *area* of the polygon is *outside*.\n\nThe service will return the following object:\n\n- `geometry`: The *GeoJSON* representation of the polygon.\n- `geometry_hash`: The *hash* for the polygon.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"coordinates\":[[[35,10],[45,45],[15,40],[10,20],[35,10]],[[20,30],[30,20],[35,35],[20,30]]]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "MultiPolygon shape hash",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/hash/multipoly",
+              "query": null,
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/hash/multipoly"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return the *shape hash* related to the provided multi-polygon coordinates.\n\nThe MultiPolygon shape should be provided as an *array* of *Polygon shapes*.\nThe polygon shape should be provided at least as *one array* representing a *linear ring*.\nEach linear ring should consist of an array with at least *four longitude/latitude pairs*.\nThe *first* linear ring must be the *outermost*, while any *subsequent* linear ring will be interpreted as *holes*.\nThe *order* of the sequence of coordinates is important: *ounter-clock* means the polygon area is *inside*, *clockwise* means the are of the polygon is *outside*.\n\nThe service will return the following object:\n\n- `geometry`: The *GeoJSON* representation of the multi-polygon.\n- `geometry_hash`: The *hash* for the multi-polygon.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"coordinates\":[[[[40,40],[20,45],[45,30],[40,40]]],[[[20,35],[10,30],[10,10],[30,5],[45,20],[20,35]],[[30,20],[20,15],[20,25],[30,20]]]]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": null,
+      "response": []
+    },
+    {
+      "name": "UNITS",
+      "item": [
+        {
+          "name": "Unit ID list by unit number",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/id?gcu_id_number=AUT00001",
+              "query": [
+                {
+                  "key": "gcu_id_number",
+                  "value": "AUT00001",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/id"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return all *unit IDs* related to the provided *unit number*.\n\nThe service expects the `gcu_id_number` query parameter containing a unit number.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number*.\n- `gcu_id_unit-id`: The *list* of unit IDs associated with the *provided unit number*.",
+            "header": [],
+            "body": null,
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Unit number and shapes list by unit ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/shape?gcu_id_unit-id=GBR000012010",
+              "query": [
+                {
+                  "key": "gcu_id_unit-id",
+                  "value": "GBR000012010",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/shape"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return the *unit number* and the *list* of *unit shape references* related to the *provided unit ID*.\n\nThe service expects the `gcu_id_unit-id` query parameter containing a unit ID.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided unit ID*.\n- `gcu_id_unit-id`: The unit ID.\n- `geometry_hash_list`: The *list* of *shape references* associated with the *provided unit ID*.\n",
+            "header": [],
+            "body": null,
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Unit by shape reference",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/rec?geometry_hash=0df76d46196094c8bade10e30faf6ae0",
+              "query": [
+                {
+                  "key": "geometry_hash",
+                  "value": "0df76d46196094c8bade10e30faf6ae0",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/rec"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return the *unit number and ID* associated with the provided *shape reference*.\n\nThe service expects the `geometry_hash` query parameter containing a *unit shape geometry reference*.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided shape reference*.\n- `gcu_id_unit-id`: The unit ID associated with the *provided shape reference*.\n- `geometry_hash_list`: The *provided shape reference*.\n",
+            "header": [],
+            "body": null,
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": null,
+      "response": []
+    },
+    {
+      "name": "UNIT SHAPES",
+      "item": [
+        {
+          "name": "Shape by geometry hash",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/shape?geometry_hash=0df76d46196094c8bade10e30faf6ae0",
+              "query": [
+                {
+                  "key": "geometry_hash",
+                  "value": "0df76d46196094c8bade10e30faf6ae0",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/shape"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return the *shape record* identified by the *provided geometry hash*.\n\nThe service expects the `geometry_hash` query parameter with the *shape reference*.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
+            "header": [],
+            "body": null,
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Shape by point",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/shape/click?lat=41.83&lon=16.02",
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "41.83",
+                  "disabled": false,
+                  "description": null
+                },
+                {
+                  "key": "lon",
+                  "value": "16.02",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/shape/click"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return the *shape record* containing the *provided point* coordinate.\n\nThe service expects the `lat` and `lon` query parameters representing respectively the *latitude* and *longitude* of the point coordinate.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
+            "header": [],
+            "body": null,
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Shape search",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/shape/search",
+              "query": null,
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/shape/search"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shapes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"geometry_hash\":[\"034ee0b07b3f7bf680396cd7a551d6e1\",\"5930def0e729e382651e07f39b7909c7\",\"4bee1683207b0baecee58e23bba9c5c2\"],\"std_dataset_ids\":[\"814b4937-3bbd-47c7-99d5-2cd51a0f3469\"],\"geo_shape_area\":{\"min\":32922692,\"max\":39275174},\"chr_AvElevation\":{\"min\":220,\"max\":930},\"chr_StdElevation\":{\"min\":5,\"max\":450},\"chr_AvSlope\":{\"min\":1,\"max\":30},\"chr_AvAspect\":{\"min\":150,\"max\":190},\"intersects\":{\"type\":\"Polygon\",\"coordinates\":[[[19.172351,50.399665],[11.205682,50.399665],[11.205682,45.511248],[19.172351,45.511248],[19.172351,50.399665]]]},\"distance\":{\"reference\":{\"type\":\"Point\",\"coordinates\":[15.407384,48.150157]},\"range\":{\"min\":0,\"max\":500000000}},\"paging\":{\"offset\":0,\"limit\":100}}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": null,
+      "response": []
+    },
+    {
+      "name": "REMOTE SENSING META",
+      "item": [
+        {
+          "name": "GCU shape metadata by date span",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/span",
+              "query": null,
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/span"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "This service will return the *summary* of *all data measurements* selected by the provided search parameters *grouped by date span*.\n\nThe service expects a series of search parameters in the body object:\n\n- `geometry_hash_list`: *Required* list of GCU shape references, as MD5 hash of geometry.\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each date span:\n\n- `count`: The number of selected data records.\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"geometry_hash_list\":[\"c8ebeade136c209a7d6b40dc2cc3a72d\",\"02713e2716b7e8eec36ac6a61223f8a3\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "GCU shape metadata by shape and date span",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/shape",
+              "query": null,
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/shape"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "This service will return the *summary* of *all data measurements* selected by the provided search parameters grouped by *shape* and *date span*.\n\nThe service expects a series of search parameters in the body object:\n\n- `geometry_hash_list`: *Required* list of GCU shape references, as MD5 hash of geometry.\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each shape:\n\n- `geometry_hash`: The shape reference.\n- `properties`: Shape summary data grouped by date span, described below:\n- `count`: The number of selected data records.\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"geometry_hash_list\":[\"c8ebeade136c209a7d6b40dc2cc3a72d\",\"02713e2716b7e8eec36ac6a61223f8a3\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": null,
+      "response": []
+    },
+    {
+      "name": "REMOTE SENSING DATA",
+      "item": [
+        {
+          "name": "GCU shape data by shape and date span",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/data?geometry_hash=0000ba761f60e527dec3dedbebcf4911",
+              "query": [
+                {
+                  "key": "geometry_hash",
+                  "value": "0000ba761f60e527dec3dedbebcf4911",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/data"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "This service will return *all data measurements* selected by the required *geometry hash* in the query path and *search parameters* in the body. The results will be grouped by *date span* and *measurement date*.\n\nThe service *requires* the shape reference to be provided in the query path and an *optional* series of search parameters in the body object:\n\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each selected date span, and within the span, one element for each measurement date:\n\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_series`: Shape data measurments for current date span:\n- `std_date`: Measurement date.\n- `properties`: Measurement variables.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2010\",\"std_date_end\":\"20101231\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": null,
+      "response": []
+    },
+    {
+      "name": "EUROPEAN DROUGHT OBSERVATORY META",
+      "item": [
+        {
+          "name": "EDO metadata",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/meta?lat=42&lon=12",
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "42",
+                  "disabled": false,
+                  "description": null
+                },
+                {
+                  "key": "lon",
+                  "value": "12",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/meta"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "This service will return the *summary* of *all data measurements* available for the *provided coordinate* and *data filters*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will contain a single record:\n\n- `count`: The number of selected records.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.\n- `geometry_point_radius`: List of featured measurement area radius.\n- `geometry_point`: List of featured measurement points.\n- `geometry_bounds`: List of featured measurement geometries.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"std_date_start\":\"2004\",\"std_date_end\":\"2005\",\"std_terms\":[\"env_climate_fapar\",\"env_climate_fapan\",\"env_climate_sma\",\"env_climate_smi\"],\"std_dataset_ids\":[\"056e569a-66ef-4033-8d15-5c4c3c36c1bb\",\"9eda6111-c840-4862-9759-4a805cd6fc35\"],\"geometry_point_radius\":[0.020833335,0.031752945]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "EDO metadata by geometry",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/meta/shape?lat=42&lon=12",
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "42",
+                  "disabled": false,
+                  "description": null
+                },
+                {
+                  "key": "lon",
+                  "value": "12",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/meta/shape"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "This service will return the *summary* of *all data measurements* available for the *provided coordinate* and *data filters* *grouped by measurement area*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will contain one record for each measurement resolution:\n\n- `count`: The number of selected records.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.\n- `geometry_point_radius`: List of featured measurement area radius.\n- `geometry_point`: List of featured measurement points.\n- `geometry_bounds`: List of featured measurement geometries.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"std_date_start\":\"2004\",\"std_date_end\":\"2005\",\"std_terms\":[\"env_climate_fapar\",\"env_climate_fapan\",\"env_climate_sma\",\"env_climate_smi\"],\"std_dataset_ids\":[\"056e569a-66ef-4033-8d15-5c4c3c36c1bb\",\"9eda6111-c840-4862-9759-4a805cd6fc35\"],\"geometry_point_radius\":[0.020833335,0.031752945]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": null,
+      "response": []
+    },
+    {
+      "name": "EUROPEAN DROUGHT OBSERVATORY DATA",
+      "item": [
+        {
+          "name": "EDO data by geometry",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/data/shape?lat=42&lon=12",
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "42",
+                  "disabled": false,
+                  "description": null
+                },
+                {
+                  "key": "lon",
+                  "value": "12",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/data/shape"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return *European Drought Observatory* data *grouped by resolution*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data is sorted ascending by date and will be *grouped* by *resolution*, which is expressed by the *area radius*. Each record will contain *all* properties satisfying the query parameters.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"std_date_start\":\"2004\",\"std_date_end\":\"2005\",\"std_terms\":[\"env_climate_fapar\",\"env_climate_fapan\",\"env_climate_sma\",\"env_climate_smi\"],\"std_dataset_ids\":[\"056e569a-66ef-4033-8d15-5c4c3c36c1bb\",\"9eda6111-c840-4862-9759-4a805cd6fc35\"],\"geometry_point_radius\":[0.020833335,0.031752945]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "EDO data by date",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/data/date?lat=42&lon=12",
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "42",
+                  "disabled": false,
+                  "description": null
+                },
+                {
+                  "key": "lon",
+                  "value": "12",
+                  "disabled": false,
+                  "description": null
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/data/date"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return *European Drought Observatory* data *grouped by date*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n- `paging`: Results paging information. It is an object expecting `offset` and `limit`.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will be *grouped* and *sorted* by *date*, properties will be *merged by date*, so the records will *not contain geometry information*.\n\nIf you *omit* the `std_terms` selector, each record will *feature* the list of *dataset references*, `std_dataset_ids`, if you *select specific variables*, the *dataset references will be omitted*.\n",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"std_date_start\":\"2004\",\"std_date_end\":\"2005\",\"std_terms\":[\"env_climate_fapar\",\"env_climate_fapan\",\"env_climate_sma\",\"env_climate_smi\"],\"std_dataset_ids\":[\"056e569a-66ef-4033-8d15-5c4c3c36c1bb\",\"9eda6111-c840-4862-9759-4a805cd6fc35\"],\"geometry_point_radius\":[0.020833335,0.031752945],\"paging\":{\"offset\":0,\"limit\":10}}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": null,
+      "response": []
+    }
+  ]
+}
