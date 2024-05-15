@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "GeoService API Document",
+    "title": "GeoService API Document.paw",
     "description": "",
     "version": "1.0.0",
     "contact": {
@@ -6635,6 +6635,360 @@
                 "schema": {
                   "type": "string",
                   "example": "1434"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/dataset/query/": {
+      "post": {
+        "summary": "Query datasets",
+        "description": "The service will return *dataset records* satisfying a set of *query parameters*.\n\nThe service *requires* the `op` query parameter that indicates how to *combine the search parameters*: `AND` means that *all* query parameters must be satisfied and `OR` means *at least one* query parameter must match.\n\nThe body contains a set of *optional selection criteria*:\n\n- `_key`: List of matching dataset keys.\n- `_collection`: List of matching collection names where data is stored.\n- `std_project`: List of matching project codes.\n- `std_dataset`: Select dataset code by space-separated acronym or wildcard.\n- `std_dataset_group`: List of matching dataset group codes.\n- `std_date`: Provide date start and end range, included.\n- `std_date_submission`: Provide submission date start and end range, included.\n- `_title`: Provide space-separated list of tokens for searching in English title.\n- `_description`: Provide space-separated list of tokens for searching in English description.\n- `_citation`: Provide space-separated list of tokens for searching in citations.\n- `count`: Provide minimum and maximum record count range.\n- `_subject`: List of matching dataset subject codes.\n- `_classes`: List of matching descriptor class codes; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `_domain`: List of matching descriptor domain codes; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `_tag`: List of matching descriptor tag codes; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `species_list`: Provide space-separated list of species tokens (genus, species, etc.).\n- `std_terms`: List of matching variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `std_terms_quant`: List of matching quantitative variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `std_terms_key`: List of matching key variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `std_terms_summary`: List of matching summary variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data is *not sorted*.",
+        "operationId": "0afc4b34-14a0-43a5-b5cb-38c816002d7c",
+        "parameters": [
+          {
+            "name": "op",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "AND",
+              "description": ""
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "default": "application/json; charset=utf-8",
+              "description": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The service will return *dataset records* satisfying a set of *query parameters*.\n\nThe service *requires* the `op` query parameter that indicates how to *combine the search parameters*: `AND` means that *all* query parameters must be satisfied and `OR` means *at least one* query parameter must match.\n\nThe body contains a set of *optional selection criteria*:\n\n- `_key`: List of matching dataset keys.\n- `_collection`: List of matching collection names where data is stored.\n- `std_project`: List of matching project codes.\n- `std_dataset`: Select dataset code by space-separated acronym or wildcard.\n- `std_dataset_group`: List of matching dataset group codes.\n- `std_date`: Provide date start and end range, included.\n- `std_date_submission`: Provide submission date start and end range, included.\n- `_title`: Provide space-separated list of tokens for searching in English title.\n- `_description`: Provide space-separated list of tokens for searching in English description.\n- `_citation`: Provide space-separated list of tokens for searching in citations.\n- `count`: Provide minimum and maximum record count range.\n- `_subject`: List of matching dataset subject codes.\n- `_classes`: List of matching descriptor class codes; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `_domain`: List of matching descriptor domain codes; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `_tag`: List of matching descriptor tag codes; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `species_list`: Provide space-separated list of species tokens (genus, species, etc.).\n- `std_terms`: List of matching variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `std_terms_quant`: List of matching quantitative variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `std_terms_key`: List of matching key variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `std_terms_summary`: List of matching summary variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data is *not sorted*.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "std_terms_quant": {
+                    "type": "object",
+                    "properties": {
+                      "items": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "env_climate_fapar",
+                          "env_climate_fapan"
+                        ]
+                      },
+                      "doAll": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "_collection": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "DroughtObservatory"
+                    ]
+                  },
+                  "std_dataset_group": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "EDO"
+                    ]
+                  },
+                  "std_terms_key": {
+                    "type": "object",
+                    "properties": {
+                      "items": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "geometry_hash",
+                          "std_date"
+                        ]
+                      },
+                      "doAll": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "_title": {
+                    "type": "string",
+                    "example": "drought radiation index"
+                  },
+                  "std_date": {
+                    "type": "object",
+                    "properties": {
+                      "std_date_start": {
+                        "type": "string",
+                        "example": "1990"
+                      },
+                      "std_date_end": {
+                        "type": "string",
+                        "example": "2023"
+                      }
+                    }
+                  },
+                  "_key": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "056e569a-66ef-4033-8d15-5c4c3c36c1bb"
+                    ]
+                  },
+                  "std_dataset": {
+                    "type": "string",
+                    "example": "EDO_FAPAR"
+                  },
+                  "std_date_submission": {
+                    "type": "object",
+                    "properties": {
+                      "min": {
+                        "type": "string",
+                        "example": "2020"
+                      },
+                      "max": {
+                        "type": "string",
+                        "example": "2023"
+                      }
+                    }
+                  },
+                  "_description": {
+                    "type": "string",
+                    "example": "drought moisture temperature anomaly"
+                  },
+                  "std_project": {
+                    "type": "string",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "EUFGIS"
+                    ]
+                  },
+                  "std_terms": {
+                    "type": "object",
+                    "properties": {
+                      "items": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "env_climate_fapar",
+                          "env_climate_fapan"
+                        ]
+                      },
+                      "doAll": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_key": {
+                        "type": "string",
+                        "example": "056e569a-66ef-4033-8d15-5c4c3c36c1bb"
+                      },
+                      "_collection": {
+                        "type": "string",
+                        "example": "DroughtObservatory"
+                      },
+                      "std_project": {
+                        "type": "string",
+                        "example": "EUFGIS"
+                      },
+                      "std_dataset": {
+                        "type": "string",
+                        "example": "EDO_FAPAR"
+                      },
+                      "std_dataset_group": {
+                        "type": "string",
+                        "example": "EDO"
+                      },
+                      "std_date_submission": {
+                        "type": "string",
+                        "example": "2023"
+                      },
+                      "std_date_start": {
+                        "type": "string",
+                        "example": "2002"
+                      },
+                      "std_date_end": {
+                        "type": "string",
+                        "example": "2022"
+                      },
+                      "_title": {
+                        "type": "object",
+                        "properties": {
+                          "iso_639_3_eng": {
+                            "type": "string",
+                            "example": "Fraction of Absorbed Photosynthetically Active Radiation (FAPAR)"
+                          }
+                        }
+                      },
+                      "_description": {
+                        "type": "object",
+                        "properties": {
+                          "iso_639_3_eng": {
+                            "type": "string",
+                            "example": "fAPAR (fraction of Absorbed Photosynthetically Active Radiation): 10-day time composite, 1 km spatial resolution. Values derive as follows: MERIS from 2002 to 2011, SPOT-VEGETATION from 2012 to 2013, MODIS from 2014 onwards.\n\nAnomaly of fAPAR (fraction of Absorbed Photosynthetically Active Radiation): 10-day time composite, 1 km spatial resolution. Values derive as follows: MERIS from 2002 to 2011, SPOT-VEGETATION from 2012 to 2013, MODIS from 2014 onwards.\n\nThe fAPAR MODIS absorption values are retrieved from the web source https://lpdaac.usgs.gov/dataset_discovery/modis/modis_products_table/mcd15a2, courtesy of the NASA EOSDIS Land Processes Distributed Active Archive Center (LP DAAC), USGS/Earth Resources Observation and Science (EROS) Center, Sioux Falls, South Dakota, United States of America.\n\nResolution: 0.04167 decimal degrees.\n\n**Publication**\nMyneni, R.B., S. Hoffman, Y. Knyazikhin, J. L. Privette, J. Glassy, Y. Tian, Y. Wang, X. Song, Y. Zhang, G.R. Smith, A. Lotsch, M. Friedl, J.T. Morisette, P. Votava, R.R. Nemani, and S.W. Running. 2002. Global Products of vegetation leaf area and fraction absorbed PAR from year one of MODIS data. Remote Sensing of Environment, 83, 214 –231.\nhttps://www.sciencedirect.com/science/article/pii/S0034425702000743?via%3Dihub"
+                          }
+                        }
+                      },
+                      "_url": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "[European Drought Observatory](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000)"
+                        ]
+                      },
+                      "std_terms_key": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "geometry_hash",
+                          "std_date"
+                        ]
+                      },
+                      "std_terms": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "env_climate_fapar",
+                          "env_climate_fapan"
+                        ]
+                      },
+                      "std_terms_quant": {
+                        "type": "string",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "env_climate_fapar",
+                          "env_climate_fapan"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "1921"
                 }
               },
               "X-Arango-Queue-Time-Seconds": {

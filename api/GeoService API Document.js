@@ -1223,3 +1223,54 @@
     console.log('HEADERS:', JSON.stringify(headers));
     console.log('BODY:', body);
 });
+
+// request Query datasets 
+(function(callback) {
+    'use strict';
+        
+    const httpTransport = require('http');
+    const responseEncoding = 'utf8';
+    const httpOptions = {
+        hostname: 'localhost',
+        port: '8529',
+        path: '/_db/GeoService/env/dataset/query?op=AND',
+        method: 'POST',
+        headers: {"Content-Type":"application/json; charset=utf-8"}
+    };
+    httpOptions.headers['User-Agent'] = 'node ' + process.version;
+ 
+    // Paw Store Cookies option is not supported
+
+    const request = httpTransport.request(httpOptions, (res) => {
+        let responseBufs = [];
+        let responseStr = '';
+        
+        res.on('data', (chunk) => {
+            if (Buffer.isBuffer(chunk)) {
+                responseBufs.push(chunk);
+            }
+            else {
+                responseStr = responseStr + chunk;            
+            }
+        }).on('end', () => {
+            responseStr = responseBufs.length > 0 ? 
+                Buffer.concat(responseBufs).toString(responseEncoding) : responseStr;
+            
+            callback(null, res.statusCode, res.headers, responseStr);
+        });
+        
+    })
+    .setTimeout(0)
+    .on('error', (error) => {
+        callback(error);
+    });
+    request.write("{\"_key\":[\"056e569a-66ef-4033-8d15-5c4c3c36c1bb\"],\"_collection\":[\"DroughtObservatory\"],\"std_project\":[\"EUFGIS\"],\"std_dataset\":\"EDO_FAPAR\",\"std_dataset_group\":[\"EDO\"],\"std_date\":{\"std_date_start\":\"1990\",\"std_date_end\":\"2023\"},\"std_date_submission\":{\"min\":\"2020\",\"max\":\"2023\"},\"_title\":\"drought radiation index\",\"_description\":\"drought moisture temperature anomaly\",\"std_terms\":{\"items\":[\"env_climate_fapar\",\"env_climate_fapan\"],\"doAll\":true},\"std_terms_quant\":{\"items\":[\"env_climate_fapar\",\"env_climate_fapan\"],\"doAll\":false},\"std_terms_key\":{\"items\":[\"geometry_hash\",\"std_date\"],\"doAll\":true}}")
+    request.end();
+    
+
+})((error, statusCode, headers, body) => {
+    console.log('ERROR:', error); 
+    console.log('STATUS:', statusCode);
+    console.log('HEADERS:', JSON.stringify(headers));
+    console.log('BODY:', body);
+});

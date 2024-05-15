@@ -18,3 +18,4 @@ context.use('/rs/data', require('./routes/remoteSensingData'), 'Remote Sensing D
 // context.use('/occur', require('./routes/speciesOccurrences'), 'Species occurrences')
 context.use('/do/data', require('./routes/droughtObservatoryData'), 'Drought Observatory Data')
 context.use('/do/meta', require('./routes/droughtObservatoryMeta'), 'Drought Observatory Metadata')
+context.use('/dataset', require('./routes/datasets'), 'Datasets')

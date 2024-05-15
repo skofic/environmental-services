@@ -2383,3 +2383,138 @@ extension URL {
 }
 
 
+class MyRequestController {
+    func sendRequest() {
+        /* Configure session, choose between:
+           * defaultSessionConfiguration
+           * ephemeralSessionConfiguration
+           * backgroundSessionConfigurationWithIdentifier:
+         And set session-wide properties, such as: HTTPAdditionalHeaders,
+         HTTPCookieAcceptPolicy, requestCachePolicy or timeoutIntervalForRequest.
+         */
+        let sessionConfig = URLSessionConfiguration.default
+
+        /* Create session, and optionally set a URLSessionDelegate. */
+        let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
+
+        /* Create the Request:
+           Query datasets (POST http://localhost:8529/_db/GeoService/env/dataset/query)
+         */
+
+        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/dataset/query") else {return}
+        let URLParams = [
+            "op": "AND",
+        ]
+        URL = URL.appendingQueryParameters(URLParams)
+        var request = URLRequest(url: URL)
+        request.httpMethod = "POST"
+
+        // Headers
+
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+
+        // JSON Body
+
+        let bodyObject: [String : Any] = [
+            "std_terms_quant": [
+                "items": [
+                    "env_climate_fapar",
+                    "env_climate_fapan"
+                ],
+                "doAll": false
+            ],
+            "_collection": [
+                "DroughtObservatory"
+            ],
+            "std_dataset_group": [
+                "EDO"
+            ],
+            "std_terms_key": [
+                "items": [
+                    "geometry_hash",
+                    "std_date"
+                ],
+                "doAll": true
+            ],
+            "_title": "drought radiation index",
+            "std_date": [
+                "std_date_start": "1990",
+                "std_date_end": "2023"
+            ],
+            "_key": [
+                "056e569a-66ef-4033-8d15-5c4c3c36c1bb"
+            ],
+            "std_dataset": "EDO_FAPAR",
+            "std_date_submission": [
+                "min": "2020",
+                "max": "2023"
+            ],
+            "_description": "drought moisture temperature anomaly",
+            "std_project": [
+                "EUFGIS"
+            ],
+            "std_terms": [
+                "items": [
+                    "env_climate_fapar",
+                    "env_climate_fapan"
+                ],
+                "doAll": true
+            ]
+        ]
+        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+
+        /* Start a new Task */
+        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+            if (error == nil) {
+                // Success
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                print("URL Session Task Succeeded: HTTP \(statusCode)")
+            }
+            else {
+                // Failure
+                print("URL Session Task Failed: %@", error!.localizedDescription);
+            }
+        })
+        task.resume()
+        session.finishTasksAndInvalidate()
+    }
+}
+
+
+protocol URLQueryParameterStringConvertible {
+    var queryParameters: String {get}
+}
+
+extension Dictionary : URLQueryParameterStringConvertible {
+    /**
+     This computed property returns a query parameters string from the given NSDictionary. For
+     example, if the input is @{@"day":@"Tuesday", @"month":@"January"}, the output
+     string will be @"day=Tuesday&month=January".
+     @return The computed parameters string.
+    */
+    var queryParameters: String {
+        var parts: [String] = []
+        for (key, value) in self {
+            let part = String(format: "%@=%@",
+                String(describing: key).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!,
+                String(describing: value).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)
+            parts.append(part as String)
+        }
+        return parts.joined(separator: "&")
+    }
+    
+}
+
+extension URL {
+    /**
+     Creates a new URL by adding the given query parameters.
+     @param parametersDictionary The query parameter dictionary to add.
+     @return A new URL.
+    */
+    func appendingQueryParameters(_ parametersDictionary : Dictionary<String, String>) -> URL {
+        let URLString : String = String(format: "%@?%@", self.absoluteString, parametersDictionary.queryParameters)
+        return URL(string: URLString)!
+    }
+}
+
+

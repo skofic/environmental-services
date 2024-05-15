@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "GeoService API Document",
+    "name": "GeoService API Document.paw",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1076,6 +1076,57 @@
               "mode": "raw",
               "disabled": false,
               "raw": "{\"std_date_start\":\"2004\",\"std_date_end\":\"2005\",\"std_terms\":[\"env_climate_fapar\",\"env_climate_fapan\",\"env_climate_sma\",\"env_climate_smi\"],\"std_dataset_ids\":[\"056e569a-66ef-4033-8d15-5c4c3c36c1bb\",\"9eda6111-c840-4862-9759-4a805cd6fc35\"],\"geometry_point_radius\":[0.020833335,0.031752945],\"paging\":{\"offset\":0,\"limit\":10}}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": null,
+      "response": []
+    },
+    {
+      "name": "DATASETS",
+      "item": [
+        {
+          "name": "Query datasets",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/dataset/query?op=AND",
+              "query": [
+                {
+                  "key": "op",
+                  "value": "AND",
+                  "disabled": false,
+                  "description": "Query filters chaining operator (AND/OR)"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/dataset/query"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return *dataset records* satisfying a set of *query parameters*.\n\nThe service *requires* the `op` query parameter that indicates how to *combine the search parameters*: `AND` means that *all* query parameters must be satisfied and `OR` means *at least one* query parameter must match.\n\nThe body contains a set of *optional selection criteria*:\n\n- `_key`: List of matching dataset keys.\n- `_collection`: List of matching collection names where data is stored.\n- `std_project`: List of matching project codes.\n- `std_dataset`: Select dataset code by space-separated acronym or wildcard.\n- `std_dataset_group`: List of matching dataset group codes.\n- `std_date`: Provide date start and end range, included.\n- `std_date_submission`: Provide submission date start and end range, included.\n- `_title`: Provide space-separated list of tokens for searching in English title.\n- `_description`: Provide space-separated list of tokens for searching in English description.\n- `_citation`: Provide space-separated list of tokens for searching in citations.\n- `count`: Provide minimum and maximum record count range.\n- `_subject`: List of matching dataset subject codes.\n- `_classes`: List of matching descriptor class codes; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `_domain`: List of matching descriptor domain codes; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `_tag`: List of matching descriptor tag codes; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `species_list`: Provide space-separated list of species tokens (genus, species, etc.).\n- `std_terms`: List of matching variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `std_terms_quant`: List of matching quantitative variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `std_terms_key`: List of matching key variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n- `std_terms_summary`: List of matching summary variables; set `doAll` to `false` for matching at least one element, set it to `true` for matching all elements.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data is *not sorted*.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"_key\":[\"056e569a-66ef-4033-8d15-5c4c3c36c1bb\"],\"_collection\":[\"DroughtObservatory\"],\"std_project\":[\"EUFGIS\"],\"std_dataset\":\"EDO_FAPAR\",\"std_dataset_group\":[\"EDO\"],\"std_date\":{\"std_date_start\":\"1990\",\"std_date_end\":\"2023\"},\"std_date_submission\":{\"min\":\"2020\",\"max\":\"2023\"},\"_title\":\"drought radiation index\",\"_description\":\"drought moisture temperature anomaly\",\"std_terms\":{\"items\":[\"env_climate_fapar\",\"env_climate_fapan\"],\"doAll\":true},\"std_terms_quant\":{\"items\":[\"env_climate_fapar\",\"env_climate_fapan\"],\"doAll\":false},\"std_terms_key\":{\"items\":[\"geometry_hash\",\"std_date\"],\"doAll\":true}}"
             },
             "auth": null
           },
