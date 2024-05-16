@@ -87,7 +87,8 @@ for (const [key, collection] of Object.entries(documentCollections)) {
 				coll.ensureIndex({
 					name: 'idx_hash_date',
 					type: 'persistent',
-					fields: ['geometry_hash', 'std_date']
+					fields: ['geometry_hash', 'std_date'],
+					unique: true
 				})
 				break
 

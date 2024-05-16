@@ -20,7 +20,9 @@ Shared Socioeconomic Pathways (SSPs) are climate change scenarios of projected s
 
 #### Data
 
-The collection contains over 36 million data records, one for each grid cell, and is structured as follows:
+The collection contains over 36 million data records, one for each grid cell. This data source is usually interrogated providing a point and selecting the grid cell that contains it. There are also services that provide a selection of grid cells within a specific distance range, contained by or intersecting a provided geometric shape, the results can also be aggregated.
+
+The records are structured as follows:
 
 ```json
 {
@@ -114,7 +116,9 @@ Shared Socioeconomic Pathways (SSPs) are climate change scenarios of projected s
 
 #### Data
 
-The collection contains over 21 million data records, one for each grid cell, and is structured as follows:
+The collection contains over 21 million data records, one for each grid cell. This data source is usually interrogated providing a point and selecting the grid cell that contains it. There are also services that provide a selection of grid cells within a specific distance range, contained by or intersecting a provided geometric shape, the results can also be aggregated.
+
+The data is structured as follows:
 
 ```json
 {
@@ -206,7 +210,7 @@ The `properties` field contains all the data, it is subdivided into the four tim
 - `2061-2080`: Modelled data for the period ranging from 2061 to 2080. The structure of the data is the same as the previously described section.
 - `2081-2100`: Modelled data for the period ranging from 2081 to 2100. The structure of the data is the same as the previously described section.
 
-All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git)
+All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
 
 #### Indexes
 
@@ -218,7 +222,7 @@ Each dynamic conservation unit can be divided or partitioned into one or more ge
 
 #### Data
 
-Each record represents a shape that can either be a polygon or a multi-polygon:
+Each record represents a shape that can either be a polygon or a multi-polygon. This collection serves the purpose of selecting the remote sensing geographic area of interest and features records with this structure:
 
 ```json
 {
@@ -255,7 +259,7 @@ The `geometry` contains the shape area in GeoJSON format. It may either be a `Po
 
 The `geometry_bounds` contains the GeoJSON shape bounding box.
 
-All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git)
+All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
 
 #### View
 
@@ -395,11 +399,58 @@ All properties are documented in the [data dictionary](https://github.com/skofic
 
 #### Indexes
 
+All fields feature an individual index: `geometry_hash`, `gcu_id_number` and `gcu_id_unit-id`.
 
+### DroughtObservatory
 
+This collection contains data from the [European Drought Observatory](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) repository. It is a collection of measurements subdivided into a set of 1km., 5km. and 25 km. resolution grids covering the extended European region. Each record references a *specific layer cell* and *date*, all dates are daily.
 
+#### Data
 
+The records have the following structure:
 
+```json
+{
+    "geometry_hash": "7e142bf917dbf13cd8c106142cabc9f9",
+    "geometry_point_radius": 0.125,
+    "geometry_point": {
+      "type": "Point",
+      "coordinates": [ /* data */ ]
+    },
+    "geometry_bounds": {
+      "type": "Polygon",
+      "coordinates": [ /* data */ ]
+    },
+    "std_date": "19991224",
+    "properties": {
+      "env_climate_hcwi_min": -20.879,
+      "env_climate_hcwi_max": -18.879
+    },
+    "std_terms": [
+      "env_climate_hcwi_max",
+      "env_climate_hcwi_min"
+    ],
+    "std_dataset_ids": [
+      "6b12011e-ef30-47d4-b4a3-3c8bdc4b4464"
+    ]
+  }
+```
+
+The `geometry_hash` points to the `Shapes` record, it is the MD5 hash of the shape `geometry` property.
+
+The `std_date_span` field represents the time period associated with the measurement: `std_date_span_day` for daily data, `std_date_span_month` for monthly averages and `std_date_span_year` for yearly averages.
+
+The `std_date` field represents the measurement date in `YYYYMMDD` format, `Y` for year, `M` for month and `D` for day. Daily data requires the full date, monthly data can omit the month and yearly data can omit month and day.
+
+The `properties` field contains the remote sensing data, above is an example. All remote sensing data is aggregated and grouped by *shape*, *span* and *date*.
+
+The `std_terms` field contains the list of featured data properties.
+
+The `std_dataset_ids` field contains the list of referenced datasets, the values are links to `Dataset` collection records.
+
+All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
+
+#### 
 
 
 
