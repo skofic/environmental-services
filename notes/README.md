@@ -405,7 +405,7 @@ All fields feature an individual index: `geometry_hash`, `gcu_id_number` and `gc
 
 ### DroughtObservatory
 
-This collection contains over 1.2 billion records from the [European Drought Observatory](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) repository. It is a collection of measurements subdivided into a set of 1km., 5km. and 25 km. resolution grids covering the extended European region. Each record references a *specific layer cell* and *date*, all dates are daily.
+This collection contains over 1.2 billion records from the [European Drought Observatory](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) repository. It is a collection of measurements subdivided into a set of 1km., 5km. and 25 km. resolution grids covering the European region. Each record references a *specific layer cell* and *date*, all dates are daily.
 
 #### Data
 
@@ -641,6 +641,379 @@ You may have noticed that there are a more fields in the view than those shown i
 
 ## Installation
 
-1. You must first install ArangoDB or plan to use an existing installation.
+1. You must first [install](https://docs.arangodb.com/stable/operations/installation/) [ArangoDB](https://arangodb.com) or plan to use an existing deployment.
 2. You must create a new database that will be used to host the data and services.
-3. Install 
+3. Install the [Foxx micro services](https://docs.arangodb.com/stable/develop/foxx-microservices/), here are the instructions using the web interface:
+    ![](/Users/milko/Local/Accounts/ArangoDB/Apps/_db/GeoService/env/APP/images/1-AddService.png)
+    Create a new service by clicking the Add Service button,
+    ![](/Users/milko/Local/Accounts/ArangoDB/Apps/_db/GeoService/env/APP/images/2-SelectService.png)
+    Select the GitHub option and and fill as in the above image, press install,
+    ![](/Users/milko/Local/Accounts/ArangoDB/Apps/_db/GeoService/env/APP/images/3-MountPoint.png)
+    Set the mount point as you wish, remember to keep the Run setup? checkbox selected: this will create the collections, indexes and views.
+
+## Services
+
+Once the services are installed you will have an empty configured database and microservices to query the data. To fill the data refer to this [repository](https://github.com/skofic/ClimateService.git).
+
+The directory containing the services has the following elements:
+
+- **`api`**: This directory contains a set of microservices definition documents, of which `GeoService API Document.paw`, a [RapidAPI](https://rapidapi.com) document, is the original. The directory contains also a [Postman](https://www.postman.com) version. The files contain example service calls.
+- **`images`**: Images used in this README.md file.
+- **`notes`**: Miscellaneous notes and files.
+
+*All other files and directories* represent the source files, please refer to the [Foxx microservices documentation](https://docs.arangodb.com/stable/develop/foxx-microservices/) for more information.
+
+The microservices are divided into the following sections:
+
+### Chelsa
+
+This section contains the services used to query and aggregate [Chelsa](https://chelsa-climate.org) data. Each record represents a 30 seconds arc grid cell containing historic and future modelled data covering yearly and monthly statistics.
+
+Records are structured as follows:
+
+- **`geometry_hash`**: This is the MD5 hash of the geometry_bounds property, it represents the primary key of the record.
+- **`geometry_point`**: This is the GeoJSON point corresponding to the center of the measurement area.
+- **`geometry_bounds`**: This is the GeoJSON polygon corresponding to the measurement area.
+- **`properties`**: This contains the data properties, this is the list of indicators:
+    - ***`env_climate_ai`***: Aridity index.
+    - ***`env_climate_bio01`***: Mean annual air temperature.
+    - ***`env_climate_bio02`***: Mean diurnal air temperature range.
+    - ***`env_climate_bio03`***: Isothermality.
+    - ***`env_climate_bio04`***: Temperature seasonality.
+    - ***`env_climate_bio05`***: Mean daily maximum air temperture of the warmest month.
+    - ***`env_climate_bio06`***: Mean daily minimum air temperature of the coldest month.
+    - ***`env_climate_bio07`***: Annual range of air temperature.
+    - ***`env_climate_bio08`***: Mean daily mean air tempertures of the wettest quarter.
+    - ***`env_climate_bio09`***: Mean daily mean air tempertures of the driest quarter.
+    - ***`env_climate_bio10`***: Mean daily mean air tempertures of the warmest quarter.
+    - ***`env_climate_bio11`***: Mean daily mean air tempertures of the coldest quarter.
+    - ***`env_climate_bio12`***: Annual precipitation amount.
+    - ***`env_climate_bio13`***: Precipitation amount of the wettest month.
+    - ***`env_climate_bio14`***: Precipitation amount of the driest month.
+    - ***`env_climate_bio15`***: Precipitation seasonality.
+    - ***`env_climate_bio16`***: Mean monthly precipitation amount of the wettest quarter.
+    - ***`env_climate_bio17`***: Mean monthly precipitation amount of the driest quarter.
+    - ***`env_climate_bio18`***: Mean monthly precipitation amount of the warmest quarter.
+    - ***`env_climate_bio19`***: Mean monthly precipitation amount of the coldest quarter.
+    - ***`env_climate_clt_max`***: Maximum monthly total cloud cover.
+    - ***`env_climate_clt_mean`***: Mean monthly total cloud cover.
+    - ***`env_climate_clt_min`***: Minimum monthly total cloud cover.
+    - ***`env_climate_clt_range`***: Annual range of monthly total cloud cover.
+    - ***`env_climate_cmi_max`***: Maximum monthly climate moisture index.
+    - ***`env_climate_cmi_mean`***: Mean monthly climate moisture index.
+    - ***`env_climate_cmi_min`***: Minimum monthly climate moisture index.
+    - ***`env_climate_cmi_range`***: Annual range of monthly climate moisture index.
+    - ***`env_climate_fcf`***: Frost change frequency.
+    - ***`env_climate_fgd`***: First day of the growing season.
+    - ***`env_climate_gdd0`***: Growing degree days heat sum above 0°C.
+    - ***`env_climate_gdd10`***: Growing degree days heat sum above 10°C.
+    - ***`env_climate_gdd5`***: Growing degree days heat sum above 5°C.
+    - ***`env_climate_gddlgd0`***: Last growing degree day above 0°C.
+    - ***`env_climate_gddlgd10`***: Last growing degree day above 10°C.
+    - ***`env_climate_gddlgd5`***: Last growing degree day above 5°C.
+    - ***`env_climate_gdgfgd0`***: First growing degree day above 0°C.
+    - ***`env_climate_gdgfgd10`***: First growing degree day above 10°C.
+    - ***`env_climate_gdgfgd5`***: First growing degree day above 5°C.
+    - ***`env_climate_gsl`***: Growing season length.
+    - ***`env_climate_gsp`***: Accumulated precipiation amount on growing season days.
+    - ***`env_climate_gst`***: Mean temperature of the growing season.
+    - ***`env_climate_hurs_max`***: Maximum monthly near-surface relative humidity.
+    - ***`env_climate_hurs_mean`***: Mean monthly near-surface relative humidity.
+    - ***`env_climate_hurs_min`***: Minimum monthly near-surface relative humidity.
+    - ***`env_climate_hurs_range`***: Annual range of monthly near-surface relative humidity.
+    - ***`env_climate_kg0`***: Köppen-Geiger climate classification (kg0).
+    - ***`env_climate_kg1`***: Köppen-Geiger climate classification (kg1).
+    - ***`env_climate_kg2`***: Köppen-Geiger climate classification (kg2).
+    - ***`env_climate_kg3`***: Köppen-Geiger climate classification (kg3).
+    - ***`env_climate_kg4`***: Köppen-Geiger climate classification (kg4).
+    - ***`env_climate_kg5`***: Köppen-Geiger climate classification (kg5).
+    - ***`env_climate_lgd`***: Last day of the growing season.
+    - ***`env_climate_ngd0`***: Number of growing degree days above 0°C.
+    - ***`env_climate_ngd10`***: Number of growing degree days above 10°C.
+    - ***`env_climate_ngd5`***: Number of growing degree days above 5°C.
+    - ***`env_climate_npp`***: Net primary productivity.
+    - ***`env_climate_pet_penman_max`***: Maximum monthly potential evapotranspiration.
+    - ***`env_climate_pet_penman_mean`***: Mean monthly potential evapotranspiration.
+    - ***`env_climate_pet_penman_min`***: Minimum monthly potential evapotranspiration.
+    - ***`env_climate_pet_penman_range`***: Annual range of monthly potential evapotranspiration.
+    - ***`env_climate_rsds_max`***: Maximum monthly surface downwelling shortwave flux in air.
+    - ***`env_climate_rsds_mean`***: Mean monthly surface downwelling shortwave flux in air.
+    - ***`env_climate_rsds_min`***: Minimum monthly surface downwelling shortwave flux in air.
+    - ***`env_climate_rsds_range`***: Annual range of monthly surface downwelling shortwave flux in air.
+    - ***`env_climate_sfcWind_max`***: Maximum monthly near-surface wind speed.
+    - ***`env_climate_sfcWind_mean`***: Mean monthly near-surface wind speed.
+    - ***`env_climate_sfcWind_min`***: Minimum monthly near-surface wind speed.
+    - ***`env_climate_sfcWind_range`***: Annual range of monthly near-surface wind speed.
+    - ***`env_climate_swb`***: Soil water balance.
+    - ***`env_climate_swe`***: Snow water equivalent.
+    - ***`env_climate_vpd_max`***: Maximum monthly vapor pressure deficit.
+    - ***`env_climate_vpd_mean`***: Mean monthly vapor pressure deficit.
+    - ***`env_climate_vpd_min`***: Minimum monthly vapor pressure deficit.
+    - ***`env_climate_vpd_range`***: Annual range of monthly vapor pressure deficit.
+
+This `properties` field is divided into four sections:
+
+- `1981-2010`: Data averages for the period starting in 1981 and ending in 2010. Monthly data is available under the `std_date_span_month` property.
+- `2011-2040`: Future modelled averages for the period starting in 2011 and ending in 2040. This property contains two additional child sections that indicate respectively the climate scenario model and the shared socioeconomic pathway used to calculate the values, the indicators are found under the latter level. See the database Chelsa data section in this document for more information.
+- `2041-2070`: Future modelled averages for the period starting in 2041 and ending in 2070, the structure is the same as the previous section.
+- `2071-2100`: Future modelled averages for the period starting in 2071 and ending in 2100, the structure is the same as the previous section.
+
+#### Get data corresponding to the provided coordinates
+
+This service can be used to get the Chelsa record corresponding to the provided coordinates, the service expects the latitude, `lat`, and longitude, `lon`, in decimal degrees, provided as *query parameters*. The service will return the record whose measurement bounding box, `geometry_bounds`, contains that point.
+
+#### Get selection or aggregation of records within a distance range
+
+The service will select all Chelsa records that lie within a *distance range* from the provided *reference geometry* query parameter, `geometry`. The distance is calculated from the *wgs84 centroids* of both the *reference geometry* and the Chelsa measurement area center, `geometry_point`.
+
+The service expects the following *query path parameters*:
+
+- `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
+    - *List of records*:
+        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
+        -  `SHAPE`: Returns the geometry information of the selected records:
+            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
+            - `distance`: The distance in meters between the centroid of the provided reference geometry and the record's `geometry_point`.
+            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
+            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
+        - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
+    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection; `distance`, the aggregated distance according to the `what` parameter and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
+        - `MIN`: *Minimum*. 
+        - `AVG`: Average.
+        - `MAX`: *Maximum*.
+        - `STD`: *Standard deviation*.
+        - `VAR` *Variance*.
+- `min`: This *required* parameter represents the range's *minimum distance*. The value is inclusive.
+- `max`: This *required* parameter represents the range's *maximum distance*. The value is inclusive.
+- `sort`: This *optional* parameter determines whether results should be *sorted* and in what *order*. The parameter is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. The sort order is determined by the *distance*.
+
+And the following *body parameters*:
+
+- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* whose *centroid* will be used to select all Chelsa records *within* the provided *distance range*. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
+- `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+- `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+
+#### Get selection or aggregation of records contained by the provided geometry
+
+The service will select all Chelsa records whose measurement area centers, `geometry_point`, are *fully contained* by the provided *reference geometry* query parameter, `geometry`.
+
+The service expects the following *query path parameters*:
+
+- `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
+    - *List of records*:
+        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
+        -  `SHAPE`: Returns the geometry information of the selected records:
+            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
+            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
+            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
+        - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
+    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
+        - `MIN`: *Minimum*. 
+        - `AVG`: Average.
+        - `MAX`: *Maximum*.
+        - `STD`: *Standard deviation*.
+        - `VAR` *Variance*.
+
+And the following *body parameters*:
+
+- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* that should contain the Chelsa record `geometry_point` coordinates. It may be a *Polygon* or *MultiPolygon*.
+- `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+- `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+
+#### Get selection or aggregation of records intersecting with the provided geometry
+
+The service will select all Chelsa records whose measurement area, `geometry_bounds`, *intersect* with the provided *reference geometry* query parameter, `geometry`.
+
+The service expects the following *query path parameters*:
+
+- `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
+    - *List of records*:
+        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
+        -  `SHAPE`: Returns the geometry information of the selected records:
+            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
+            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
+            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
+        - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
+    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
+        - `MIN`: *Minimum*. 
+        - `AVG`: Average.
+        - `MAX`: *Maximum*.
+        - `STD`: *Standard deviation*.
+        - `VAR` *Variance*.
+
+And the following *body parameters*:
+
+- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* that should contain the Chelsa record `geometry_point` coordinates. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
+- `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+- `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+
+### WorldClim
+
+This section contains the services used to query and aggregate [WorldClim](https://worldclim.org) data. Each record represents a 30 seconds arc grid cell containing historic and future modelled data covering yearly and monthly statistics.
+
+Records are structured as follows:
+
+- **`geometry_hash`**: This is the MD5 hash of the geometry_bounds property, it represents the primary key of the record.
+- **`geometry_point`**: This is the GeoJSON point corresponding to the center of the measurement area.
+- **`geometry_bounds`**: This is the GeoJSON polygon corresponding to the measurement area.
+- **`properties`**: This contains the data properties, this is the list of indicators:
+    - ***`geo_shape_elevation`***: Mean elevation for the measurement area.
+    - ***`env_climate_bio01`***: Mean annual air temperature.
+    - ***`env_climate_bio02`***: Mean diurnal air temperature range.
+    - ***`env_climate_bio03`***: Isothermality.
+    - ***`env_climate_bio04`***: Temperature seasonality.
+    - ***`env_climate_bio05`***: Mean daily maximum air temperture of the warmest month.
+    - ***`env_climate_bio06`***: Mean daily minimum air temperature of the coldest month.
+    - ***`env_climate_bio07`***: Annual range of air temperature.
+    - ***`env_climate_bio08`***: Mean daily mean air tempertures of the wettest quarter.
+    - ***`env_climate_bio09`***: Mean daily mean air tempertures of the driest quarter.
+    - ***`env_climate_bio10`***: Mean daily mean air tempertures of the warmest quarter.
+    - ***`env_climate_bio11`***: Mean daily mean air tempertures of the coldest quarter.
+    - ***`env_climate_bio12`***: Annual precipitation amount.
+    - ***`env_climate_bio13`***: Precipitation amount of the wettest month.
+    - ***`env_climate_bio14`***: Precipitation amount of the driest month.
+    - ***`env_climate_bio15`***: Precipitation seasonality.
+    - ***`env_climate_bio16`***: Mean monthly precipitation amount of the wettest quarter.
+    - ***`env_climate_bio17`***: Mean monthly precipitation amount of the driest quarter.
+    - ***`env_climate_bio18`***: Mean monthly precipitation amount of the warmest quarter.
+    - ***`env_climate_bio19`***: Mean monthly precipitation amount of the coldest quarter.
+    - ***`env_climate_pr`***: Monthly precipitation amount.
+    - ***`env_climate_srad`***: Solar radiation.
+    - ***`env_climate_tas`***: Mean daily air temperature.
+    - ***`env_climate_tasmax`***: Mean daily maximum air temperature.
+    - ***`env_climate_tasmin`***: Mean daily minimum air temperature.
+    - ***`env_climate_vapr`***: Water vapor pressure.
+    - ***`env_climate_wind`***: Wind speed.
+
+This `properties` field is divided into five sections:
+
+- `1970-2000`: Data averages for the period starting in 1970 and ending in 2000. Monthly data is available under the `std_date_span_month` property.
+- `2021-2040`: Future modelled averages for the period starting in 2021 and ending in 2040. This property contains two additional child sections that indicate respectively the climate scenario model and the shared socioeconomic pathway used to calculate the values, the indicators are found under the latter level. See the database WorldClim data section in this document for more information.
+- `2041-2060`: Future modelled averages for the period starting in 2041 and ending in 2060, the structure is the same as the previous section.
+- `2061-2080`: Future modelled averages for the period starting in 2061 and ending in 2080, the structure is the same as the previous section.
+- `2081-2100`: Future modelled averages for the period starting in 2081 and ending in 2100, the structure is the same as the previous section.
+
+#### Get data corresponding to the provided coordinates
+
+This service can be used to get the WorldClim record corresponding to the provided coordinates, the service expects the latitude, `lat`, and longitude, `lon`, in decimal degrees, provided as *query parameters*. The service will return the record whose measurement bounding box, `geometry_bounds`, contains that point.
+
+#### Get selection or aggregation of records within a distance range
+
+The service will select all WorldClim records that lie within a *distance range* from the provided *reference geometry* query parameter, `geometry`. The distance is calculated from the *wgs84 centroids* of both the *reference geometry* and the WorldClim measurement area center, `geometry_point`.
+
+The service expects the following *query path parameters*:
+
+- `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
+    - *List of records*:
+        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
+        -  `SHAPE`: Returns the geometry information of the selected records:
+            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
+            - `distance`: The distance in meters between the centroid of the provided reference geometry and the record's `geometry_point`.
+            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
+            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
+        - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
+    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection; `distance`, the aggregated distance according to the `what` parameter and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
+        - `MIN`: *Minimum*. 
+        - `AVG`: Average.
+        - `MAX`: *Maximum*.
+        - `STD`: *Standard deviation*.
+        - `VAR` *Variance*.
+- `min`: This *required* parameter represents the range's *minimum distance*. The value is inclusive.
+- `max`: This *required* parameter represents the range's *maximum distance*. The value is inclusive.
+- `sort`: This *optional* parameter determines whether results should be *sorted* and in what *order*. The parameter is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. The sort order is determined by the *distance*.
+
+And the following *body parameters*:
+
+- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* whose *centroid* will be used to select all WorldClim records *within* the provided *distance range*. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
+- `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+- `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+
+#### Get selection or aggregation of records contained by the provided geometry
+
+The service will select all WorldClim records whose measurement area centers, `geometry_point`, are *fully contained* by the provided *reference geometry* query parameter, `geometry`.
+
+The service expects the following *query path parameters*:
+
+- `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
+    - *List of records*:
+        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
+        -  `SHAPE`: Returns the geometry information of the selected records:
+            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
+            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
+            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
+        - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
+    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
+        - `MIN`: *Minimum*. 
+        - `AVG`: Average.
+        - `MAX`: *Maximum*.
+        - `STD`: *Standard deviation*.
+        - `VAR` *Variance*.
+
+And the following *body parameters*:
+
+- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* that should contain the Chelsa record `geometry_point` coordinates. It may be a *Polygon* or *MultiPolygon*.
+- `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+- `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+
+#### Get selection or aggregation of records intersecting with the provided geometry
+
+The service will select all WorldClim records whose measurement area, `geometry_bounds`, *intersect* with the provided *reference geometry* query parameter, `geometry`.
+
+The service expects the following *query path parameters*:
+
+- `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
+    - *List of records*:
+        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
+        -  `SHAPE`: Returns the geometry information of the selected records:
+            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
+            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
+            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
+        - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
+    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
+        - `MIN`: *Minimum*. 
+        - `AVG`: Average.
+        - `MAX`: *Maximum*.
+        - `STD`: *Standard deviation*.
+        - `VAR` *Variance*.
+
+And the following *body parameters*:
+
+- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* that should contain the WorldClim record `geometry_point` coordinates. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
+- `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+- `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
+
+### Shape Hashes
+
+This set of services should be used to safely generate MD5 hashes of GeoJSON shapes. These shapes can be grid cells or regions, the hash is used as a primary key to uniquely identify the shape with a 32 character string.
+
+Since the MD5 hash is applied to a string representing the GeoJSON shape, it is important that the conversion from JSON to string is consistent, or the hash cannot be safely used. Whenever you see the `geometry_hash` property in a record, this has been generated by one of these services.
+
+All services return a record structured as follows:
+
+- `geometry`: The provided shape as a GeoJSON geometry.
+- `geometry_hash`: A 32 character hexadecimal string representing the MD5 hash of the provided shape in GeoJSON format.
+
+Shapes that have *data attached* are expected to be only *Points*, *Polygons* or *MultiPolygons*.
+
+#### Get Point hash
+
+This service expects two query path parameters: `lat` for the latitude and `lon` for the longitude. The service will return the hash for the GeoJSON point of the provided coordinates.
+
+#### Polygon hash
+
+This service expects a single body parameter, `coordinates`, that represents the GeoJSON coordinates part of a polygon. When creating the coordinates follow these rules:
+
+- The polygon shape should be provided *at least* as *one array* representing a *linear ring*.
+- *Each linear ring* should consist of an *array* with at least *four longitude/latitude pairs*.
+- The *first* linear ring *must be the outermost*, while any *subsequent* linear ring will be *interpreted as holes*.
+- The *order* of the *sequence of coordinates* is important: *counter-clock* means the polygon area is *inside*, *clockwise* means the area of the polygon is *outside*.
+
+#### MultiPolygon hash
+
+This service expects a single body parameter, `coordinates`, that represents the GeoJSON coordinates part of a multi-polygon. When creating the coordinates follow these rules:
+
+- The MultiPolygon shape should be provided as an *array* of *Polygon shapes*.
+- The *polygon shape* should be provided *at least* as *one array* representing a *linear ring*.
+- Each *linear ring* should consist of an *array* with at least *four longitude/latitude pairs*.
+- The *first* linear ring *must be the outermost*, while any *subsequent* linear ring will be *interpreted as holes*.
+- The *order* of the *sequence of coordinates* is important: *counter-clock* means the polygon area is *inside*, *clockwise* means the area of the polygon is *outside*.
