@@ -669,7 +669,7 @@ The microservices are divided into the following sections:
 
 This section contains the services used to query and aggregate [Chelsa](https://chelsa-climate.org) data. Each record represents a 30 seconds arc grid cell containing historic and future modelled data covering yearly and monthly statistics.
 
-Records are structured as follows:
+Records are stored in the `Chelsa` collection and structured as follows:
 
 - **`geometry_hash`**: This is the MD5 hash of the geometry_bounds property, it represents the primary key of the record.
 - **`geometry_point`**: This is the GeoJSON point corresponding to the center of the measurement area.
@@ -851,7 +851,7 @@ And the following *body parameters*:
 
 This section contains the services used to query and aggregate [WorldClim](https://worldclim.org) data. Each record represents a 30 seconds arc grid cell containing historic and future modelled data covering yearly and monthly statistics.
 
-Records are structured as follows:
+Records are stored in the `WorldClim` collection and structured as follows:
 
 - **`geometry_hash`**: This is the MD5 hash of the geometry_bounds property, it represents the primary key of the record.
 - **`geometry_point`**: This is the GeoJSON point corresponding to the center of the measurement area.
@@ -1022,6 +1022,8 @@ This service expects a single body parameter, `coordinates`, that represents the
 
 This set of services can be used to retrieve *conservation unit records* using the *unit number*, `gcu_id_number`, and the *unit ID*, `gcu_id_unit-id`. It also allows retrieving the associated *unit geometries*.
 
+These services cover the contents of the `UnitShapes` collection.
+
 #### Get unit IDs from unit number
 
 This service returns the unit IDs associated with the provided unit number. This service can be used to retrieve all the unit IDs associated with a specific unit number.
@@ -1068,6 +1070,8 @@ A geometry record is structured as follows:
 - ***`geometry`***: The GeoJSON geometry, either a *Polygon* or *MultiPolygon*.
 - ***`geometry_bounds`***: The GeoJSON polygon enclosing the geometry.
 
+These geometry records are stored in the `Shapes` collection.
+
 #### Get unit geometry by reference
 
 This service returns the unit geometry record associated with the provided geometry reference. This service can be used to retrieve the record associated to a geometry hash.
@@ -1078,7 +1082,7 @@ The service expects the *geometry hash* to be provided as a *path query paramete
 
 This service will return the *unit geometry records* that intersect the provided coordinates.
 
-The service expects the latitude, `lat`, and the longitude, `lon`, to be provided as *path query parameters*. The service will return all records that intersect the point.
+The service expects the latitude, `lat`, and the longitude, `lon`, to be provided as *path query parameters*. The service will return all records that intersect the point, the result will include a property, `geometry_point`, containing the GeoJSON point geometry of the provided coordinates.
 
 #### Search unit geometry records
 
@@ -1112,3 +1116,291 @@ The query parameters are provided in the body and are structured as follows:
 - ***`paging`***: Results paging:
     - ***`offset`***: Page records offset.
     - ***`limit`***: Maximum number of records to return.
+
+The returned records will include a `distance` property, in meters, if the selection criteria included distance.
+
+### Remote Sensing Metadata
+
+Remote sensing data is associated to conservation unit geometries, the data is averaged for each geometry characterising the regions that make up a conservation unit. The purpose of these services is to provide aggregated information before performing queries on the actual data.
+
+The reason these services are important is that there is a very large amount of data associated with each geometry, it is therefore a good practice to retrieve a window of data selected using a user interface that limits which descriptors are returned and for which data time frame.
+
+All data is stored in the `ShapeData` collection, grouped by geometry, `geometry_hash`, time span, `std_date_span`, and date, `std_date`. The main grouping in this set of services is time span, which indicates whether the date is a year, month or day.
+
+All services select remote sensing data according to a set of query parameters provided in the body, omit any to ignore:
+
+- ***`geometry_hash_list`***: List of conservation unit geometries to match.
+- ***`std_date_span`***: List of time spans to match: daily data, `std_date_span_day`, monthly data, `std_date_span_month` and/or yearly data, `std_date_span_year`.
+- ***`std_date_start`***: Start date (included).
+- ***`std_date_end`***: End date (included).
+- ***`std_terms`***: List of variables to match.
+- ***`std_dataset_ids`***: List of datasets to match.
+
+Note that all dates are expressed in `YYYYMMDD` string format, where the day, `DD`, and month, `MM`, can be omitted: this means that dates remain sorted and it is not necessary to have separate query fields for daily, monthly and yearly data.
+
+#### Unit geometry data summary by time span
+
+This service will return the data summary of remote sensing data matching the query parameters provided in the body. The data will be grouped by geometry time span, `std_date_span`, and the summary data will aggregate all matched geometries in the matched time spans.
+
+The result will be a series of records grouped by time span, `std_date_span`, and  structured as follows:
+
+- ***`count`***: Number of records matched for the current time span.
+- ***`std_date_span`***: Current time span, `std_date_span_day`, `std_date_span_month` or `std_date_span_year`.
+- ***`std_date_start`***: Start of date range for the current time span.
+- ***`std_date_end`***: Start of date range for the current time span.
+- ***`std_terms`***: List of featured variables for the current time span.
+- ***`std_dataset_ids`***: List of featured datasets for the current time span.
+
+This service is useful when one needs to provide data for a selection of geometries: the summary data provides information regarding the amount of records, the start and end dates, the featured variables and the featured datasets. This provides the necessary information to limit the information provided to the user.
+
+#### Unit geometry data summary by geometry and time span
+
+This service will return the data summary of remote sensing data matching the query parameters provided in the body. The data will be grouped by geometry reference, `geometry_hash` and time span, `std_date_span`.
+
+The result will be one record for each geometry, within this record there will be one record for each time span with summary data regarding the current geometry and time span. The result is structured as follows:
+
+- ***`geometry_hash`***: Geometry MD5 hash, or geometry record reference.
+- ***`properties`***: Summary data for the current geometry grouped by time span, `std_date_span`:
+    - ***`count`***: Number of records matched for the current geometry and time span.
+    - ***`std_date_span`***: Current time span, `std_date_span_day`, `std_date_span_month` or `std_date_span_year`, for the current geometry.
+    - ***`std_date_start`***: Start of date range for the current geometry and time span.
+    - ***`std_date_end`***: Start of date range for the current geometry and time span.
+    - ***`std_terms`***: List of featured variables for the current geometry and time span.
+    - ***`std_dataset_ids`***: List of featured datasets for the current geometry and time span.
+
+This service is useful when one needs to provide data for individual geometries: the summary data provides information regarding the amount of records, the start and end dates, the featured variables and the featured datasets. This provides the necessary information to limit the information provided to the user according to the statistics of each individual geometry.
+
+### Remote Sensing Data
+
+This set of services can be used to retrieve remote sensing data, which is stored in the `ShapeData` collection. Remote sensing data includes the following indicators:
+
+- ***`chr_AvAspect`***: Average GCU aspect.
+- ***`chr_AvBiomass`***: Average GCU Biomass.
+- ***`chr_AvCanopyHeight`***: Average GCU canopy height.
+- ***`chr_AvElevation`***: Average GCU elevation.
+- ***`chr_AvGrossPrimProd`***: Average GCU Gpp.
+- ***`chr_AvLeafAreaIdx`***: Average GCU Lai.
+- ***`chr_AvNormDiffVegIdx`***: Average GCU Normalized Difference Vegetation Index.
+- ***`chr_AvNormDiffWaterIdx`***: Average GCU Normalized Difference Water Index.
+- ***`chr_AvSlope`***: Average GCU slope.
+- ***`chr_DomLeafType`***: Dominant leaf type.
+- ***`chr_LandSurfTemp`***: GCU Land surface temperature.
+- ***`chr_RelHumid`***: Relative humidity.
+- ***`chr_StdElevation`***: GCU elevation standard deviation.
+- ***`env_climate_slhf`***: Surface latent heat flux.
+- ***`env_climate_snsrad`***: Surface net solar radiation.
+- ***`env_climate_soil_temp_100`***: Soil temperature from 28 to 100cm.
+- ***`env_climate_soil_temp_28`***: Soil temperature from 7 to 28cm.
+- ***`env_climate_soil_temp_289`***: Soil temperature from 100 to 289cm.
+- ***`env_climate_soil_temp_7`***: Soil temperature from 0 to 7cm.
+- ***`env_climate_soil_water_100`***: Volumetric soil water layer from 28 to 100cm.
+- ***`env_climate_soil_water_28`***: Volumetric soil water layer from 7 to 28cm.
+- ***`env_climate_soil_water_289`***: Volumetric soil water layer from 100 to 289cm.
+- ***`env_climate_soil_water_7`***: Volumetric soil water layer from 0 to 7cm.
+- ***`env_climate_temp-2m`***: Air temperature at 2 meters.
+- ***`env_climate_tpr`***: Total precipitation.
+- ***`env_climate_wind`***: Wind speed.
+- ***`geo_shape_area`***: Geometry area.
+
+Results are sorted by date.
+
+#### Query specific geometry data by query parameters
+
+This service will return all data for a specific geometry that satisfies a set of query parameters.
+
+The geometry reference is provided as a query path parameter, `geometry_hash`, and the query parameters are provided in the body and structured as follows, omit any to ignore:
+
+- ***`std_date_start`***: Start date (included).
+- ***`std_date_end`***: End date (included).
+- ***`std_terms`***: List of variables to match.
+- ***`std_dataset_ids`***: List of datasets to match.
+
+The result is the time series data grouped by time span:
+
+- ***`std_date_span`***: The time span, `std_date_span_day`, `std_date_span_month` or `std_date_span_year`.
+- ***`std_date_series`***: An array of objects containing the time series data grouped by date:
+    - ***`std_date`***: Measurement date.
+    - ***`properties`***: An object containing the data indicators for that date.
+
+### Drought Observatory Metadata
+
+[European Drought Observatory](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) data is provided in a grid, the idea is that users can provide a point or shape and get in real time a set of data. The purpose of these services is to provide aggregated information before performing queries on the actual data.
+
+The reason these services are important is that there is a very large amount of data associated with each point of the grid, it is therefore a good practice to retrieve a window of data selected using a user interface that limits which descriptors are returned and for which data time frame.
+
+Data is stored in two related collections: `DroughtObservatory` groups data by grid cell geometry and date, all dates are daily; `DroughtObservatoryMap` contains the geometry of all grid cells. Services are designed to first probe the grid and then associate data related to the selected cells.
+
+The grid features cells of three different resolutions, so whenever you select a point on the map you should have at least three grid cells that contain that point, the services will either return the summary data grouped by date, or by date and grid cell resolution.
+
+All services select data according to a set of query parameters provided in the body, omit any to ignore:
+
+- ***`std_date_start`***: Time frame start date (included).
+- ***`std_date_end`***: Time frame end date (included).
+- ***`std_terms`***: List of variables to match.
+- ***`std_dataset_ids`***: List of datasets to match.
+- ***`geometry_point_radius`***: List of grid cell resolutions to match, in degrees.
+
+#### Get summary for provided coordinates
+
+This service will return the aggregated data summary for the data corresponding to the provided coordinates and query parameters.
+
+The service expects the point coordinates as path query parameters: `lat` for the latitude and `lon` for the longitude. The query parameters can be added in the body, as described above.
+
+The result of the service will be the aggregated summary for all grid cells that contain the provided point, the structure is as follows:
+
+- ***`count`***: Number of measurements.
+- ***`std_date_start`***: Date range start.
+- ***`std_date_end`***: Date range end.
+- ***`std_terms`***: List of featured indicators.
+- ***`std_dataset_ids`***: List of featured datasets.
+- ***`geometry_point_radius`***: List of featured grid cell resolutions in degrees.
+- ***`geometry_point`***: List of grid cell centroids as GeoJSON point geometries.
+- ***`geometry_bounds`***: List of grid cell geometries as GeoJSON polygons.
+
+#### Get summary by resolution for provided coordinates
+
+This service will return the aggregated data summary for the data corresponding to the provided coordinates and query parameters grouped by grid cell resolution.
+
+The service expects the point coordinates as path query parameters: `lat` for the latitude and `lon` for the longitude. The query parameters can be added in the body, as described above.
+
+The service will return one record for each grid cell that contains the provided point with the following structure:
+
+- ***`count`***: Number of measurements.
+- ***`std_date_start`***: Date range start.
+- ***`std_date_end`***: Date range end.
+- ***`std_terms`***: List of featured indicators.
+- ***`std_dataset_ids`***: List of featured datasets.
+- ***`geometry_point_radius`***: Grid cell resolution in degrees.
+- ***`geometry_point`***: GeoJSON point geometry of the grid cell centroid.
+- ***`geometry_bounds`***: GeoJSON polygon geometry of the grid cell.
+
+### Drought Observatory Data
+
+This set of services can be used to retrieve drought observatory data by grid cell, or aggregated by date.
+
+Both services expect a point whose coordinates are provided as path query parameters: `lat` for the latitude and `lon` for the longitude. Data can be further refined using a set of query parameters provided in the body, omit to ignore.
+
+#### Get data by grid cell resolution
+
+This service will return the data for all grid cells that contain the point provided in the path query parameters and that satisfy the eventual query parameters in the body structured as follows:
+
+- ***`std_date_start`***: Date range start.
+- ***`std_date_end`***: Date range end.
+- ***`std_terms`***: List of featured indicators.
+- ***`std_dataset_ids`***: List of featured datasets.
+- ***`geometry_point_radius`***: List of featured grid cell resolutions in degrees.
+
+The result will be one record per matching grid cell:
+
+- ***`geometry_point_radius`***: The grid cell resolution in degrees.
+- ***`geometry_point`***: GeoJSON point geometry of the grid cell centroid.
+- ***`geometry_bounds`***: GeoJSON polygon geometry of the grid cell.
+- ***`std_dataset_ids`***: List of featured datasets.
+- ***`properties`***: An array of time series data with the date, `std_date`, and the data indicators available for that date.
+
+#### Get data by date
+
+This service will return the aggregated data for all grid cells that contain the point provided in the path query parameters and that satisfy the eventual query parameters in the body structured as follows:
+
+- ***`std_date_start`***: Date range start.
+- ***`std_date_end`***: Date range end.
+- ***`std_terms`***: List of featured indicators.
+- ***`std_dataset_ids`***: List of featured datasets.
+- ***`geometry_point_radius`***: List of featured grid cell resolutions in degrees.
+- ***`paging`***: Results paging:
+    - ***`offset`***: Page records offset.
+    - ***`limit`***: Maximum number of records to return.
+
+The result will be one record per date:
+
+- ***`std_date`***: The date.
+- ***`properties`***: Data indicators for that date.
+- ***`std_dataset_ids`***: List of featured datasets for that date.
+
+This service returns data regardless of the grid cell resolution.
+
+### Datasets
+
+This set of services will return metadata regarding the datasets featured in the `Dataset` collection and the other external databases collections.
+
+A dataset record has the following structure:
+
+- ***`_key`***: The dataset primary key string.
+- ***`_collection`***: Database collection name where data for this dataset is stored.
+- ***`std_project`***: Code of the project to which the dataset belongs.
+- ***`std_dataset`***: Dataset code or acronym.
+- ***`std_dataset_group`***: Dataset group code or acronym.
+- ***`_subjects`***: List of subject codes featured in data descriptors.
+- ***`_classes`***: List of class codes featured in data descriptors.
+- ***`_domain`***: List of domain codes featured in data descriptors.
+- ***`_tag`***: List of tag codes featured in data descriptors.
+- ***`std_date_start`***: Dates range start.
+- ***`std_date_end`***: Dates range end.
+- ***`std_date_submission`***: Dataset submission date.
+- ***`count`***: Total number of data records.
+- ***`_title`***: Multilingual title or label.
+- ***`_description`***: Multilingual description.
+- ***`_citation`***: List of required citations.
+- ***`std_terms`***: List of featured indicators.
+- ***`std_terms_quant`***: List of featured quantitative indicators.
+- ***`std_terms_key`***: List of indicators that represent the unique key of a record.
+- ***`std_terms_summary`***: List of indicators that can be used for groupings and summaries.
+- ***`_subject`***: Dataset data subject.
+- ***`species_list`***: List of featured taxa scientific names.
+- ***`std_dataset_markers`***: List of taxa/marker combinations:
+    - ***`species`***: Scientific name.
+    - ***`chr_GenIndex`***: Genetic index.
+    - ***`chr_GenoTech`***: Method.
+    - ***`chr_MarkerType`***: Type of Marker/Trait.
+    - ***`chr_NumberOfLoci`***: Number of loci.
+    - ***`chr_SequenceLength`***: Sequence length.
+
+Note that datasets belonging to external databases and EUFGIS characterisation datasets feature a different set of descriptors, the above selection encompasses both types.
+
+#### Query datasets
+
+This service will return all external database dataset records matching the query parameters provided in the body. A path query parameter, op, determines whether the condition clauses are concatenated as a series of AND or OR clauses.
+
+The selection criteria is structured as follows:
+
+- ***`_key`***: The dataset primary key string.
+- ***`_collection`***: Database collection name where data for this dataset is stored.
+- ***`std_project`***: Code of the project to which the dataset belongs.
+- ***`std_dataset`***: Dataset code or acronym.
+- ***`std_dataset_group`***: Dataset group code or acronym.
+- ***`std_date`***: Date range:
+    - ***`std_date_start`***: Start date (included).
+    - ***`std_date_end`***: End date (included).
+- ***`std_date_submission`***: Submission date range:
+    - ***`std_date_start`***: Start date (included).
+    - ***`std_date_end`***: End date (included).
+- ***`_title`***: Provide space delimited keywords to search dataset titlein English.
+- ***`_description`***: Provide space delimited keywords to search dataset description in English.
+- ***`_citation`***: Provide space delimited keywords to search dataset citations.
+- ***`count`***: Total number of data records:
+    - ***`min`***: Minimum (included).
+    - ***`max`***: Maximum (included).
+- ***`_subject`***: List of matching dataset data subjects.
+- ***`_classes`***: Class codes featured in data descriptors:
+    - ***`items`***: List of codes to match.
+    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+- ***`_domain`***: Domain codes featured in data descriptors:
+    - ***`items`***: List of codes to match.
+    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+- ***`_tag`***: Tag codes featured in data descriptors:
+    - ***`items`***: List of codes to match.
+    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+- ***`species_list`***: Provide space delimited keywords to search scientific names.
+- ***`std_terms`***: Featured indicators:
+    - ***`items`***: List of names to match.
+    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+- ***`std_terms_quant`***: Featured quantitative indicators:
+    - ***`items`***: List of names to match.
+    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+- ***`std_terms_key`***: Featured key indicators:
+    - ***`items`***: List of names to match.
+    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+- ***`std_terms_summary`***: Featured summary indicators:
+    - ***`items`***: List of names to match.
+    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+

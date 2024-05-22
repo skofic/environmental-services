@@ -37,7 +37,7 @@ const ModelDataClickDescription =
 	'- `geometry_hash`: GeoJSON hash of the shape.\n' +
 	'- `std_dataset_ids`: List of datasets in measurements.\n' +
 	'- `properties`: List of static environmental variables.\n' +
-	'- `geometry_point`: Provided coordinates as a GeoJSON point geometry.\n' +
+	'- `distance`: Distance in meters if searching by distance.\n' +
 	'- `geometry`: GeoJSON geometry of the shape.\n' +
 	'- `geometry_bounds`: GeoJSON bounding box of the shape.\n\n' +
 	'There will be one record per shape.'

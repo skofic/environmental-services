@@ -14,7 +14,7 @@ module.exports = {
 			chr_AvSlope: joi.number(),
 			chr_AvAspect: joi.number()
 		}).required(),
-		geometry_point: joi.object().required(),
+		distance: joi.number(),
 		geometry: joi.object().required(),
 		geometry_bounds: joi.object()
 	},
