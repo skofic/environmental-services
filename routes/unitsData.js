@@ -97,7 +97,7 @@ router.get('id', function (req, res)
 			    INTO items
 			RETURN {
 			    gcu_id_number: number,
-			    \`gcu_id_unit-id\`: UNIQUE(FLATTEN(items[*].doc['gcu_id_unit-id']))
+			    \`gcu_id_unit-id_list\`: UNIQUE(FLATTEN(items[*].doc['gcu_id_unit-id']))
 			}
         `).toArray()
 	}

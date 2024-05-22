@@ -1017,3 +1017,98 @@ This service expects a single body parameter, `coordinates`, that represents the
 - Each *linear ring* should consist of an *array* with at least *four longitude/latitude pairs*.
 - The *first* linear ring *must be the outermost*, while any *subsequent* linear ring will be *interpreted as holes*.
 - The *order* of the *sequence of coordinates* is important: *counter-clock* means the polygon area is *inside*, *clockwise* means the area of the polygon is *outside*.
+
+### Conservation Units
+
+This set of services can be used to retrieve *conservation unit records* using the *unit number*, `gcu_id_number`, and the *unit ID*, `gcu_id_unit-id`. It also allows retrieving the associated *unit geometries*.
+
+#### Get unit IDs from unit number
+
+This service returns the unit IDs associated with the provided unit number. This service can be used to retrieve all the unit IDs associated with a specific unit number.
+
+The service expects the *unit number* to be provided as a *path query parameter*, `gcu_id_number`, and will return the following record:
+
+- ***`gcu_id_number`***: The provided unit number.
+- ***`gcu_id_unit-id_list`***: List of associated unit IDs.
+
+#### Get unit number and unit geometry references from unit ID
+
+This service will return the *unit number* and *unit geometry references* associated with the provided *unit ID*. This service can be used to retrieve the unit number and references to all geometries associated with a specific unit ID.
+
+The service expects the *unit ID* to be provided as a *path query parameter*, `gcu_id_unit-id`, and will return the following record:
+
+- ***`gcu_id_number`***: The unit number.
+- ***`gcu_id_unit-id`***: The provided unit ID.
+- ***`geometry_hash_list`***: The list of MD5 hashes of the associated geometries.
+
+#### Get unit information from geometry reference
+
+This service will return the *unit number*, *unit ID* and *unit geometry reference* associated with the provided *geometry hash*. This service can be used to retrieve the unit information associated to a specific unit geometry.
+
+The service expects the *unit geometry hash* to be provided as a *path query parameter*, `geometry_hash`, and will return the following record:
+
+- ***`gcu_id_number`***: The unit number.
+- ***`gcu_id_unit-id`***: The unit ID.
+- ***`geometry_hash`***: The provided gepmetry reference.
+
+### Conservation Unit Geometries
+
+This set of services can be used to retrieve *conservation unit geometry records* using *unit information* and querying *shape properties*.
+
+A geometry record is structured as follows:
+
+- ***`geometry_hash`***: The MD5 hash of the GeoJSON geometry, either a polygon or a multi-polygon.
+- ***`std_dataset_ids`***: List of datasets associated with the record data. The value is the primary key of the `Dataset` collection.
+- ***`properties`***: A record containing properties associated with the geometry region, usually topographic information:
+    - ***`geo_shape_area`***: Area.
+    - ***`chr_AvElevation`***: Average elevation.
+    - ***`chr_StdElevation`***: Elevation standard deviation.
+    - ***`chr_AvSlope`***: Average slope.
+    - ***`chr_AvAspect`***: Average aspect.
+- ***`geometry`***: The GeoJSON geometry, either a *Polygon* or *MultiPolygon*.
+- ***`geometry_bounds`***: The GeoJSON polygon enclosing the geometry.
+
+#### Get unit geometry by reference
+
+This service returns the unit geometry record associated with the provided geometry reference. This service can be used to retrieve the record associated to a geometry hash.
+
+The service expects the *geometry hash* to be provided as a *path query parameter*, `geometry_hash`.
+
+#### Get unit geometry intersecting the provided coordinates
+
+This service will return the *unit geometry records* that intersect the provided coordinates.
+
+The service expects the latitude, `lat`, and the longitude, `lon`, to be provided as *path query parameters*. The service will return all records that intersect the point.
+
+#### Search unit geometry records
+
+This service will return the *unit geometry records* that match a series of query parameters. The service can be used to select geometries based on their characteristics.
+
+The query parameters are provided in the body and are structured as follows:
+
+- ***`geometry_hash`***: Provide a list of matching *geometry references*.
+- ***`std_dataset_ids`***: Provide a list of matching *dataset references*.
+- ***`geo_shape_area`***: This property can be used to select geometries according to their area: it contains two child properties:
+    - ***`min`***: Minimum area (included).
+    - ***`max`***: Maximum area (included).
+- ***`chr_AvElevation`***: This property can be used to select geometries according to their average elevation: it contains two child properties:
+    - ***`min`***: Minimum average elevation (included).
+    - ***`max`***: Maximum average elevation (included).
+- ***`chr_StdElevation`***: This property can be used to select geometries according to their elevation standard deviation: it contains two child properties:
+    - ***`min`***: Minimum elevation standard deviation (included).
+    - ***`max`***: Maximum elevation standard deviation (included).
+- ***`chr_AvSlope`***: This property can be used to select geometries according to their average slope: it contains two child properties:
+    - ***`min`***: Minimum average slope (included).
+    - ***`max`***: Maximum average slope (included).
+- ***`chr_AvAspect`***: This property can be used to select geometries according to their average aspect: it contains two child properties:
+    - ***`min`***: Minimum average aspect (included).
+    - ***`max`***: Maximum average aspect (included).
+- ***`intersects`***: A GeoJSON geometry intersecting unit geometries.
+- ***`distance`***: A property used to select geometries by distance, the distance is calculated using the centroid of both the unit geometry and the provided reference geometry:
+    - ***`reference`***: The provided GeoJSON reference geometry.
+    - ***`range`***: The desired distance range:
+        - ***`min`***: Minimum distance.
+        - ***`max`***: Maximum distance.
+- ***`paging`***: Results paging:
+    - ***`offset`***: Page records offset.
+    - ***`limit`***: Maximum number of records to return.
