@@ -33,10 +33,14 @@ This work is being conducted for the [upgrade](https://www.forgenius.eu/eufgis) 
 				<li><a href="#Remote Sensing Data">Remote Sensing Data</a></li>
 				<li><a href="#Remote Sensing Metadata">European Drought Observatory Metadata</a></li>
 				<li><a href="#Remote Sensing Data">European Drought Observatory Data</a></li>
+				<li><a href="#Datasets">Datasets</a></li>
       </ul>
     </li>
+    <li><a href="#Progress">Progress</a></li>
+    <li><a href="#Licence">Licence</a></li>
 	</ol>
 </details>
+
 
 ## Database
 
