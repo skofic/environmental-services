@@ -7,39 +7,14 @@ This work is being conducted for the [upgrade](https://www.forgenius.eu/eufgis) 
 <details>
 	<summary>Table of Contents</summary>
 	<ol>
-		<li>
-			<a href="#Database">Database</a>
-			<ul>
-				<li><a href="#Chelsa">Chelsa</a></li>
-				<li><a href="#WorldClim">WorldClim</a></li>
-				<li><a href="#Shapes">Shapes</a></li>
-				<li><a href="#ShapeData">ShapeData</a></li>
-				<li><a href="#UnitShapes">UnitShapes</a></li>
-				<li><a href="#DroughtObservatory">DroughtObservatory</a></li>
-				<li><a href="#DroughtObservatoryMap">DroughtObservatoryMap</a></li>
-				<li><a href="#Dataset">Dataset</a></li>
-			</ul>
-		</li>
+		<li><a href="#Database">Database</a></li>
     <li><a href="#Installation">Installation</a></li>
-    <li>
-      <a href="#Services">Services</a>
-      <ul>
-        <li><a href="#Chelsa">Chelsa</a></li>
-				<li><a href="#WorldClim">WorldClim</a></li>
-				<li><a href="#Hash Geometries">Hash Geometries</a></li>
-				<li><a href="#Conservation Units">Conservation Units</a></li>
-				<li><a href="#Conservation Unit Geometries">Conservation Unit Geometries</a></li>
-				<li><a href="#Remote Sensing Metadata">Remote Sensing Metadata</a></li>
-				<li><a href="#Remote Sensing Data">Remote Sensing Data</a></li>
-				<li><a href="#Remote Sensing Metadata">European Drought Observatory Metadata</a></li>
-				<li><a href="#Remote Sensing Data">European Drought Observatory Data</a></li>
-				<li><a href="#Datasets">Datasets</a></li>
-      </ul>
-    </li>
+    <li><a href="#Services">Services</a></li>
     <li><a href="#Progress">Progress</a></li>
     <li><a href="#Licence">Licence</a></li>
 	</ol>
 </details>
+
 
 
 ## Database
