@@ -4,6 +4,40 @@ This [repository](https://github.com/skofic/environmental-services.git) contains
 
 This work is being conducted for the [upgrade](https://www.forgenius.eu/eufgis) of the [EUFGIS](http://www.eufgis.org/) information system within the framework of the [FORGENIUS](https://www.forgenius.eu/) project.
 
+<details>
+	<summary>Table of Contents</summary>
+	<ol>
+		<li>
+			<a href="#Database">Database</a>
+			<ul>
+				<li><a href="#Chelsa">Chelsa</a></li>
+				<li><a href="#WorldClim">WorldClim</a></li>
+				<li><a href="#Shapes">Shapes</a></li>
+				<li><a href="#ShapeData">ShapeData</a></li>
+				<li><a href="#UnitShapes">UnitShapes</a></li>
+				<li><a href="#DroughtObservatory">DroughtObservatory</a></li>
+				<li><a href="#DroughtObservatoryMap">DroughtObservatoryMap</a></li>
+				<li><a href="#Dataset">Dataset</a></li>
+			</ul>
+		</li>
+    <li><a href="#Installation">Installation</a></li>
+    <li>
+      <a href="#Services">Services</a>
+      <ul>
+        <li><a href="#Chelsa">Chelsa</a></li>
+				<li><a href="#WorldClim">WorldClim</a></li>
+				<li><a href="#Hash Geometries">Hash Geometries</a></li>
+				<li><a href="#Conservation Units">Conservation Units</a></li>
+				<li><a href="#Conservation Unit Geometries">Conservation Unit Geometries</a></li>
+				<li><a href="#Remote Sensing Metadata">Remote Sensing Metadata</a></li>
+				<li><a href="#Remote Sensing Data">Remote Sensing Data</a></li>
+				<li><a href="#Remote Sensing Metadata">European Drought Observatory Metadata</a></li>
+				<li><a href="#Remote Sensing Data">European Drought Observatory Data</a></li>
+      </ul>
+    </li>
+	</ol>
+</details>
+
 ## Database
 
 The database is implemented using [ArangoDB](https://www.arangodb.com/). The data is not included in this repository, you will have to run a [Google Earth Engine](https://earthengine.google.com/) [Colab](https://colab.research.google.com/) sheet to populate the remote sensing data, and a series of scripts can be used to download, clip, process, combine and merge [Chelsa](https://chelsa-climate.org/), [WorldClim](https://worldclim.org/) and [EDO](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) data, all this is available in [this](https://github.com/skofic/ClimateService.git) repository.
@@ -1211,7 +1245,7 @@ The service will return the *aggregated summary* data, *one record for each grid
 - ***`geometry_point`***: [GeoJSON](https://geojson.org) point geometry of the grid cell centroid.
 - ***`geometry_bounds`***: [GeoJSON](https://geojson.org) polygon geometry of the grid cell.
 
-### Drought Observatory Data
+### European Drought Observatory Data
 
 This set of services can be used to retrieve *drought observatory data* by *grid cell*, or *aggregated* by *date*.
 
@@ -1237,7 +1271,7 @@ The result will be one record per matching grid cell:
 
 This service returns data for individual geometries.
 
-#### Data 0by date
+#### Data by date
 
 This serv0ice will return the aggregated data for all grid cells that contain the point provided in the path query parameters and that satisfy the eventual query parameters in the body structured as follows:
 
