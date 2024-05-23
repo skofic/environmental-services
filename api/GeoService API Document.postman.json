@@ -5,7 +5,7 @@
   },
   "item": [
     {
-      "name": "CHELSA CLIMATE",
+      "name": "CHELSA",
       "item": [
         {
           "name": "Contains point",
@@ -201,7 +201,7 @@
       "response": []
     },
     {
-      "name": "WORLDCLIM CLIMATE",
+      "name": "WORLDCLIM",
       "item": [
         {
           "name": "Contains point",
@@ -397,10 +397,10 @@
       "response": []
     },
     {
-      "name": "HASH SHAPES",
+      "name": "HASH GEOMETRIES",
       "item": [
         {
-          "name": "Point shape hash",
+          "name": "Point",
           "request": {
             "method": "GET",
             "url": {
@@ -439,7 +439,7 @@
           "response": []
         },
         {
-          "name": "Polygon shape hash",
+          "name": "Polygon",
           "request": {
             "method": "POST",
             "url": {
@@ -476,7 +476,7 @@
           "response": []
         },
         {
-          "name": "MultiPolygon shape hash",
+          "name": "MultiPolygon",
           "request": {
             "method": "POST",
             "url": {
@@ -517,7 +517,7 @@
       "response": []
     },
     {
-      "name": "UNITS",
+      "name": "CONSERVATION UNITS",
       "item": [
         {
           "name": "Unit ID list by unit number",
@@ -540,7 +540,7 @@
               "port": null,
               "path": null
             },
-            "description": "The service will return all *unit IDs* related to the provided *unit number*.\n\nThe service expects the `gcu_id_number` query parameter containing a unit number.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number*.\n- `gcu_id_unit-id`: The *list* of unit IDs associated with the *provided unit number*.",
+            "description": "The service will return all *unit IDs* related to the provided *unit number*.\n\nThe service expects the `gcu_id_number` query parameter containing a unit number.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number*.\n- `gcu_id_unit-id_list`: The *list* of unit IDs associated with the *provided unit number*.",
             "header": [],
             "body": null,
             "auth": null
@@ -553,7 +553,7 @@
           "response": []
         },
         {
-          "name": "Unit number and shapes list by unit ID",
+          "name": "Unit geometry references by unit ID",
           "request": {
             "method": "GET",
             "url": {
@@ -586,7 +586,7 @@
           "response": []
         },
         {
-          "name": "Unit by shape reference",
+          "name": "Unit by geometry reference",
           "request": {
             "method": "GET",
             "url": {
@@ -606,7 +606,7 @@
               "port": null,
               "path": null
             },
-            "description": "The service will return the *unit number and ID* associated with the provided *shape reference*.\n\nThe service expects the `geometry_hash` query parameter containing a *unit shape geometry reference*.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided shape reference*.\n- `gcu_id_unit-id`: The unit ID associated with the *provided shape reference*.\n- `geometry_hash_list`: The *provided shape reference*.\n",
+            "description": "The service will return the *unit number and ID* associated with the provided *shape reference*.\n\nThe service expects the `geometry_hash` query parameter containing a *unit shape geometry reference*.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided shape reference*.\n- `gcu_id_unit-id`: The unit ID associated with the *provided shape reference*.\n- `geometry_hash`: The *provided shape reference*.\n",
             "header": [],
             "body": null,
             "auth": null
@@ -623,10 +623,10 @@
       "response": []
     },
     {
-      "name": "UNIT SHAPES",
+      "name": "CONSERVATION UNIT GEOMETRIES",
       "item": [
         {
-          "name": "Shape by geometry hash",
+          "name": "Geometry by reference",
           "request": {
             "method": "GET",
             "url": {
@@ -659,7 +659,7 @@
           "response": []
         },
         {
-          "name": "Shape by point",
+          "name": "Geometry by point",
           "request": {
             "method": "GET",
             "url": {
@@ -685,7 +685,7 @@
               "port": null,
               "path": null
             },
-            "description": "The service will return the *shape record* containing the *provided point* coordinate.\n\nThe service expects the `lat` and `lon` query parameters representing respectively the *latitude* and *longitude* of the point coordinate.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
+            "description": "The service will return the *shape record* intersecting the *provided point* coordinate.\n\nThe service expects the `lat` and `lon` query parameters representing respectively the *latitude* and *longitude* of the point coordinate.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
             "header": [],
             "body": null,
             "auth": null
@@ -698,7 +698,7 @@
           "response": []
         },
         {
-          "name": "Shape search",
+          "name": "Geometry search",
           "request": {
             "method": "POST",
             "url": {
@@ -742,7 +742,7 @@
       "name": "REMOTE SENSING META",
       "item": [
         {
-          "name": "GCU shape metadata by date span",
+          "name": "Metadata by time span",
           "request": {
             "method": "POST",
             "url": {
@@ -779,7 +779,7 @@
           "response": []
         },
         {
-          "name": "GCU shape metadata by shape and date span",
+          "name": "Metadata by geometry and time span",
           "request": {
             "method": "POST",
             "url": {
@@ -823,7 +823,7 @@
       "name": "REMOTE SENSING DATA",
       "item": [
         {
-          "name": "GCU shape data by shape and date span",
+          "name": "Data by geometry and time span",
           "request": {
             "method": "POST",
             "url": {
@@ -874,7 +874,7 @@
       "name": "EUROPEAN DROUGHT OBSERVATORY META",
       "item": [
         {
-          "name": "EDO metadata",
+          "name": "Metadata for coordinates",
           "request": {
             "method": "POST",
             "url": {
@@ -924,7 +924,7 @@
           "response": []
         },
         {
-          "name": "EDO metadata by geometry",
+          "name": "Metadata by geometry for coordinates",
           "request": {
             "method": "POST",
             "url": {
@@ -950,7 +950,7 @@
               "port": null,
               "path": null
             },
-            "description": "This service will return the *summary* of *all data measurements* available for the *provided coordinate* and *data filters* *grouped by measurement area*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will contain one record for each measurement resolution:\n\n- `count`: The number of selected records.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.\n- `geometry_point_radius`: List of featured measurement area radius.\n- `geometry_point`: List of featured measurement points.\n- `geometry_bounds`: List of featured measurement geometries.",
+            "description": "This service will return the *summary* of *all data measurements* available for the *provided coordinate* and *data filters* *grouped by measurement area*.\n\nThe service *requires* the *latitude*, `lat`, and *longitude*, `lon`, as *query parameters* and an *object* in the *body* containing further *optional selection criteria*:\n\n- `std_date_start`: Start date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_date_end`: End date as a `YYYYMMDD`, `YYYYMM`, or `YYYY` string.\n- `std_terms`: The list of required variables, as variable names.\n- `std_dataset_ids`: The list of required datasets, as dataset identifiers.\n- `geometry_point_radius`: The list of required resolution points, as the area radius expressed in decimal degrees.\n\nTo *ignore* the *selection criteria* just *omit* the *property*.\n\nThe resulting data will contain one record for each matched grid cell:\n\n- `count`: The number of selected records.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.\n- `geometry_point_radius`: List of featured measurement area radius.\n- `geometry_point`: List of featured measurement points.\n- `geometry_bounds`: List of featured measurement geometries.",
             "header": [
               {
                 "key": "Content-Type",
@@ -981,11 +981,11 @@
       "name": "EUROPEAN DROUGHT OBSERVATORY DATA",
       "item": [
         {
-          "name": "EDO data by geometry",
+          "name": "Data by geometry",
           "request": {
             "method": "POST",
             "url": {
-              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/data/shape?lat=42&lon=12&=Coordinates%20longitude",
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/do/data/shape?lat=42&lon=12",
               "query": [
                 {
                   "key": "lat",
@@ -997,13 +997,7 @@
                   "key": "lon",
                   "value": "12",
                   "disabled": false,
-                  "description": null
-                },
-                {
-                  "key": "",
-                  "value": "Coordinates longitude",
-                  "disabled": false,
-                  "description": null
+                  "description": "Coordinates longitude"
                 }
               ],
               "protocol": null,
@@ -1037,7 +1031,7 @@
           "response": []
         },
         {
-          "name": "EDO data by date",
+          "name": "Data by date",
           "request": {
             "method": "POST",
             "url": {

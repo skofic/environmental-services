@@ -408,7 +408,7 @@
     console.log('BODY:', body);
 });
 
-// request Point shape hash 
+// request Point 
 (function(callback) {
     'use strict';
         
@@ -459,7 +459,7 @@
     console.log('BODY:', body);
 });
 
-// request Polygon shape hash 
+// request Polygon 
 (function(callback) {
     'use strict';
         
@@ -510,7 +510,7 @@
     console.log('BODY:', body);
 });
 
-// request MultiPolygon shape hash 
+// request MultiPolygon 
 (function(callback) {
     'use strict';
         
@@ -612,7 +612,7 @@
     console.log('BODY:', body);
 });
 
-// request Unit number and shapes list by unit ID 
+// request Unit geometry references by unit ID 
 (function(callback) {
     'use strict';
         
@@ -663,7 +663,7 @@
     console.log('BODY:', body);
 });
 
-// request Unit by shape reference 
+// request Unit by geometry reference 
 (function(callback) {
     'use strict';
         
@@ -714,7 +714,7 @@
     console.log('BODY:', body);
 });
 
-// request Shape by geometry hash 
+// request Geometry by reference 
 (function(callback) {
     'use strict';
         
@@ -765,7 +765,7 @@
     console.log('BODY:', body);
 });
 
-// request Shape by point 
+// request Geometry by point 
 (function(callback) {
     'use strict';
         
@@ -816,7 +816,7 @@
     console.log('BODY:', body);
 });
 
-// request Shape search 
+// request Geometry search 
 (function(callback) {
     'use strict';
         
@@ -867,7 +867,7 @@
     console.log('BODY:', body);
 });
 
-// request GCU shape metadata by date span 
+// request Metadata by time span 
 (function(callback) {
     'use strict';
         
@@ -918,7 +918,7 @@
     console.log('BODY:', body);
 });
 
-// request GCU shape metadata by shape and date span 
+// request Metadata by geometry and time span 
 (function(callback) {
     'use strict';
         
@@ -969,7 +969,7 @@
     console.log('BODY:', body);
 });
 
-// request GCU shape data by shape and date span 
+// request Data by geometry and time span 
 (function(callback) {
     'use strict';
         
@@ -1020,7 +1020,7 @@
     console.log('BODY:', body);
 });
 
-// request EDO metadata 
+// request Metadata for coordinates 
 (function(callback) {
     'use strict';
         
@@ -1071,7 +1071,7 @@
     console.log('BODY:', body);
 });
 
-// request EDO metadata by geometry 
+// request Metadata by geometry for coordinates 
 (function(callback) {
     'use strict';
         
@@ -1122,7 +1122,7 @@
     console.log('BODY:', body);
 });
 
-// request EDO data by geometry 
+// request Data by geometry 
 (function(callback) {
     'use strict';
         
@@ -1173,7 +1173,7 @@
     console.log('BODY:', body);
 });
 
-// request EDO data by date 
+// request Data by date 
 (function(callback) {
     'use strict';
         

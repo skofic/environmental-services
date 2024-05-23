@@ -167,18 +167,18 @@ function EDODataByGeometry(theLatitude, theLongitude, theFilter = {})
 			LET click = GEO_POINT(${theLongitude}, ${theLatitude})
 			FOR shape IN DroughtObservatoryMap
 				${filter.shape}
-				
+
 				FOR data IN DroughtObservatory
 					${filter.data}
-			      
+
 			        SORT data.std_date ASC
-			  
+
 				    COLLECT radius = shape.geometry_point_radius,
 				            bounds = shape.geometry,
 				            point = shape.geometry_point
 				    AGGREGATE sets = UNIQUE(data.std_dataset_ids)
 				    INTO groups
-			
+
 			RETURN {
 			    geometry_point_radius: radius,
 			    geometry_point: point,

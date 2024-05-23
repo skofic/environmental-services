@@ -157,7 +157,7 @@ router.get(function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get provided point shape hash')
+	.summary('Point')
 
 	///
 	// Description.
@@ -236,7 +236,7 @@ router.post('poly', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get provided polygon shape hash')
+	.summary('Polygon')
 
 	///
 	// Description.
@@ -316,7 +316,7 @@ router.post('multipoly', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get provided multi-polygon shape hash')
+	.summary('MultiPolygon')
 
 	///
 	// Description.

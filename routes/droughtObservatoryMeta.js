@@ -140,7 +140,7 @@ router.post(function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Filter data summary for provided coordinates')
+	.summary('Metadata for coordinates')
 
 	///
 	// Description.
@@ -218,7 +218,7 @@ router.post('shape', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Filter data summary for provided coordinates by measurement area')
+	.summary('Metadata by geometry for coordinates')
 
 	///
 	// Description.

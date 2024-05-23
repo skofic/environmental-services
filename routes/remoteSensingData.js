@@ -121,7 +121,7 @@ router.post(function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Filter data for provided shape and span by date')
+	.summary('Data by geometry and time span')
 
 	///
 	// Response schema.

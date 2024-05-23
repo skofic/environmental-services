@@ -142,7 +142,7 @@ router.post('shape', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Filter data grouped by measurement geometry')
+	.summary('Data by geometry')
 
 	///
 	// Response schema.
@@ -213,7 +213,7 @@ router.post('date', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Filter data grouped by date')
+	.summary('Data by date')
 
 	///
 	// Response schema.

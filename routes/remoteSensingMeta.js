@@ -119,7 +119,7 @@ router.post('span', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Shape data summary by time span')
+	.summary('Metadata by time span')
 
 	///
 	// Response schema.
@@ -179,7 +179,7 @@ router.post('shape', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Shape data summary by shape and time span')
+	.summary('Metadata by geometry and time span')
 
 	///
 	// Response schema.

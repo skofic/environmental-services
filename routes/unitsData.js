@@ -118,7 +118,7 @@ router.get('id', function (req, res)
 
 	.queryParam('gcu_id_number', unitNumberSchema)
 	.response([ModelNumberRecord], UnitNumberRecordDescription)
-	.summary('Get unit IDs related to provided unit number')
+	.summary('Unit ID list by unit number')
 	.description(dd`
 		The service will return all *unit IDs* related to the *provided unit number*.
 	`);
@@ -172,7 +172,7 @@ router.get('shape', function (req, res)
 
 	.queryParam('gcu_id_unit-id', unitIdSchema)
 	.response([ModelIdRecord], UnitIdRecordDescription)
-	.summary('Get unit number and shape references list for provided unit ID')
+	.summary('Unit geometry references by unit ID')
 	.description(dd`
 		The service will return the *unit number* and the *list* of *unit shape references* related to the *provided unit ID*.
 	`);
@@ -221,7 +221,7 @@ router.get('rec', function (req, res)
 
 	.queryParam('geometry_hash', geometryHashSchema)
 	.response([ModelRecord], UnitRecordDescription)
-	.summary('Get unit data related to the provided shape reference')
+	.summary('Unit by geometry reference')
 	.description(dd`
 		The service will return the *unit number* and *unit ID* related to the provided *unit shape reference*.
 	`);

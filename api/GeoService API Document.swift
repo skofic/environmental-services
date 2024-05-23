@@ -863,7 +863,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           Point shape hash (GET http://localhost:8529/_db/GeoService/env/hash)
+           Point (GET http://localhost:8529/_db/GeoService/env/hash)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/hash") else {return}
@@ -945,7 +945,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           Polygon shape hash (POST http://localhost:8529/_db/GeoService/env/hash/poly)
+           Polygon (POST http://localhost:8529/_db/GeoService/env/hash/poly)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/hash/poly") else {return}
@@ -1038,7 +1038,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           MultiPolygon shape hash (POST http://localhost:8529/_db/GeoService/env/hash/multipoly)
+           MultiPolygon (POST http://localhost:8529/_db/GeoService/env/hash/multipoly)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/hash/multipoly") else {return}
@@ -1238,7 +1238,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           Unit number and shapes list by unit ID (GET http://localhost:8529/_db/GeoService/env/gcu/shape)
+           Unit geometry references by unit ID (GET http://localhost:8529/_db/GeoService/env/gcu/shape)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/gcu/shape") else {return}
@@ -1319,7 +1319,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           Unit by shape reference (GET http://localhost:8529/_db/GeoService/env/gcu/rec)
+           Unit by geometry reference (GET http://localhost:8529/_db/GeoService/env/gcu/rec)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/gcu/rec") else {return}
@@ -1400,7 +1400,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           Shape by geometry hash (GET http://localhost:8529/_db/GeoService/env/shape)
+           Geometry by reference (GET http://localhost:8529/_db/GeoService/env/shape)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/shape") else {return}
@@ -1481,7 +1481,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           Shape by point (GET http://localhost:8529/_db/GeoService/env/shape/click)
+           Geometry by point (GET http://localhost:8529/_db/GeoService/env/shape/click)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/shape/click") else {return}
@@ -1563,7 +1563,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           Shape search (POST http://localhost:8529/_db/GeoService/env/shape/search)
+           Geometry search (POST http://localhost:8529/_db/GeoService/env/shape/search)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/shape/search") else {return}
@@ -1686,7 +1686,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           GCU shape metadata by date span (POST http://localhost:8529/_db/GeoService/env/rs/meta/span)
+           Metadata by time span (POST http://localhost:8529/_db/GeoService/env/rs/meta/span)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/meta/span") else {return}
@@ -1766,7 +1766,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           GCU shape metadata by shape and date span (POST http://localhost:8529/_db/GeoService/env/rs/meta/shape)
+           Metadata by geometry and time span (POST http://localhost:8529/_db/GeoService/env/rs/meta/shape)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/meta/shape") else {return}
@@ -1846,7 +1846,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           GCU shape data by shape and date span (POST http://localhost:8529/_db/GeoService/env/rs/data)
+           Data by geometry and time span (POST http://localhost:8529/_db/GeoService/env/rs/data)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/data") else {return}
@@ -1962,7 +1962,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           EDO metadata (POST http://localhost:8529/_db/GeoService/env/do/meta)
+           Metadata for coordinates (POST http://localhost:8529/_db/GeoService/env/do/meta)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/do/meta") else {return}
@@ -2070,7 +2070,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           EDO metadata by geometry (POST http://localhost:8529/_db/GeoService/env/do/meta/shape)
+           Metadata by geometry for coordinates (POST http://localhost:8529/_db/GeoService/env/do/meta/shape)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/do/meta/shape") else {return}
@@ -2178,7 +2178,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           EDO data by geometry (POST http://localhost:8529/_db/GeoService/env/do/data/shape)
+           Data by geometry (POST http://localhost:8529/_db/GeoService/env/do/data/shape)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/do/data/shape") else {return}
@@ -2286,7 +2286,7 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           EDO data by date (POST http://localhost:8529/_db/GeoService/env/do/data/date)
+           Data by date (POST http://localhost:8529/_db/GeoService/env/do/data/date)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/do/data/date") else {return}

@@ -299,7 +299,7 @@ router.get('click', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Return record that contains the provided coordinates')
+	.summary('Contains point')
 
 	///
 	// Description.
@@ -398,7 +398,7 @@ router.post('dist', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Return selection or aggregation of records within a distance range from the provided reference geometry')
+	.summary('Is within distance')
 
 	///
 	// Description.
@@ -479,7 +479,7 @@ router.post('contain', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Return selection or aggregation of records contained by the provided reference geometry')
+	.summary('Is contained')
 
 	///
 	// Description.
@@ -560,7 +560,7 @@ router.post('intersect', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Return selection or aggregation of records that intersect with the provided reference geometry')
+	.summary('Intersects')
 
 	///
 	// Description.

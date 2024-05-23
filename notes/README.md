@@ -6,7 +6,7 @@ This work is being conducted for the [upgrade](https://www.forgenius.eu/eufgis) 
 
 ## Database
 
-The database is implemented using [ArangoDB](https://www.arangodb.com/). The data is not included in this repository, you will have to run a [Google Earth Engine](https://earthengine.google.com/) [Colab](https://colab.research.google.com/) sheet to populate the remote sensing data, while a series of scripts can be used to download, clip, process, combine and merge [Chelsa](https://chelsa-climate.org/), [WorldClim](https://worldclim.org/) and [EDO](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) data, it is available in [this](https://github.com/skofic/ClimateService.git) repository.
+The database is implemented using [ArangoDB](https://www.arangodb.com/). The data is not included in this repository, you will have to run a [Google Earth Engine](https://earthengine.google.com/) [Colab](https://colab.research.google.com/) sheet to populate the remote sensing data, and a series of scripts can be used to download, clip, process, combine and merge [Chelsa](https://chelsa-climate.org/), [WorldClim](https://worldclim.org/) and [EDO](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) data, all this is available in [this](https://github.com/skofic/ClimateService.git) repository.
 
 The database contains the following collections:
 
@@ -16,13 +16,13 @@ The database contains the following collections:
 
 Future climate scenarios come from the [Max Plank Institute Earth System Model](https://mpimet.mpg.de/en/research/department-climate-variability/earth-system-modeling-and-prediction) version [MPI-ESM1-2-HR](https://www.wdc-climate.de/ui/cmip6?input=CMIP6.HighResMIP.MPI-M.MPI-ESM1-2-HR), a [climate model](https://www.carbonbrief.org/cmip6-the-next-generation-of-climate-models-explained/) developed as part of the internationally-coordinated Coupled Model Intercomparison Project Phase 6 ([CMIP6](https://pcmdi.llnl.gov/CMIP6/)). The values were averages over 3 20 year periods: *2011-2040*, *2041-2070* and *2071-2100*. 
 
-Shared Socioeconomic Pathways (SSPs) are climate change scenarios of projected socioeconomic global changes up to 2100 as defined in the IPCC Sixth Assessment Report on climate change in 2021. Of these the [Shared Socioeconomic Pathway](https://climatedata.ca/resource/understanding-shared-socio-economic-pathways-ssps/) [SSP3-RCP7](https://www.meteomatics.com/en/api/available-parameters/climate-data/#scenario3) was selected: *regional rivalry* (a rocky road).
+*Shared Socioeconomic Pathways (SSPs)* are climate change scenarios of projected socioeconomic global changes up to 2100 as defined in the IPCC Sixth Assessment Report on climate change in 2021. Of these the [Shared Socioeconomic Pathway](https://climatedata.ca/resource/understanding-shared-socio-economic-pathways-ssps/) [SSP3-RCP7](https://www.meteomatics.com/en/api/available-parameters/climate-data/#scenario3) was selected: *regional rivalry* (a rocky road):
 
-*\"The world follows a path in which social, economic, and technological trends do not shift markedly from historical patterns. Development and income growth proceeds unevenly, with some countries making relatively good progress while others fall short of expectations. Global and national institutions work toward but make slow progress in achieving sustainable development goals. Environmental systems experience degradation, although there are some improvements and overall the intensity of resource and energy use declines. Global population growth is moderate and levels off in the second half of the century. Income inequality persists or improves only slowly and challenges to reducing vulnerability to societal and environmental changes remain.\"*
+> The world follows a path in which social, economic, and technological trends do not shift markedly from historical patterns. Development and income growth proceeds unevenly, with some countries making relatively good progress while others fall short of expectations. Global and national institutions work toward but make slow progress in achieving sustainable development goals. Environmental systems experience degradation, although there are some improvements and overall the intensity of resource and energy use declines. Global population growth is moderate and levels off in the second half of the century. Income inequality persists or improves only slowly and challenges to reducing vulnerability to societal and environmental changes remain.
 
 #### Data
 
-The collection contains over 36 million data records, one for each grid cell. This data source is usually interrogated providing a point and selecting the grid cell that contains it. There are also services that provide a selection of grid cells within a specific distance range, contained by or intersecting a provided geometric shape, the results can also be aggregated.
+The collection contains over 36 million data records, *one* for *each grid cell*. This data source is usually interrogated providing a *point* and *selecting* the *grid cell* that *contains it*. There are also services that allow *selecting* a *set of grid cells* based on *distance range*, that are *contained* or that *intersect* with a provided *reference geometry*: the *results* can be *listed* or *aggregated* using a set of *statistical methods*.
 
 The records are structured as follows:
 
@@ -85,26 +85,26 @@ The records are structured as follows:
 }
 ```
 
-The `_key` represents the *primary key* of the record, it is the *MD5 hash* of the `geometry_bounds` field.
+The `_key` represents the *primary key* of the record, it is the [MD5](https://en.wikipedia.org/wiki/MD5) hash of the `geometry_bounds` field.
 
-The `std_dataset_ids` field contains the list of all datasets present in the record; the values are references to the corresponding `Dataset` records.
+The `std_dataset_ids` field contains the *list* of *all datasets* featured *in the record*; the values are *references* to the corresponding `Dataset` records.
 
-The `geometry_point` contains the GeoJSON point coordinates of the center of the measurement grid cell.
+The `geometry_point` contains the [GeoJSON](https://geojson.org) *point coordinates* of the *center* of the *grid cell*.
 
-The `geometry_bounds` contains the GeoJSON polygon coordinates of the grid cell.
+The `geometry_bounds` contains the [GeoJSON](https://geojson.org) *polygon coordinates* of the *grid cell*.
 
-The `properties` field contains all the data, it is subdivided into the four time periods:
+The `properties` field contains all the *data*, it is subdivided into the *four time periods*:
 
-- `1981-2010`: Historical data averaged for the period ranging from 1981 to 2010. At the top level we find yearly period averages and the `std_date_span_month` field contains monthly data averages for the same period.
-- `2011-2040`: Modelled data for the period ranging from 2011 to 2040. The `MPI-ESM1-2-HR` and `ssp370` fields indicate respectively the *climate model* and the *shared socioeconomic pathway* used in the modelling. At the top level of the `ssp370` property we find yearly period averages and the `std_date_span_month` field contains monthly data averages for the same period.
-- `2041-2070`: Modelled data for the period ranging from 2041 to 2070. The structure of the data is the same as the previously described section.
-- `2071-2100`: Modelled data for the period ranging from 2071 to 2100. The structure of the data is the same as the previously described section.
+- `1981-2010`: *Historical data* averaged for the period ranging from 1981 to 2010. At the top level we find yearly period averages and the `std_date_span_month` field contains monthly data averages for the same period.
+- `2011-2040`: *Modelled data* for the period ranging from 2011 to 2040. The `MPI-ESM1-2-HR` and `ssp370` fields indicate respectively the [climate model](https://mpimet.mpg.de/en/research/department-climate-variability/earth-system-modeling-and-prediction) and the [shared socioeconomic pathway](https://www.meteomatics.com/en/api/available-parameters/climate-data/#scenario3) used in the modelling. At the top level of the `ssp370` property we find yearly period averages and the `std_date_span_month` field contains monthly data averages for the same period.
+- `2041-2070`: *Modelled data* for the period ranging from 2041 to 2070. The structure of the data is the same as the *previously described section*.
+- `2071-2100`: *Modelled data* for the period ranging from 2071 to 2100. The structure of the data is the same as the *previously described section*.
 
-All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git)
+All *data variables* are *documented* in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
 
 #### Indexes
 
-Both the `geometry_point` and the `geometry_bounds` fields are indexed with type `geo`.
+Both the `geometry_point` and the `geometry_bounds` fields are indexed with type `geo`. The point geometry is used to select by distance, while the polygon geometry is used for all other geometry searches.
 
 ### WorldClim
 
@@ -112,13 +112,13 @@ Both the `geometry_point` and the `geometry_bounds` fields are indexed with type
 
 Future climate scenarios come from the [Max Plank Institute Earth System Model](https://mpimet.mpg.de/en/research/department-climate-variability/earth-system-modeling-and-prediction) version [MPI-ESM1-2-HR](https://www.wdc-climate.de/ui/cmip6?input=CMIP6.HighResMIP.MPI-M.MPI-ESM1-2-HR), a [climate model](https://www.carbonbrief.org/cmip6-the-next-generation-of-climate-models-explained/) developed as part of the internationally-coordinated Coupled Model Intercomparison Project Phase 6 ([CMIP6](https://pcmdi.llnl.gov/CMIP6/)). The monthly values were averages over 4 20 year periods, 2021-2040, 2041-2060, 2061-2080 and 2081-2100. 
 
-Shared Socioeconomic Pathways (SSPs) are climate change scenarios of projected socioeconomic global changes up to 2100 as defined in the IPCC Sixth Assessment Report on climate change in 2021. Of these the [Shared Socioeconomic Pathway](https://climatedata.ca/resource/understanding-shared-socio-economic-pathways-ssps/) [SSP3-RCP7](https://www.meteomatics.com/en/api/available-parameters/climate-data/#scenario3) was selected: *regional rivalry* (a rocky road).
+Shared Socioeconomic Pathways (SSPs) are climate change scenarios of projected socioeconomic global changes up to 2100 as defined in the IPCC Sixth Assessment Report on climate change in 2021. Of these the [Shared Socioeconomic Pathway](https://climatedata.ca/resource/understanding-shared-socio-economic-pathways-ssps/) [SSP3-RCP7](https://www.meteomatics.com/en/api/available-parameters/climate-data/#scenario3) was selected: *regional rivalry* (a rocky road):
 
-*\"The world follows a path in which social, economic, and technological trends do not shift markedly from historical patterns. Development and income growth proceeds unevenly, with some countries making relatively good progress while others fall short of expectations. Global and national institutions work toward but make slow progress in achieving sustainable development goals. Environmental systems experience degradation, although there are some improvements and overall the intensity of resource and energy use declines. Global population growth is moderate and levels off in the second half of the century. Income inequality persists or improves only slowly and challenges to reducing vulnerability to societal and environmental changes remain.\"*
+> The world follows a path in which social, economic, and technological trends do not shift markedly from historical patterns. Development and income growth proceeds unevenly, with some countries making relatively good progress while others fall short of expectations. Global and national institutions work toward but make slow progress in achieving sustainable development goals. Environmental systems experience degradation, although there are some improvements and overall the intensity of resource and energy use declines. Global population growth is moderate and levels off in the second half of the century. Income inequality persists or improves only slowly and challenges to reducing vulnerability to societal and environmental changes remain.
 
 #### Data
 
-The collection contains over 21 million data records, one for each grid cell. This data source is usually interrogated providing a point and selecting the grid cell that contains it. There are also services that provide a selection of grid cells within a specific distance range, contained by or intersecting a provided geometric shape, the results can also be aggregated.
+The collection contains over 21 million data records, one for each grid cell. This data source is usually interrogated providing a *point* and *selecting* the *grid cell that contains it*. There are also services that provide a *selection of grid cells* within a specific *distance range*, *contained by* or *intersecting* a provided *geometric shape*, the results can *also be aggregated*.
 
 The data is structured as follows:
 
@@ -195,36 +195,38 @@ The data is structured as follows:
 }
 ```
 
-The `_key` represents the *primary key* of the record, it is the *MD5 hash* of the `geometry_bounds` field.
+The `_key` represents the *primary key* of the record, it is the *[MD5](https://en.wikipedia.org/wiki/MD5) hash* of the `geometry_bounds` field.
 
-The `std_dataset_ids` field contains the list of all datasets present in the record; the values are references to the corresponding `Dataset` records.
+The `std_dataset_ids` field contains the *list* of all *datasets* present in the record; the values are *references* to the corresponding `Dataset` records.
 
-The `geometry_point` contains the GeoJSON point coordinates of the center of the measurement grid cell.
+The `geometry_point` contains the [GeoJSON](https://geojson.org) *point* of the *center* of the *grid cell*.
 
-The `geometry_bounds` contains the GeoJSON polygon coordinates of the grid cell.
+The `geometry_bounds` contains the [GeoJSON](https://geojson.org) *polygon* of the *grid cell*.
 
-The `properties` field contains all the data, it is subdivided into the four time periods:
+The `properties` field contains all the data:
 
-- `topography`: This section contains the average elevation of the current grid cell, provided by WorldClim.
-- `1970-2000`: Historical data averaged for the period ranging from 1970 to 2000. At the top level we find yearly period averages and the `std_date_span_month` field contains monthly data averages for the same period.
-- `2021-2040`: Modelled data for the period ranging from 2021 to 2040. The `MPI-ESM1-2-HR` and `ssp370` fields indicate respectively the *climate model* and the *shared socioeconomic pathway* used in the modelling. At the top level of the `ssp370` property we find yearly period averages and the `std_date_span_month` field contains monthly data averages for the same period.
-- `2041-2060`: Modelled data for the period ranging from 2041 to 2060. The structure of the data is the same as the previously described section.
-- `2061-2080`: Modelled data for the period ranging from 2061 to 2080. The structure of the data is the same as the previously described section.
-- `2081-2100`: Modelled data for the period ranging from 2081 to 2100. The structure of the data is the same as the previously described section.
+- `topography`: This section contains the *average elevation* of the current grid cell, *provided by WorldClim*.
+- `1970-2000`: *Historical data* averaged for the period ranging from 1970 to 2000. At the top level we find *yearly* period *averages* and the `std_date_span_month` field contains *monthly* data *averages* for the same period.
+- `2021-2040`: *Modelled data* for the period ranging from 2021 to 2040. The `MPI-ESM1-2-HR` and `ssp370` fields indicate respectively the [climate model](https://mpimet.mpg.de/en/research/department-climate-variability/earth-system-modeling-and-prediction) and the [shared socioeconomic pathway](https://www.meteomatics.com/en/api/available-parameters/climate-data/#scenario3) used in the modelling. At the top level of the `ssp370` property we find *yearly* period *averages* and the `std_date_span_month` field contains *monthly* data *averages* for the same period.
+- `2041-2060`: Modelled data for the period ranging from 2041 to 2060. The structure of the data is the same as the *previously described section*.
+- `2061-2080`: Modelled data for the period ranging from 2061 to 2080. The structure of the data is the same as the *previously described section*.
+- `2081-2100`: Modelled data for the period ranging from 2081 to 2100. The structure of the data is the same as the *previously described section*.
 
-All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
+All *data variables* are *documented* in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
 
 #### Indexes
 
-Both the `geometry_point` and the `geometry_bounds` fields are indexed with type `geo`.
+Both the `geometry_point` and the `geometry_bounds` fields are indexed with type `geo`. The point geometry is used to select by distance, while the polygon geometry is used for all other geometry searches.
 
 ### Shapes
 
-Each dynamic conservation unit can be divided or partitioned into one or more geographic shapes of which averaged climatic and remote sensing data is made available. The idea is to distinguish specific topographic or biological regions, within the conservation unit, and link these polygons or multi-polygons to a set of data records contained in the `ShapeData` collection.
+Each *dynamic conservation unit* can be *divided* or *partitioned* into one or more *geographic shapes* of which *averaged* climatic and remote sensing *data is made available*. The idea is to distinguish specific topographic or biological regions, within the conservation unit, and link these polygons or multi-polygons to a set of data records contained in the `ShapeData` collection.
 
 #### Data
 
-Each record represents a shape that can either be a polygon or a multi-polygon. This collection serves the purpose of selecting the remote sensing geographic area of interest and features records with this structure:
+Each record represents a *geometry* that can either be a polygon or a *multi-polygon*. The geometry is *characterised* by *topographic information* and is *referenced* by *time series* data stored in the `ShapeData` collection.
+
+Records are structured as follows:
 
 ```json
 {
@@ -251,15 +253,15 @@ Each record represents a shape that can either be a polygon or a multi-polygon. 
 }
 ```
 
-The `_key` represents the *primary key* of the record, it is the *MD5 hash* of the `geometry_bounds` field.
+The `_key` represents the *primary key* of the record, it is the *[MD5](https://en.wikipedia.org/wiki/MD5) hash* of the `geometry_bounds` field, this value will be used in the `ShapeData` collection to *reference* the *corresponding geometry*.
 
-The `std_dataset_ids` field contains the list of all datasets featuring data for the current record; the values are references to the corresponding `Dataset` records.
+The `std_dataset_ids` field contains the *list* of all *datasets* featuring data for the current record; the values are *references* to the corresponding `Dataset` records.
 
-The `properties` field contains averaged topographic data related to the current shape area, `geometry`. Note that all *other* data referring to the shape is stored in the `ShapeData` collection.
+The `properties` field contains *averaged topographic data* related to the current shape area, `geometry`. Note that all *other* data referring to the shape is stored in the `ShapeData` collection.
 
-The `geometry` contains the shape area in GeoJSON format. It may either be a `Polygon` or a `MultiPolygon`, in the latter case data is averaged on all enclosed polygons. All data referring to the current shape is averaged on this geometry.
+The `geometry` contains the geometry in [GeoJSON](https://geojson.org) format. It may either be a `Polygon` or a `MultiPolygon`, in the latter case data is averaged on all enclosed polygons. All *data* referring to the current shape is *averaged* on this *geometry*.
 
-The `geometry_bounds` contains the GeoJSON shape bounding box.
+The `geometry_bounds` contains the [GeoJSON](https://geojson.org)  bounding box expressed as a polygon.
 
 All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
 
@@ -308,7 +310,7 @@ This collection contains all data related to the `Shapes` collection. All data i
 
 #### Data
 
-The collection currently contains over 47 million records, the size depends on the number of shapes and the date ranges. Each record represents the data of a shape, period (*either daily, monthly or annual*) and for a specific date:
+The collection currently contains over 47 million records, the size depends on the number of shapes and the date ranges. Each record represents the *data* of a geometry, *period* (*either daily, monthly or annual*) and for a specific *date*:
 
 ```json
 {
@@ -353,17 +355,17 @@ The collection currently contains over 47 million records, the size depends on t
 }
 ```
 
-The `geometry_hash` points to the `Shapes` record, it is the MD5 hash of the shape `geometry` property.
+The `geometry_hash` points to the `Shapes` record, it is the [MD5](https://en.wikipedia.org/wiki/MD5) hash of the shape `geometry` property.
 
-The `std_date_span` field represents the time period associated with the measurement: `std_date_span_day` for daily data, `std_date_span_month` for monthly averages and `std_date_span_year` for yearly averages.
+The `std_date_span` field represents the *time period* associated with the measurement: `std_date_span_day` for *daily* data, `std_date_span_month` for *monthly* averages and `std_date_span_year` for *yearly* averages.
 
-The `std_date` field represents the measurement date in `YYYYMMDD` format, `Y` for year, `M` for month and `D` for day. Daily data requires the full date, monthly data can omit the month and yearly data can omit month and day.
+The `std_date` field represents the measurement *date* in `YYYYMMDD` format, `Y` for year, `M` for month and `D` for day. Daily data requires the full date, monthly data can omit the month and yearly data can omit month and day.
 
-The `properties` field contains the remote sensing data, above is an example. All remote sensing data is aggregated and grouped by *shape*, *span* and *date*.
+The `properties` field contains the remote sensing data *averaged for the current geometry*.
 
-The `std_terms` field contains the list of featured data properties.
+The `std_terms` field contains the *list* of featured *data properties*.
 
-The `std_dataset_ids` field contains the list of referenced datasets, the values are links to `Dataset` collection records.
+The `std_dataset_ids` field contains the *list* of referenced *datasets*, the values are *links* to `Dataset` collection records.
 
 All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
 
@@ -371,17 +373,17 @@ All properties are documented in the [data dictionary](https://github.com/skofic
 
 The collection features three indexes, besides the default primary key:
 
-- An index comprising the `geometry_hash`, `std_date_span` and `std_date`, respectively representing the shape, the date span and the date. This index is *unique*.
-- An index comprising the `geometry_hash` and `std_dataset_ids[*]`, respectively representing the shape and the individual dataset references.
-- An index comprising the `geometry_hash` and `std_terms[*]`, respectively representing the shape and the individual featured data property names.
+- An index comprising the `geometry_hash`, `std_date_span` and `std_date`, respectively representing the *geometry*, the *date span* and the *date*. This index is *unique*.
+- An index comprising the `geometry_hash` and `std_dataset_ids[*]`, respectively representing the *geometry* and the individual *dataset references*.
+- An index comprising the `geometry_hash` and `std_terms[*]`, respectively representing the *geometry* and the individual featured *data property references*.
 
 ### UnitShapes
 
-This collection links the unity identifiers to the shape identifiers, it is used to group all shapes belonging to a conservation unit and conservation unit version.
+This collection links the *unit identifiers* with the *geometry identifiers*, it is used to *group* all *geometries* belonging to a *conservation unit* and *conservation unit version*.
 
 #### Data
 
-The data contains the reference to the shape, the reference to the unit and the reference to the specific unit version:
+The data contains the *reference* to the *geometry*, the *reference* to the *conservation unit* and the reference to the specific *conservation unit version*:
 
 ```json
 {
@@ -391,17 +393,17 @@ The data contains the reference to the shape, the reference to the unit and the 
 }
 ```
 
-The `geometry_hash` references the `Shapes` record primary key, it is the MD5 hash of the shape GeoJSON geometry.
+The `geometry_hash` references the `Shapes` record primary key, it is the [MD5](https://en.wikipedia.org/wiki/MD5) hash of the [GeoJSON](https://geojson.org) geometry.
 
-The `gcu_id_number` is the unique identifier of the conservation unit.
+The `gcu_id_number` is the *identifier* of the *conservation unit*.
 
-The `gcu_id_unit-id` is the identifier of the specific data version of the unit; *each unit has a set of data corresponding to the observation date, the code is the unit ID and the observation year*.
+The `gcu_id_unit-id` is the *identifier* of the specific *data version* of the *conservation unit*.
 
 All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
 
 #### Indexes
 
-All fields feature an individual index: `geometry_hash`, `gcu_id_number` and `gcu_id_unit-id`.
+All fields feature an index: `geometry_hash`, `gcu_id_number` and `gcu_id_unit-id`.
 
 ### DroughtObservatory
 
@@ -409,20 +411,11 @@ This collection contains over 1.2 billion records from the [European Drought Obs
 
 #### Data
 
-The records have the following structure:
+The records are grouped by *geometry* and *date*, and have the following structure:
 
 ```json
 {
     "geometry_hash": "7e142bf917dbf13cd8c106142cabc9f9",
-    "geometry_point_radius": 0.125,
-    "geometry_point": {
-      "type": "Point",
-      "coordinates": [ /* data */ ]
-    },
-    "geometry_bounds": {
-      "type": "Polygon",
-      "coordinates": [ /* data */ ]
-    },
     "std_date": "19991224",
     "properties": {
       "env_climate_hcwi_min": -20.879,
@@ -435,20 +428,14 @@ The records have the following structure:
     "std_dataset_ids": [
       "6b12011e-ef30-47d4-b4a3-3c8bdc4b4464"
     ]
-  }
+}
 ```
 
-The `geometry_hash` references the record in the `DroughtObservatoryMap` collection that represents the grid cell, it is the MD5 hash of the `geometry` property in the `DroughtObservatoryMap` collection, which exists in this record in `geometry_bounds`.
+The `geometry_hash` references the record in the `DroughtObservatoryMap` collection that represents the *grid cell*, it is the [MD5](https://en.wikipedia.org/wiki/MD5) hash of the [GeoJSON](https://geojson.org) *polygon* representing the *grid cell* that is the `geometry` property in the `DroughtObservatoryMap` collection.
 
-The `geometry_point_radius` field represents the latitude radius, in decimal degrees, of the grid cell: it represents the grid resolution.
+The `std_date` field represents the measurement *date* in `YYYYMMDD` format, `Y` for year, `M` for month and `D` for day. All dates have a *daily span*.
 
-The `geometry_point` property contains the GeoJSON point of the grid cell center.
-
-The `geometry_bounds` property contains the GeoJSON polygon of the grid cell.
-
-The `std_date` field represents the measurement date in `YYYYMMDD` format, `Y` for year, `M` for month and `D` for day. All dates have a daily span.
-
-The `properties` field contains the indicators, above is an example. All data is aggregated and grouped by *grid cell shape*and *date*.
+The `properties` field contains the *data measurements*.
 
 The `std_terms` field contains the list of featured data properties.
 
@@ -462,7 +449,7 @@ The collection features a *unique* index on the `geometry_hash` and `std_date` f
 
 ### DroughtObservatoryMap
 
-This collection contains one record for each grid cell from the [European Drought Observatory](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) repository, it contains almost 1.5 million records. It is used to select `DroughtObservatory` collection data according to location.
+This collection contains one record for each grid cell from the [European Drought Observatory](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) repository, it contains almost 1.5 million records. It is used to record the geometry of the grid cellsand to link`DroughtObservatory` collection time series.
 
 #### Data
 
@@ -483,13 +470,15 @@ Records follow this structure:
 }
 ```
 
-The `_key` field represents the record primary key, it is the MD5 hash of `geometry`.
+The `_key` field represents the record *primary key*, it is the [MD5](https://en.wikipedia.org/wiki/MD5) hash of `geometry`.
 
-The `geometry` field contains the GeoJSON geometry of the grid cell.
+The `geometry` field contains the [GeoJSON](https://geojson.org) *geometry* of the *grid cell*.
 
-The `geometry_point` field contains the GeoJSON point representing the center of the grid cell.
+The `geometry_point` field contains the [GeoJSON](https://geojson.org) *point* representing the *center* of the *grid cell*.
 
-The `geometry_point_radius` field represents the latitude radius, in decimal degrees, of the grid cell: it represents the grid resolution.
+The `geometry_point_radius` field represents the *latitude radius*, in *decimal degrees*, of the *grid cell*: it represents the *grid resolution*.
+
+All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
 
 #### Index
 
@@ -497,11 +486,11 @@ The collection features a single Geo index on the `geometry` property.
 
 ### Dataset
 
-This collection contains one record for each dataset featured in the database. A dataset represents a set of indicators belonging to the same repository, having the same resolution and sharing the same time series resolution. You have seen references to elements of this collection in almost all collections of the database.
+This collection contains one record for each *dataset* featured in the database. A dataset represents a *set of indicators* belonging to the *same repository*, they must have the same *grid resolution* and share the same *time series resolution*. You have seen references to elements of this collection in almost all collections of the database.
 
 #### Data
 
-Records of this collection contain a set of fields that record the metadata of the dataset, this is a typical record example:
+Records of this collection contain a set of fields that record the *metadata* of the *dataset*, this is a typical record example:
 
 ```json
 {
@@ -528,35 +517,35 @@ Records of this collection contain a set of fields that record the metadata of t
 }
 ```
 
-The `_key` contains the primary key of the record, here it is in UUID format, the contents do not matter as long as it is unique for each dataset.
+The `_key` contains the *primary key* of the record.
 
-The `_collection` contains the collection name in which data from the current dataset is stored. It is implied that all data in the dataset is stored in one collection.
+The `_collection` contains the *database collection name* in which *data* from the *current dataset* is stored. It is implied that all data in the dataset is stored in one collection.
 
-The `std_project` represents the code of the project that is tasked to collect and provide data.
+The `std_project` represents the *code* of the *project* that is tasked to collect and provide data.
 
-The `std_dataset` is the public identifier of the dataset. In the example we have the Chelsa version 2.1 dataset code.
+The `std_dataset` is the *public identifier* of the *dataset*.
 
-The `std_dataset_group` is the identifier of the datasets group to which the current dataset belongs. In the example we assume there is a group of datasets that deal with climate data.
+The `std_dataset_group` is the *identifier* of the *group* to which the *current dataset belongs*.
 
-The `std_date_submission` contains the submission date of the dataset in `YYYYMMDD` format, `Y` for the year, `M` for the month and `D` for the day.
+The `std_date_submission` contains the *submission date* of the dataset in `YYYYMMDD` format, `Y` for the year, `M` for the month and `D` for the day.
 
-The `std_date_start` and `std_date_end` represent the time series start and end dates, also in `YYYYMMDD` format.
+The `std_date_start` and `std_date_end` represent the time series *start* and *end dates*, also in `YYYYMMDD` format.
 
-The `_title` contains the dataset title or label in Markdown format, note that `iso_639_3_eng` represents the english language code.
+The `_title` contains the multilingual dataset *title* or *label* in [Markdown](https://en.wikipedia.org/wiki/Markdown) format, note that `iso_639_3_eng` represents the *english language code*.
 
-The `_description` contains the dataset full description in Markdown format, note that `iso_639_3_eng` represents the english language code.
+The `_description` contains the multilingual dataset *full description* in [Markdown](https://en.wikipedia.org/wiki/Markdown) format, note that `iso_639_3_eng` represents the *english language code*.
 
-The `_citation` is an array of Markdown texts that contain the required or recommended data citations.
+The `_citation` is an array of [Markdown](https://en.wikipedia.org/wiki/Markdown) texts that contain the *required* or *recommended* data *citations*.
 
-The `_url` contains the internet references for the dataset.
+The `_url` is an arrat that contains the *internet references* for the dataset.
 
-The  `count` contains the dataset data record count.
+The  `count` contains the dataset *data record count*.
 
-The `std_terms_key` contains the list of fields that uniquely identify each record.
+The `std_terms_key` contains the *list* of *fields* that *uniquely identify* each *record*.
 
-The `std_terms` contains the list of featured indicators.
+The `std_terms` contains the *list* of featured *indicators*.
 
-The `std_terms_quant` contains the list of featured quantitative indicators.
+The `std_terms_quant` contains the *list* of featured *quantitative indicators*.
 
 #### View
 
@@ -637,7 +626,7 @@ The records are served and searched using a view:
 }
 ```
 
-You may have noticed that there are a more fields in the view than those shown in the example: this is because there are several types of datasets, each having some specific fields.
+You may have noticed that there are more fields in the view than those shown in the example: this is because there are *several types of datasets*, each having some specific fields. The datasets featured in *this database* reference *external databases*, while *other datasets* represent the project *characterisation data* and are *stored* in *another database*.
 
 ## Installation
 
@@ -649,11 +638,13 @@ You may have noticed that there are a more fields in the view than those shown i
     ![](/Users/milko/Local/Accounts/ArangoDB/Apps/_db/GeoService/env/APP/images/2-SelectService.png)
     Select the GitHub option and and fill as in the above image, press install,
     ![](/Users/milko/Local/Accounts/ArangoDB/Apps/_db/GeoService/env/APP/images/3-MountPoint.png)
-    Set the mount point as you wish, remember to keep the Run setup? checkbox selected: this will create the collections, indexes and views.
+    Set the mount point as you wish, remember to keep the `Run setup?` checkbox selected: this will create the collections, indexes and views.
 
 ## Services
 
-Once the services are installed you will have an empty configured database and microservices to query the data. To fill the data refer to this [repository](https://github.com/skofic/ClimateService.git).
+Once the services are installed you will have an empty configured database and microservices to query the data.
+
+To fill the data refer to this [repository](https://github.com/skofic/ClimateService.git). *Note that loading the database with data is a **VERY LONG** process and requires **A LOT** of **RESOURCES***.
 
 The directory containing the services has the following elements:
 
@@ -661,7 +652,7 @@ The directory containing the services has the following elements:
 - **`images`**: Images used in this README.md file.
 - **`notes`**: Miscellaneous notes and files.
 
-*All other files and directories* represent the source files, please refer to the [Foxx microservices documentation](https://docs.arangodb.com/stable/develop/foxx-microservices/) for more information.
+*All other files and directories* represent the source files, please refer to the [Foxx microservices documentation](https://docs.arangodb.com/stable/develop/foxx-microservices/) for more information. *Note that if you use the ArangoDB default user interface, all services are documented*.
 
 The microservices are divided into the following sections:
 
@@ -671,10 +662,10 @@ This section contains the services used to query and aggregate [Chelsa](https://
 
 Records are stored in the `Chelsa` collection and structured as follows:
 
-- **`geometry_hash`**: This is the MD5 hash of the geometry_bounds property, it represents the primary key of the record.
-- **`geometry_point`**: This is the GeoJSON point corresponding to the center of the measurement area.
-- **`geometry_bounds`**: This is the GeoJSON polygon corresponding to the measurement area.
-- **`properties`**: This contains the data properties, this is the list of indicators:
+- **`geometry_hash`**: This is the [MD5](https://en.wikipedia.org/wiki/MD5) hash of the `geometry_bounds` property, it represents the *primary key* of the record.
+- **`geometry_point`**: This is the [GeoJSON](https://geojson.org) *point* corresponding to the *center* of the *grid cell*.
+- **`geometry_bounds`**: This is the [GeoJSON](https://geojson.org) *polygon* of the *grid cell*.
+- **`properties`**: This contains the *data indicators*:
     - ***`env_climate_ai`***: Aridity index.
     - ***`env_climate_bio01`***: Mean annual air temperature.
     - ***`env_climate_bio02`***: Mean diurnal air temperature range.
@@ -753,70 +744,58 @@ Records are stored in the `Chelsa` collection and structured as follows:
 
 This `properties` field is divided into four sections:
 
-- `1981-2010`: Data averages for the period starting in 1981 and ending in 2010. Monthly data is available under the `std_date_span_month` property.
-- `2011-2040`: Future modelled averages for the period starting in 2011 and ending in 2040. This property contains two additional child sections that indicate respectively the climate scenario model and the shared socioeconomic pathway used to calculate the values, the indicators are found under the latter level. See the database Chelsa data section in this document for more information.
-- `2041-2070`: Future modelled averages for the period starting in 2041 and ending in 2070, the structure is the same as the previous section.
-- `2071-2100`: Future modelled averages for the period starting in 2071 and ending in 2100, the structure is the same as the previous section.
+- `1981-2010`: Data *averages* for the *period* starting in 1981 and ending in 2010. *Monthly* data is available under the `std_date_span_month` property.
+- `2011-2040`: *Future modelled averages* for the period starting in 2011 and ending in 2040. This property contains two additional *child sections* that indicate respectively the *climate scenario model* and the *shared socioeconomic pathway* used to *calculate the values*, the indicators are found under the latter level. *See the database Chelsa data section in this document for more information*.
+- `2041-2070`: *Future modelled averages* for the period starting in 2041 and ending in 2070, the structure is the same as the previous section.
+- `2071-2100`: *Future modelled averages* for the period starting in 2071 and ending in 2100, the structure is the same as the previous section.
 
-#### Get data corresponding to the provided coordinates
-
-This service can be used to get the Chelsa record corresponding to the provided coordinates, the service expects the latitude, `lat`, and longitude, `lon`, in decimal degrees, provided as *query parameters*. The service will return the record whose measurement bounding box, `geometry_bounds`, contains that point.
-
-#### Get selection or aggregation of records within a distance range
-
-The service will select all Chelsa records that lie within a *distance range* from the provided *reference geometry* query parameter, `geometry`. The distance is calculated from the *wgs84 centroids* of both the *reference geometry* and the Chelsa measurement area center, `geometry_point`.
-
-The service expects the following *query path parameters*:
+All services, except the first, expect the following *path query parameters*:
 
 - `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
     - *List of records*:
-        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
-        -  `SHAPE`: Returns the geometry information of the selected records:
-            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
-            - `distance`: The distance in meters between the centroid of the provided reference geometry and the record's `geometry_point`.
-            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
-            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
+        - `KEY`: Return the *list* of *geometry hashes*, `geometry_hash`, or *primary key values*.
+        - `SHAPE`: Returns the *geometry* information of the *selected records*:
+            - `geometry_hash`: The [MD5](https://en.wikipedia.org/wiki/MD5) hash of the [GeoJSON](https://geojson.org) measurement area polygon, or *record primary key*.
+            - `distance`: The *distance in meters* between the *centroids* of the provided *reference geometry* and the record's `geometry_point`.
+            - `geometry_point`: The [GeoJSON](https://geojson.org) *center point* of the *grid cell*, `geometry_bounds`.
+            - `geometry_bounds`: The [GeoJSON](https://geojson.org) *polygon* of the *grid cell*.
         - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
-    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection; `distance`, the aggregated distance according to the `what` parameter and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
+    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the *number of records* in the selection; `distance`, the *aggregated distance* according to the `what` parameter and `properties`, containing the *indicators* as described above in the `properties` field *aggregated* according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
         - `MIN`: *Minimum*. 
         - `AVG`: Average.
         - `MAX`: *Maximum*.
         - `STD`: *Standard deviation*.
         - `VAR` *Variance*.
+
+#### Get data corresponding to the provided coordinates
+
+This service can be used to get the *Chelsa record* that *contains* the *provided coordinates*, the service expects the latitude, `lat`, and longitude, `lon`, in *decimal degrees*, provided as *query parameters*. The service will return the record whose measurement bounding box, `geometry_bounds`, contains that point.
+
+#### Get selection or aggregation of records within a distance range
+
+The service will select all Chelsa records that lie within a *distance range* from the provided *reference geometry* query parameter, `geometry`. The distance is calculated from the *wgs84 centroids* of both the *reference geometry* and the Chelsa *grid cell center*, `geometry_point`.
+
+The service expects the *default path query parameters*, plus the following *additional parameters*:
+
 - `min`: This *required* parameter represents the range's *minimum distance*. The value is inclusive.
 - `max`: This *required* parameter represents the range's *maximum distance*. The value is inclusive.
 - `sort`: This *optional* parameter determines whether results should be *sorted* and in what *order*. The parameter is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. The sort order is determined by the *distance*.
 
 And the following *body parameters*:
 
-- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* whose *centroid* will be used to select all Chelsa records *within* the provided *distance range*. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
+- `geometry`: This *required* *body parameter* represents the [GeoJSON](https://geojson.org) *reference geometry* whose *centroid* will be used to select all Chelsa records *within* the provided *distance range*. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
 - `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 - `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 
 #### Get selection or aggregation of records contained by the provided geometry
 
-The service will select all Chelsa records whose measurement area centers, `geometry_point`, are *fully contained* by the provided *reference geometry* query parameter, `geometry`.
+The service will select all Chelsa records whose *grid cell centroids*, `geometry_point`, are *fully contained* by the provided *reference geometry* query parameter, `geometry`.
 
-The service expects the following *query path parameters*:
+The service expects the *default path query parameters*.
 
-- `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
-    - *List of records*:
-        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
-        -  `SHAPE`: Returns the geometry information of the selected records:
-            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
-            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
-            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
-        - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
-    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
-        - `MIN`: *Minimum*. 
-        - `AVG`: Average.
-        - `MAX`: *Maximum*.
-        - `STD`: *Standard deviation*.
-        - `VAR` *Variance*.
+The service expects the following *body parameters*:
 
-And the following *body parameters*:
-
-- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* that should contain the Chelsa record `geometry_point` coordinates. It may be a *Polygon* or *MultiPolygon*.
+- `geometry`: This *required* body parameter represents the [GeoJSON](https://geojson.org) *reference geometry* that should contain the Chelsa record `geometry_point` coordinates. It may be a *Polygon* or *MultiPolygon*.
 - `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 - `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 
@@ -824,39 +803,24 @@ And the following *body parameters*:
 
 The service will select all Chelsa records whose measurement area, `geometry_bounds`, *intersect* with the provided *reference geometry* query parameter, `geometry`.
 
-The service expects the following *query path parameters*:
-
-- `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
-    - *List of records*:
-        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
-        -  `SHAPE`: Returns the geometry information of the selected records:
-            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
-            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
-            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
-        - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
-    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
-        - `MIN`: *Minimum*. 
-        - `AVG`: Average.
-        - `MAX`: *Maximum*.
-        - `STD`: *Standard deviation*.
-        - `VAR` *Variance*.
+The service expects the *default path query parameters*.
 
 And the following *body parameters*:
 
-- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* that should contain the Chelsa record `geometry_point` coordinates. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
+- `geometry`: This *required* body parameter represents the [GeoJSON](https://geojson.org) *reference geometry* that should intersect the Chelsa record `geometry_point` coordinates. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
 - `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 - `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 
 ### WorldClim
 
-This section contains the services used to query and aggregate [WorldClim](https://worldclim.org) data. Each record represents a 30 seconds arc grid cell containing historic and future modelled data covering yearly and monthly statistics.
+This section contains the services used to query and aggregate [WorldClim](https://worldclim.org) data. Each record represents a 30 seconds arc grid cell containing *historic* and *future modelled* data covering *yearly* and *monthly* statistics.
 
 Records are stored in the `WorldClim` collection and structured as follows:
 
-- **`geometry_hash`**: This is the MD5 hash of the geometry_bounds property, it represents the primary key of the record.
-- **`geometry_point`**: This is the GeoJSON point corresponding to the center of the measurement area.
-- **`geometry_bounds`**: This is the GeoJSON polygon corresponding to the measurement area.
-- **`properties`**: This contains the data properties, this is the list of indicators:
+- **`geometry_hash`**: This is the [MD5](https://en.wikipedia.org/wiki/MD5) hash of the `geometry_bounds` property, it represents the primary key of the record.
+- **`geometry_point`**: This is the [GeoJSON](https://geojson.org) *point* corresponding to the *centroid* of the *grid cell*.
+- **`geometry_bounds`**: This is the [GeoJSON](https://geojson.org) *polygon* of the *grid cell*.
+- **`properties`**: This contains the *data properties*, this is the list of indicators:
     - ***`geo_shape_elevation`***: Mean elevation for the measurement area.
     - ***`env_climate_bio01`***: Mean annual air temperature.
     - ***`env_climate_bio02`***: Mean diurnal air temperature range.
@@ -865,10 +829,10 @@ Records are stored in the `WorldClim` collection and structured as follows:
     - ***`env_climate_bio05`***: Mean daily maximum air temperture of the warmest month.
     - ***`env_climate_bio06`***: Mean daily minimum air temperature of the coldest month.
     - ***`env_climate_bio07`***: Annual range of air temperature.
-    - ***`env_climate_bio08`***: Mean daily mean air tempertures of the wettest quarter.
-    - ***`env_climate_bio09`***: Mean daily mean air tempertures of the driest quarter.
-    - ***`env_climate_bio10`***: Mean daily mean air tempertures of the warmest quarter.
-    - ***`env_climate_bio11`***: Mean daily mean air tempertures of the coldest quarter.
+    - ***`env_climate_bio08`***: Mean of daily mean air tempertures of the wettest quarter.
+    - ***`env_climate_bio09`***: Mean of daily mean air tempertures of the driest quarter.
+    - ***`env_climate_bio10`***: Mean of daily mean air tempertures of the warmest quarter.
+    - ***`env_climate_bio11`***: Mean of daily mean air tempertures of the coldest quarter.
     - ***`env_climate_bio12`***: Annual precipitation amount.
     - ***`env_climate_bio13`***: Precipitation amount of the wettest month.
     - ***`env_climate_bio14`***: Precipitation amount of the driest month.
@@ -887,44 +851,47 @@ Records are stored in the `WorldClim` collection and structured as follows:
 
 This `properties` field is divided into five sections:
 
-- `1970-2000`: Data averages for the period starting in 1970 and ending in 2000. Monthly data is available under the `std_date_span_month` property.
-- `2021-2040`: Future modelled averages for the period starting in 2021 and ending in 2040. This property contains two additional child sections that indicate respectively the climate scenario model and the shared socioeconomic pathway used to calculate the values, the indicators are found under the latter level. See the database WorldClim data section in this document for more information.
-- `2041-2060`: Future modelled averages for the period starting in 2041 and ending in 2060, the structure is the same as the previous section.
-- `2061-2080`: Future modelled averages for the period starting in 2061 and ending in 2080, the structure is the same as the previous section.
-- `2081-2100`: Future modelled averages for the period starting in 2081 and ending in 2100, the structure is the same as the previous section.
+- `1970-2000`: Data *averages* for the period starting in 1970 and ending in 2000. Monthly data is available under the `std_date_span_month` property.
+- `2021-2040`: Future *modelled averages* for the period starting in 2021 and ending in 2040. This property contains two additional child sections that indicate respectively the *climate scenario model* and the *shared socioeconomic pathway* used to calculate the values, the indicators are found under the latter level. See the database WorldClim data section in this document for more information.
+- `2041-2060`: *Future modelled averages* for the period starting in 2041 and ending in 2060, the structure is the same as the previous section.
+- `2061-2080`: *Future modelled averages* for the period starting in 2061 and ending in 2080, the structure is the same as the previous section.
+- `2081-2100`: *Future modelled averages* for the period starting in 2081 and ending in 2100, the structure is the same as the previous section.
 
-#### Get data corresponding to the provided coordinates
-
-This service can be used to get the WorldClim record corresponding to the provided coordinates, the service expects the latitude, `lat`, and longitude, `lon`, in decimal degrees, provided as *query parameters*. The service will return the record whose measurement bounding box, `geometry_bounds`, contains that point.
-
-#### Get selection or aggregation of records within a distance range
-
-The service will select all WorldClim records that lie within a *distance range* from the provided *reference geometry* query parameter, `geometry`. The distance is calculated from the *wgs84 centroids* of both the *reference geometry* and the WorldClim measurement area center, `geometry_point`.
-
-The service expects the following *query path parameters*:
+All services, except the first, expect the following *path query parameters*:
 
 - `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
     - *List of records*:
-        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
-        -  `SHAPE`: Returns the geometry information of the selected records:
-            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
-            - `distance`: The distance in meters between the centroid of the provided reference geometry and the record's `geometry_point`.
-            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
-            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
+        - `KEY`: Return the *list* of *geometry hashes*, `geometry_hash`, or *primary key values*.
+        - `SHAPE`: Returns the *geometry* information of the *selected records*:
+            - `geometry_hash`: The [MD5](https://en.wikipedia.org/wiki/MD5) hash of the [GeoJSON](https://geojson.org) measurement area polygon, or *record primary key*.
+            - `distance`: The *distance in meters* between the *centroids* of the provided *reference geometry* and the record's `geometry_point`.
+            - `geometry_point`: The [GeoJSON](https://geojson.org) *center point* of the *grid cell*, `geometry_bounds`.
+            - `geometry_bounds`: The [GeoJSON](https://geojson.org) *polygon* of the *grid cell*.
         - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
-    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection; `distance`, the aggregated distance according to the `what` parameter and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
+    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the *number of records* in the selection; `distance`, the *aggregated distance* according to the `what` parameter and `properties`, containing the *indicators* as described above in the `properties` field *aggregated* according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
         - `MIN`: *Minimum*. 
         - `AVG`: Average.
         - `MAX`: *Maximum*.
         - `STD`: *Standard deviation*.
         - `VAR` *Variance*.
+
+#### Get data corresponding to the provided coordinates
+
+This service can be used to get the *WorldClim record* corresponding to the *provided coordinates*, the service expects the *latitude*, `lat`, and *longitude*, `lon`, in *decimal degrees*, provided as *path query parameters*. The service will return the record whose *grid cell*, `geometry_bounds`, *contains that point*.
+
+#### Get selection or aggregation of records within a distance range
+
+The service will select all WorldClim records that lie within a *distance range* from the provided *reference geometry* query parameter, `geometry`. The distance is calculated from the *wgs84 centroids* of both the *reference geometry* and the WorldClim *grid cell centroid*, `geometry_point`.
+
+The service expects the *default path query parameters* plus the following *additional path parameters*:
+
 - `min`: This *required* parameter represents the range's *minimum distance*. The value is inclusive.
 - `max`: This *required* parameter represents the range's *maximum distance*. The value is inclusive.
 - `sort`: This *optional* parameter determines whether results should be *sorted* and in what *order*. The parameter is relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`. The sort order is determined by the *distance*.
 
 And the following *body parameters*:
 
-- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* whose *centroid* will be used to select all WorldClim records *within* the provided *distance range*. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
+- `geometry`: This *required* body parameter represents the [GeoJSON](https://geojson.org) *reference geometry* whose *centroid* will be used to select all WorldClim records *within* the provided *distance range*. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
 - `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 - `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 
@@ -932,26 +899,11 @@ And the following *body parameters*:
 
 The service will select all WorldClim records whose measurement area centers, `geometry_point`, are *fully contained* by the provided *reference geometry* query parameter, `geometry`.
 
-The service expects the following *query path parameters*:
-
-- `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
-    - *List of records*:
-        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
-        -  `SHAPE`: Returns the geometry information of the selected records:
-            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
-            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
-            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
-        - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
-    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
-        - `MIN`: *Minimum*. 
-        - `AVG`: Average.
-        - `MAX`: *Maximum*.
-        - `STD`: *Standard deviation*.
-        - `VAR` *Variance*.
+The service expects the *default path query parameters*.
 
 And the following *body parameters*:
 
-- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* that should contain the Chelsa record `geometry_point` coordinates. It may be a *Polygon* or *MultiPolygon*.
+- `geometry`: This *required* body parameter represents the [GeoJSON](https://geojson.org) *reference geometry* that should contain the WorldClim record `geometry_point` coordinates. It may be a *Polygon* or *MultiPolygon*.
 - `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 - `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 
@@ -959,58 +911,43 @@ And the following *body parameters*:
 
 The service will select all WorldClim records whose measurement area, `geometry_bounds`, *intersect* with the provided *reference geometry* query parameter, `geometry`.
 
-The service expects the following *query path parameters*:
-
-- `what`: This *required* parameter determines the *type* of *service result*: either a *list of records* or the *aggregation of the selected records*:
-    - *List of records*:
-        - `KEY`: Return the list of geometry hashes, `geometry_hash`, or primary key values.
-        -  `SHAPE`: Returns the geometry information of the selected records:
-            - `geometry_hash`: The MD5 hash of the GeoJSON measurement area polygon, or record primary key.
-            - `geometry_point`: The GeoJSON center point of the measurement area, `geometry_bounds`.
-            - `geometry_bounds`: The GeoJSON polygon corresponding to the measurement area.
-        - `DATA`: It will return the same properties as for `SHAPE`, plus the `properties` field that contains the indicators, as described above.
-    - *Records aggregation*. The service will return a single record containing the following properties: `count`, the number of records in the selection and `properties`, containing the indicators as described above in the `properties` field aggregated according to the `what` parameter. Note that (*obviously*) only *quantitative indicators* will be returned
-        - `MIN`: *Minimum*. 
-        - `AVG`: Average.
-        - `MAX`: *Maximum*.
-        - `STD`: *Standard deviation*.
-        - `VAR` *Variance*.
+The service expects the *default path query parameters*.
 
 And the following *body parameters*:
 
-- `geometry`: This *required* body parameter represents the GeoJSON *reference geometry* that should contain the WorldClim record `geometry_point` coordinates. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
+- `geometry`: This *required* body parameter represents the [GeoJSON](https://geojson.org) *reference geometry* that should intersect the WorldClim record `geometry_point` coordinates. It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* or *MultiPolygon*.
 - `start`: This *optional* body parameter represents the *initial record index*, zero based, for returned selection of records, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 - `limit`: This *optional* body parameter represents the *number of records* to return, relevant only when the `what` parameter is `KEY`, `SHAPE` or `DATA`.
 
-### Shape Hashes
+### Hash Geometries
 
-This set of services should be used to safely generate MD5 hashes of GeoJSON shapes. These shapes can be grid cells or regions, the hash is used as a primary key to uniquely identify the shape with a 32 character string.
+This set of services should be used to safely generate [MD5](https://en.wikipedia.org/wiki/MD5) hashes of [GeoJSON](https://geojson.org) geometries. These shapes can be *grid cells* or *regions*, the hash is used as a *primary key* to *uniquely identify* the *geometry* with a 32 hexadecimal character string.
 
-Since the MD5 hash is applied to a string representing the GeoJSON shape, it is important that the conversion from JSON to string is consistent, or the hash cannot be safely used. Whenever you see the `geometry_hash` property in a record, this has been generated by one of these services.
+Since the [MD5](https://en.wikipedia.org/wiki/MD5) hash is applied to a *string* representing the [GeoJSON](https://geojson.org) geometry, it is important that the *conversion* from JSON to string *is consistent*, or the hash cannot be safely used. Whenever you see the `geometry_hash` property in a record, this has been generated by one of these services.
 
 All services return a record structured as follows:
 
-- `geometry`: The provided shape as a GeoJSON geometry.
-- `geometry_hash`: A 32 character hexadecimal string representing the MD5 hash of the provided shape in GeoJSON format.
+- `geometry`: The provided shape as a [GeoJSON](https://geojson.org) geometry.
+- `geometry_hash`: A 32 character hexadecimal string representing the [MD5](https://en.wikipedia.org/wiki/MD5) hash of the provided [GeoJSON](https://geojson.org) geometry.
 
 Shapes that have *data attached* are expected to be only *Points*, *Polygons* or *MultiPolygons*.
 
-#### Get Point hash
+#### Point
 
-This service expects two query path parameters: `lat` for the latitude and `lon` for the longitude. The service will return the hash for the GeoJSON point of the provided coordinates.
+This service expects two *query path parameters*: `lat` for the *latitude* and `lon` for the *longitude*. The service will return the hash for the [GeoJSON](https://geojson.org) *point* of the provided coordinates.
 
-#### Polygon hash
+#### Polygon
 
-This service expects a single body parameter, `coordinates`, that represents the GeoJSON coordinates part of a polygon. When creating the coordinates follow these rules:
+This service expects a single *body parameter*, `coordinates`, that represents the [GeoJSON](https://geojson.org) *coordinates* part *of a polygon*. When creating the coordinates follow these rules:
 
 - The polygon shape should be provided *at least* as *one array* representing a *linear ring*.
 - *Each linear ring* should consist of an *array* with at least *four longitude/latitude pairs*.
 - The *first* linear ring *must be the outermost*, while any *subsequent* linear ring will be *interpreted as holes*.
 - The *order* of the *sequence of coordinates* is important: *counter-clock* means the polygon area is *inside*, *clockwise* means the area of the polygon is *outside*.
 
-#### MultiPolygon hash
+#### MultiPolygon
 
-This service expects a single body parameter, `coordinates`, that represents the GeoJSON coordinates part of a multi-polygon. When creating the coordinates follow these rules:
+This service expects a single *body parameter*, `coordinates`, that represents the [GeoJSON](https://geojson.org) *coordinates* part *of a multi-polygon*. When creating the coordinates follow these rules:
 
 - The MultiPolygon shape should be provided as an *array* of *Polygon shapes*.
 - The *polygon shape* should be provided *at least* as *one array* representing a *linear ring*.
@@ -1024,34 +961,34 @@ This set of services can be used to retrieve *conservation unit records* using t
 
 These services cover the contents of the `UnitShapes` collection.
 
-#### Get unit IDs from unit number
+#### Unit ID list by unit number
 
-This service returns the unit IDs associated with the provided unit number. This service can be used to retrieve all the unit IDs associated with a specific unit number.
+This service returns the *list* of *unit IDs* associated with the *provided unit number*.
 
 The service expects the *unit number* to be provided as a *path query parameter*, `gcu_id_number`, and will return the following record:
 
 - ***`gcu_id_number`***: The provided unit number.
 - ***`gcu_id_unit-id_list`***: List of associated unit IDs.
 
-#### Get unit number and unit geometry references from unit ID
+#### Unit geometry references by unit ID
 
-This service will return the *unit number* and *unit geometry references* associated with the provided *unit ID*. This service can be used to retrieve the unit number and references to all geometries associated with a specific unit ID.
+This service will return the *unit number* and *unit geometry references* associated with the provided *unit ID*.
 
 The service expects the *unit ID* to be provided as a *path query parameter*, `gcu_id_unit-id`, and will return the following record:
 
 - ***`gcu_id_number`***: The unit number.
 - ***`gcu_id_unit-id`***: The provided unit ID.
-- ***`geometry_hash_list`***: The list of MD5 hashes of the associated geometries.
+- ***`geometry_hash_list`***: The list of [MD5](https://en.wikipedia.org/wiki/MD5) hashes of the associated geometries.
 
-#### Get unit information from geometry reference
+#### Unit by geometry reference
 
-This service will return the *unit number*, *unit ID* and *unit geometry reference* associated with the provided *geometry hash*. This service can be used to retrieve the unit information associated to a specific unit geometry.
+This service will return the *unit number*, *unit ID* associated with the provided *geometry hash*.
 
 The service expects the *unit geometry hash* to be provided as a *path query parameter*, `geometry_hash`, and will return the following record:
 
 - ***`gcu_id_number`***: The unit number.
 - ***`gcu_id_unit-id`***: The unit ID.
-- ***`geometry_hash`***: The provided gepmetry reference.
+- ***`geometry_hash`***: The [MD5](https://en.wikipedia.org/wiki/MD5) hash of the geometry.
 
 ### Conservation Unit Geometries
 
@@ -1059,34 +996,34 @@ This set of services can be used to retrieve *conservation unit geometry records
 
 A geometry record is structured as follows:
 
-- ***`geometry_hash`***: The MD5 hash of the GeoJSON geometry, either a polygon or a multi-polygon.
-- ***`std_dataset_ids`***: List of datasets associated with the record data. The value is the primary key of the `Dataset` collection.
-- ***`properties`***: A record containing properties associated with the geometry region, usually topographic information:
+- ***`geometry_hash`***: The [MD5](https://en.wikipedia.org/wiki/MD5) *hash* of the [GeoJSON](https://geojson.org) geometry, either a *polygon* or a *multi-polygon*.
+- ***`std_dataset_ids`***: List of *datasets* associated with the record data. The value is the *primary key* of the `Dataset` collection.
+- ***`properties`***: A record containing properties associated with the geometry, usually topographic information:
     - ***`geo_shape_area`***: Area.
     - ***`chr_AvElevation`***: Average elevation.
     - ***`chr_StdElevation`***: Elevation standard deviation.
     - ***`chr_AvSlope`***: Average slope.
     - ***`chr_AvAspect`***: Average aspect.
-- ***`geometry`***: The GeoJSON geometry, either a *Polygon* or *MultiPolygon*.
-- ***`geometry_bounds`***: The GeoJSON polygon enclosing the geometry.
+- ***`geometry`***: The [GeoJSON](https://geojson.org) geometry, either a *Polygon* or *MultiPolygon*.
+- ***`geometry_bounds`***: The [GeoJSON](https://geojson.org) polygon enclosing the geometry.
 
 These geometry records are stored in the `Shapes` collection.
 
-#### Get unit geometry by reference
+#### Geometry by reference
 
-This service returns the unit geometry record associated with the provided geometry reference. This service can be used to retrieve the record associated to a geometry hash.
+This service returns the *unit geometry* record associated with the *provided geometry reference*.
 
 The service expects the *geometry hash* to be provided as a *path query parameter*, `geometry_hash`.
 
-#### Get unit geometry intersecting the provided coordinates
+#### Geometry by point
 
 This service will return the *unit geometry records* that intersect the provided coordinates.
 
-The service expects the latitude, `lat`, and the longitude, `lon`, to be provided as *path query parameters*. The service will return all records that intersect the point, the result will include a property, `geometry_point`, containing the GeoJSON point geometry of the provided coordinates.
+The service expects the latitude, `lat`, and the longitude, `lon`, to be provided as *path query parameters*. The service will return all records that intersect the point, the result will include a property, `geometry_point`, containing the [GeoJSON](https://geojson.org) point geometry of the provided coordinates.
 
-#### Search unit geometry records
+#### Geometry search
 
-This service will return the *unit geometry records* that match a series of query parameters. The service can be used to select geometries based on their characteristics.
+This service will return the *unit geometry records* that *match* a series of *query parameters*. The service can be used to select geometries based on their characteristics.
 
 The query parameters are provided in the body and are structured as follows:
 
@@ -1107,9 +1044,9 @@ The query parameters are provided in the body and are structured as follows:
 - ***`chr_AvAspect`***: This property can be used to select geometries according to their average aspect: it contains two child properties:
     - ***`min`***: Minimum average aspect (included).
     - ***`max`***: Maximum average aspect (included).
-- ***`intersects`***: A GeoJSON geometry intersecting unit geometries.
+- ***`intersects`***: A [GeoJSON](https://geojson.org) geometry intersecting unit geometries.
 - ***`distance`***: A property used to select geometries by distance, the distance is calculated using the centroid of both the unit geometry and the provided reference geometry:
-    - ***`reference`***: The provided GeoJSON reference geometry.
+    - ***`reference`***: The provided [GeoJSON](https://geojson.org) reference geometry.
     - ***`range`***: The desired distance range:
         - ***`min`***: Minimum distance.
         - ***`max`***: Maximum distance.
@@ -1117,15 +1054,15 @@ The query parameters are provided in the body and are structured as follows:
     - ***`offset`***: Page records offset.
     - ***`limit`***: Maximum number of records to return.
 
-The returned records will include a `distance` property, in meters, if the selection criteria included distance.
+The returned records will add a `distance` property, in meters, *if the selection criteria included distance*.
 
 ### Remote Sensing Metadata
 
-Remote sensing data is associated to conservation unit geometries, the data is averaged for each geometry characterising the regions that make up a conservation unit. The purpose of these services is to provide aggregated information before performing queries on the actual data.
+Remote sensing data is associated to *conservation unit geometries*, the data is *averaged* for each geometry characterising the regions that make up a conservation unit. The purpose of these services is to provide *aggregated summary information* before performing queries on the actual data.
 
-The reason these services are important is that there is a very large amount of data associated with each geometry, it is therefore a good practice to retrieve a window of data selected using a user interface that limits which descriptors are returned and for which data time frame.
+The reason these services are important is that there is a very large amount of data associated with each geometry, it is therefore a good practice to retrieve a window of data selected using a user interface that limits which descriptors are returned and for which time frame.
 
-All data is stored in the `ShapeData` collection, grouped by geometry, `geometry_hash`, time span, `std_date_span`, and date, `std_date`. The main grouping in this set of services is time span, which indicates whether the date is a year, month or day.
+All data is stored in the `ShapeData` collection, grouped by *geometry*, `geometry_hash`, *time span*, `std_date_span`, and *date*, `std_date`. The main grouping in this set of services is *time span*, which indicates whether the date is a *year*, *month* or *day*.
 
 All services select remote sensing data according to a set of query parameters provided in the body, omit any to ignore:
 
@@ -1138,11 +1075,11 @@ All services select remote sensing data according to a set of query parameters p
 
 Note that all dates are expressed in `YYYYMMDD` string format, where the day, `DD`, and month, `MM`, can be omitted: this means that dates remain sorted and it is not necessary to have separate query fields for daily, monthly and yearly data.
 
-#### Unit geometry data summary by time span
+#### Metadata by time span
 
-This service will return the data summary of remote sensing data matching the query parameters provided in the body. The data will be grouped by geometry time span, `std_date_span`, and the summary data will aggregate all matched geometries in the matched time spans.
+This service will return the *data summary* of *remote sensing data* matching the query parameters provided in the body. The data will be *grouped* by *time span*, `std_date_span`, and the *summary data* will *aggregate* all *matched geometries* in the *matched time spans*.
 
-The result will be a series of records grouped by time span, `std_date_span`, and  structured as follows:
+The result will be a series of records grouped by *time span*, `std_date_span`, and  structured as follows:
 
 - ***`count`***: Number of records matched for the current time span.
 - ***`std_date_span`***: Current time span, `std_date_span_day`, `std_date_span_month` or `std_date_span_year`.
@@ -1151,15 +1088,15 @@ The result will be a series of records grouped by time span, `std_date_span`, an
 - ***`std_terms`***: List of featured variables for the current time span.
 - ***`std_dataset_ids`***: List of featured datasets for the current time span.
 
-This service is useful when one needs to provide data for a selection of geometries: the summary data provides information regarding the amount of records, the start and end dates, the featured variables and the featured datasets. This provides the necessary information to limit the information provided to the user.
+This service is useful when one needs to provide data for a selection of geometries: the *summary data* provides information regarding the *number of records*, the *start* and *end dates*, the *featured variables* and the *featured datasets*. This provides the necessary information to limit the information provided to the user.
 
-#### Unit geometry data summary by geometry and time span
+#### Metadata by geometry and time span
 
-This service will return the data summary of remote sensing data matching the query parameters provided in the body. The data will be grouped by geometry reference, `geometry_hash` and time span, `std_date_span`.
+This service will return the *data summary* of *remote sensing data* matching the query parameters provided in the body. The data will be grouped by *geometry reference*, `geometry_hash` and *time span*, `std_date_span`.
 
-The result will be one record for each geometry, within this record there will be one record for each time span with summary data regarding the current geometry and time span. The result is structured as follows:
+The result will be *one record for each geometry*, *within this record* there will be *one sub-record for each time span* with summary data regarding the current geometry and time span. The result is structured as follows:
 
-- ***`geometry_hash`***: Geometry MD5 hash, or geometry record reference.
+- ***`geometry_hash`***: Geometry [MD5](https://en.wikipedia.org/wiki/MD5) hash, or geometry record reference.
 - ***`properties`***: Summary data for the current geometry grouped by time span, `std_date_span`:
     - ***`count`***: Number of records matched for the current geometry and time span.
     - ***`std_date_span`***: Current time span, `std_date_span_day`, `std_date_span_month` or `std_date_span_year`, for the current geometry.
@@ -1172,7 +1109,7 @@ This service is useful when one needs to provide data for individual geometries:
 
 ### Remote Sensing Data
 
-This set of services can be used to retrieve remote sensing data, which is stored in the `ShapeData` collection. Remote sensing data includes the following indicators:
+This set of services can be used to retrieve *remote sensing data*, which is stored in the `ShapeData` collection. Remote sensing data includes the following indicators:
 
 - ***`chr_AvAspect`***: Average GCU aspect.
 - ***`chr_AvBiomass`***: Average GCU Biomass.
@@ -1204,9 +1141,9 @@ This set of services can be used to retrieve remote sensing data, which is store
 
 Results are sorted by date.
 
-#### Query specific geometry data by query parameters
+#### Data by geometry and time span
 
-This service will return all data for a specific geometry that satisfies a set of query parameters.
+This service will return *all data* for a *specific geometry* that satisfies a *set of query parameters*.
 
 The geometry reference is provided as a query path parameter, `geometry_hash`, and the query parameters are provided in the body and structured as follows, omit any to ignore:
 
@@ -1222,17 +1159,17 @@ The result is the time series data grouped by time span:
     - ***`std_date`***: Measurement date.
     - ***`properties`***: An object containing the data indicators for that date.
 
-### Drought Observatory Metadata
+### European Drought Observatory Metadata
 
-[European Drought Observatory](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) data is provided in a grid, the idea is that users can provide a point or shape and get in real time a set of data. The purpose of these services is to provide aggregated information before performing queries on the actual data.
+[European Drought Observatory](https://edo.jrc.ec.europa.eu/edov2/php/index.php?id=1000) data is provided in a grid, the idea is that users can provide a point or shape and get in real time a set of data. The purpose of these services is to provide *aggregated information* before performing queries on the actual data.
 
 The reason these services are important is that there is a very large amount of data associated with each point of the grid, it is therefore a good practice to retrieve a window of data selected using a user interface that limits which descriptors are returned and for which data time frame.
 
 Data is stored in two related collections: `DroughtObservatory` groups data by grid cell geometry and date, all dates are daily; `DroughtObservatoryMap` contains the geometry of all grid cells. Services are designed to first probe the grid and then associate data related to the selected cells.
 
-The grid features cells of three different resolutions, so whenever you select a point on the map you should have at least three grid cells that contain that point, the services will either return the summary data grouped by date, or by date and grid cell resolution.
+The grid features cells of three different resolutions, so whenever you select a point on the map you should have at least three grid cells that contain that point, the services will either return the *summary data* grouped by *date*, or by *date* and *grid cell resolution*.
 
-All services select data according to a set of query parameters provided in the body, omit any to ignore:
+All services select data according to a set of *query parameters* provided in the body, omit any to ignore:
 
 - ***`std_date_start`***: Time frame start date (included).
 - ***`std_date_end`***: Time frame end date (included).
@@ -1240,13 +1177,13 @@ All services select data according to a set of query parameters provided in the 
 - ***`std_dataset_ids`***: List of datasets to match.
 - ***`geometry_point_radius`***: List of grid cell resolutions to match, in degrees.
 
-#### Get summary for provided coordinates
+#### Metadata for coordinates
 
-This service will return the aggregated data summary for the data corresponding to the provided coordinates and query parameters.
+This service will return the *aggregated data summary* for the data *corresponding* to the *provided coordinates* and *query parameters*.
 
-The service expects the point coordinates as path query parameters: `lat` for the latitude and `lon` for the longitude. The query parameters can be added in the body, as described above.
+The service expects the point coordinates as path query parameters: `lat` for the *latitude* and `lon` for the *longitude*. The *query parameters* can be added in the body, as described above.
 
-The result of the service will be the aggregated summary for all grid cells that contain the provided point, the structure is as follows:
+The result of the service will be the *aggregated summary* for all grid cells that contain the provided point, the structure is as follows:
 
 - ***`count`***: Number of measurements.
 - ***`std_date_start`***: Date range start.
@@ -1254,16 +1191,16 @@ The result of the service will be the aggregated summary for all grid cells that
 - ***`std_terms`***: List of featured indicators.
 - ***`std_dataset_ids`***: List of featured datasets.
 - ***`geometry_point_radius`***: List of featured grid cell resolutions in degrees.
-- ***`geometry_point`***: List of grid cell centroids as GeoJSON point geometries.
-- ***`geometry_bounds`***: List of grid cell geometries as GeoJSON polygons.
+- ***`geometry_point`***: List of grid cell centroids as [GeoJSON](https://geojson.org) point geometries.
+- ***`geometry_bounds`***: List of grid cell geometries as [GeoJSON](https://geojson.org) polygons.
 
-#### Get summary by resolution for provided coordinates
+#### Metadata by geometry for coordinates
 
-This service will return the aggregated data summary for the data corresponding to the provided coordinates and query parameters grouped by grid cell resolution.
+This service will return the *aggregated data summary* for the data *corresponding* to the *provided coordinates* and *query parameters* grouped *by grid cell resolution*.
 
-The service expects the point coordinates as path query parameters: `lat` for the latitude and `lon` for the longitude. The query parameters can be added in the body, as described above.
+The service expects the point coordinates as path query parameters: `lat` for the *latitude* and `lon` for the *longitude*. The *query parameters* can be added in the body, as described above.
 
-The service will return one record for each grid cell that contains the provided point with the following structure:
+The service will return the *aggregated summary* data, *one record for each grid cell* that *contains the provided point* with the following structure:
 
 - ***`count`***: Number of measurements.
 - ***`std_date_start`***: Date range start.
@@ -1271,16 +1208,16 @@ The service will return one record for each grid cell that contains the provided
 - ***`std_terms`***: List of featured indicators.
 - ***`std_dataset_ids`***: List of featured datasets.
 - ***`geometry_point_radius`***: Grid cell resolution in degrees.
-- ***`geometry_point`***: GeoJSON point geometry of the grid cell centroid.
-- ***`geometry_bounds`***: GeoJSON polygon geometry of the grid cell.
+- ***`geometry_point`***: [GeoJSON](https://geojson.org) point geometry of the grid cell centroid.
+- ***`geometry_bounds`***: [GeoJSON](https://geojson.org) polygon geometry of the grid cell.
 
 ### Drought Observatory Data
 
-This set of services can be used to retrieve drought observatory data by grid cell, or aggregated by date.
+This set of services can be used to retrieve *drought observatory data* by *grid cell*, or *aggregated* by *date*.
 
-Both services expect a point whose coordinates are provided as path query parameters: `lat` for the latitude and `lon` for the longitude. Data can be further refined using a set of query parameters provided in the body, omit to ignore.
+Both services expect a point whose coordinates are provided as path query parameters: `lat` for the *latitude* and `lon` for the *longitude*. Data can be further refined using a set of query parameters provided in the body, omit to ignore.
 
-#### Get data by grid cell resolution
+#### Data by geometry
 
 This service will return the data for all grid cells that contain the point provided in the path query parameters and that satisfy the eventual query parameters in the body structured as follows:
 
@@ -1293,14 +1230,16 @@ This service will return the data for all grid cells that contain the point prov
 The result will be one record per matching grid cell:
 
 - ***`geometry_point_radius`***: The grid cell resolution in degrees.
-- ***`geometry_point`***: GeoJSON point geometry of the grid cell centroid.
-- ***`geometry_bounds`***: GeoJSON polygon geometry of the grid cell.
+- ***`geometry_point`***: [GeoJSON](https://geojson.org) point geometry of the grid cell centroid.
+- ***`geometry_bounds`***: [GeoJSON](https://geojson.org) polygon geometry of the grid cell.
 - ***`std_dataset_ids`***: List of featured datasets.
 - ***`properties`***: An array of time series data with the date, `std_date`, and the data indicators available for that date.
 
-#### Get data by date
+This service returns data for individual geometries.
 
-This service will return the aggregated data for all grid cells that contain the point provided in the path query parameters and that satisfy the eventual query parameters in the body structured as follows:
+#### Data 0by date
+
+This serv0ice will return the aggregated data for all grid cells that contain the point provided in the path query parameters and that satisfy the eventual query parameters in the body structured as follows:
 
 - ***`std_date_start`***: Date range start.
 - ***`std_date_end`***: Date range end.
@@ -1317,7 +1256,7 @@ The result will be one record per date:
 - ***`properties`***: Data indicators for that date.
 - ***`std_dataset_ids`***: List of featured datasets for that date.
 
-This service returns data regardless of the grid cell resolution.
+This service returns data for all geometries.
 
 ### Datasets
 
@@ -1359,7 +1298,7 @@ Note that datasets belonging to external databases and EUFGIS characterisation d
 
 #### Query datasets
 
-This service will return all external database dataset records matching the query parameters provided in the body. A path query parameter, op, determines whether the condition clauses are concatenated as a series of AND or OR clauses.
+This service will return all *external database dataset records* matching the query parameters provided in the body. A *path query parameter*, `op`, determines whether the condition clauses are concatenated as a series of `AND` or `OR` clauses.
 
 The selection criteria is structured as follows:
 
@@ -1404,3 +1343,12 @@ The selection criteria is structured as follows:
     - ***`items`***: List of names to match.
     - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
 
+## Progress
+
+This is a work in progress, so expect this document to grow and change over time.
+
+## Licence
+
+Copyright (c) 2023 Milko Škofič
+
+License: Apache 2
