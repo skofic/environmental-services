@@ -5,12 +5,8 @@
 ///
 const {db} = require('@arangodb')
 const {context} = require('@arangodb/locals')
+const analyzers = require("@arangodb/analyzers");
 const {documentCollections, edgeCollections, views} = require('../constants')
-
-///
-// Analyzers.
-///
-var analyzers = require("@arangodb/analyzers");
 
 ///
 // Create document collections.
