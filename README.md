@@ -641,15 +641,28 @@ You may have noticed that there are more fields in the view than those shown in 
 
 ## Installation
 
-1. You must first [install](https://docs.arangodb.com/stable/operations/installation/) [ArangoDB](https://arangodb.com) or plan to use an existing deployment.
-2. You must create a new database that will be used to host the data and services.
-3. Install the [Foxx micro services](https://docs.arangodb.com/stable/develop/foxx-microservices/), here are the instructions using the web interface:
-    ![](/Users/milko/Local/Accounts/ArangoDB/Apps/_db/GeoService/env/APP/images/1-AddService.png)
-    Create a new service by clicking the Add Service button,
-    ![](/Users/milko/Local/Accounts/ArangoDB/Apps/_db/GeoService/env/APP/images/2-SelectService.png)
-    Select the GitHub option and and fill as in the above image, press install,
-    ![](/Users/milko/Local/Accounts/ArangoDB/Apps/_db/GeoService/env/APP/images/3-MountPoint.png)
-    Set the mount point as you wish, remember to keep the `Run setup?` checkbox selected: this will create the collections, indexes and views.
+1. You must first either install [ArangoDB](https://www.arangodb.com), or have an existing database available.
+2. *Create* or *select* an existing *database*.
+3. In the `Services` *left tab* press the `+ Add service` button.
+4. Select the `GitHub` *top tab*, set the `Repository*` field to **skofic/environmental-services** and the `Version*` field to **main**; press the `Install` button.
+5. An alert will be presented requesting the `Mount point` for the service, you can provide *any suitable value*, ensure the `Run setup?` checkbox is *checked*. Press the `Install` button.
+
+At this point the service will do the following actions:
+
+1. It will create the necessary *collections*, if not already there:
+    - The *Chelsa* collection that will hold all Chelsa data.
+    - The *WorldClim* collection that will hold all WorldClim data.
+    - The *DroughtObservatory*  collection to store EDO data.
+    - The *DroughtObservatoryMap* collection to store the EDO grid.
+    - The *Shapes* collection to store all conservation unit shapes.
+    - The *ShapeData* collection to store all conservation unit shape remote sensing data.
+    - The *UnitShapes* collection to store conservation unit references to shapes.
+    - The *Dataset* collection to store all datasets metadata.
+2. It will create the necessary *views*, if not already there:
+    - The *VIEW_SHAPE* view to manage conservation unit shapes.
+    - The *VIEW_DATASET* view to manage datasets metadata.
+
+You will see that in the `Services` *left tab* there is a *top tab* called `Settings`: this can be used to *customise* the collection and view names.
 
 ## Services
 
