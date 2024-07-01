@@ -30,6 +30,15 @@ const HTTP_NOT_FOUND = status('not found');
 ///
 const queryFilters = require('../utils/queryFilters')
 
+//
+// Collections.
+//
+const view_object = db._view(module.context.configuration.viewDataset)
+const view_reference = {
+	isArangoCollection: true,
+	name: () => view_object.name()
+}
+
 ///
 // Models.
 ///
@@ -50,23 +59,23 @@ const ModelDescription = dd`
 	- \`_collection\`: The database collection name containing data.
 	- \`std_project\`: Dataset project code.
 	- \`std_dataset\`: Dataset code or acronym.
-	- \`std_date_submission\`: Dataset submission date.
-	- \`std_terms_key\`: List of key fields.
-	- \`std_terms_summary\`: List of summary fields
-	- \`_subject\`: Dataset data subject.
-	- \`_title\`: Dataset title.
-	- \`_description\`: Dataset description.
-	- \`_citation\`: Required citations.
-	- \`count\`: Number of data records.
 	- \`std_date_start\`: Data date range start.
 	- \`std_date_edd\`: Data date range end.
+	- \`std_date_submission\`: Dataset submission date.
+	- \`_subject\`: Dataset data subject.
 	- \`_subjects\`: List of subjects featured in data descriptors.
 	- \`_classes\`: List of classes featured in data descriptors.
 	- \`_domain\`: List of domains featured in data descriptors.
 	- \`_tag\`: List of tags featured in data descriptors.
+	- \`count\`: Number of data records.
+	- \`_title\`: Dataset title.
+	- \`_description\`: Dataset description.
+	- \`_citation\`: Required citations.
 	- \`species_list\`: List of species featured in data.
 	- \`std_terms\`: List of variables featured in data.
+	- \`std_terms_key\`: List of key fields.
 	- \`std_terms_quant\`: List of quantitative variables featured in data.
+	- \`std_terms_summary\`: List of summary fields
 	- \`std_dataset_markers\`: List of species/markers combinations.`
 const ModelQueryDescription = dd`
 	The body is an object that contains the query parameters:
@@ -77,19 +86,20 @@ const ModelQueryDescription = dd`
 	- \`std_dataset_group\`: Provide a list of matching dataset group codes.
 	- \`std_date\`: Data date range, provide search values for start and end dates.
 	- \`std_date_submission\`: Dataset submission date range, provide start and end dates.
-	- \`_title\`: Provide space delimited keywords to search dataset title.
-	- \`_description\`: Provide space delimited keywords to search dataset description.
-	- \`_citation\`: Provide space delimited keywords to search dataset citations.
-	- \`std_terms_key\`: Provide list of dataset key fields with all or any selector.
-	- \`std_terms_summary\`: Provide list of dataset summary fields with all or any selector.
 	- \`count\`: Provide data records count range.
-	- \`_subject\`: Provide list of matching subjects.
+	- \`_subject\`: Provide list of matching dataset subjects.
+	- \`_subjects\`: Provide list of matching data descriptor subjects.
 	- \`_classes\`: Provide list of matching classes.
 	- \`_domain\`: Provide list of matching domains.
 	- \`_tag\`: Provide list of dataset tags with all or any selector.
+	- \`_title\`: Provide space delimited keywords to search dataset title.
+	- \`_description\`: Provide space delimited keywords to search dataset description.
+	- \`_citation\`: Provide space delimited keywords to search dataset citations.
 	- \`species_list\`: Provide space delimited keywords to search species.
 	- \`std_terms\`: Provide list of featured variables in the dataset with all or any selector.
+	- \`std_terms_key\`: Provide list of dataset key fields with all or any selector.
 	- \`std_terms_quant\`: Provide list of featured quantitative variables in the dataset with all or any selector.
+	- \`std_terms_summary\`: Provide list of dataset summary fields with all or any selector.
 	Omit the properties that you don't want to search on.`
 
 
@@ -173,7 +183,7 @@ function searchDatasetObjects(request, response)
 	// Build filters block.
 	///
 	const query = aql`
-		FOR doc IN VIEW_DATASET
+		FOR doc IN ${view_reference}
 			SEARCH ${aql.join(filters, ` ${op} `)}
 		RETURN doc
 	`
@@ -217,6 +227,7 @@ function datasetQueryFilters(request, response)
 			case 'std_project':
 			case'std_dataset_group':
 			case '_subject':
+			case '_subjects':
 				filter = queryFilters.filterList(key, value)
 				break
 

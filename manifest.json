@@ -12,5 +12,67 @@
         "setup": "scripts/setup.js",
         "teardown": "scripts/teardown.js"
     },
+    "configuration": {
+        "collectionChelsa": {
+            "description": "Chelsa collection name",
+            "type": "string",
+            "required": true,
+            "default": "Chelsa"
+        },
+        "collectionWorldClim": {
+            "description": "WorldClim collection name",
+            "type": "string",
+            "required": true,
+            "default": "WorldClim"
+        },
+        "collectionDroughtObservatory": {
+            "description": "DroughtObservatory collection name",
+            "type": "string",
+            "required": true,
+            "default": "DroughtObservatory"
+        },
+        "collectionDroughtObservatoryMap": {
+            "description": "DroughtObservatoryMap collection name",
+            "type": "string",
+            "required": true,
+            "default": "DroughtObservatoryMap"
+        },
+        "collectionShapes": {
+            "description": "Shapes collection name",
+            "type": "string",
+            "required": true,
+            "default": "Shapes"
+        },
+        "collectionShapeData": {
+            "description": "ShapeData collection name",
+            "type": "string",
+            "required": true,
+            "default": "ShapeData"
+        },
+        "collectionUnitShapes": {
+            "description": "UnitShapes collection name",
+            "type": "string",
+            "required": true,
+            "default": "UnitShapes"
+        },
+        "collectionDataset": {
+            "description": "Dataset collection name",
+            "type": "string",
+            "required": true,
+            "default": "Dataset"
+        },
+        "viewDataset": {
+            "description": "Dataset view name",
+            "type": "string",
+            "required": true,
+            "default": "VIEW_DATASET"
+        },
+        "viewShape": {
+            "description": "Shapes view name",
+            "type": "string",
+            "required": true,
+            "default": "VIEW_SHAPE"
+        }
+    },
     "tests": "test/**/*.js"
 }

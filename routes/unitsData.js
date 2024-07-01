@@ -17,7 +17,7 @@ const createRouter = require('@arangodb/foxx/router')
 ///
 // Collections and models.
 ///
-const collection = db._collection('UnitShapes')
+const collection = db._collection(module.context.configuration.collectionUnitShapes)
 const ModelRecord = require('../models/unitData')
 const ModelIdRecord = require('../models/unitIdData')
 const ModelNumberRecord = require('../models/unitNumberData')

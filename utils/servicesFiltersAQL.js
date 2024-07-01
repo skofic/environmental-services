@@ -3,7 +3,7 @@
 ///
 // Modules.
 ///
-const {aql} = require('@arangodb')
+const {db, aql} = require('@arangodb')
 
 
 /**
@@ -30,6 +30,12 @@ const {aql} = require('@arangodb')
 function EDOMetadata(theLatitude, theLongitude, theFilter = {})
 {
 	///
+	// Collections.
+	///
+	const DroughtObservatory = db._collection(module.context.configuration.collectionDroughtObservatory)
+	const DroughtObservatoryMap = db._collection(module.context.configuration.collectionDroughtObservatoryMap)
+
+	///
 	// Generate AQL filters.
 	///
 	const filter = EDOQueryFilter(theFilter)
@@ -39,10 +45,10 @@ function EDOMetadata(theLatitude, theLongitude, theFilter = {})
 	///
 	return aql`
 		LET click = GEO_POINT(${theLongitude}, ${theLatitude})
-		FOR shape IN DroughtObservatoryMap
+		FOR shape IN ${DroughtObservatoryMap}
 		    ${filter.shape}
 		    
-		    FOR data IN DroughtObservatory
+		    FOR data IN ${DroughtObservatory}
 				${filter.data}
 		    
 			    COLLECT AGGREGATE start = MIN(data.std_date),
@@ -93,6 +99,12 @@ function EDOMetadata(theLatitude, theLongitude, theFilter = {})
 function EDOMetadataByGeometry(theLatitude, theLongitude, theFilter = {})
 {
 	///
+	// Collections.
+	///
+	const DroughtObservatory = db._collection(module.context.configuration.collectionDroughtObservatory)
+	const DroughtObservatoryMap = db._collection(module.context.configuration.collectionDroughtObservatoryMap)
+
+	///
 	// Generate AQL filters.
 	///
 	const filter = EDOQueryFilter(theFilter)
@@ -102,10 +114,10 @@ function EDOMetadataByGeometry(theLatitude, theLongitude, theFilter = {})
 	///
 	return aql`
 		LET click = GEO_POINT(${theLongitude}, ${theLatitude})
-		FOR shape IN DroughtObservatoryMap
+		FOR shape IN ${DroughtObservatoryMap}
 			${filter.shape}
 
-			FOR data IN DroughtObservatory
+			FOR data IN ${DroughtObservatory}
 				${filter.data}
 
 			    COLLECT bounds = shape.geometry,
@@ -156,6 +168,12 @@ function EDOMetadataByGeometry(theLatitude, theLongitude, theFilter = {})
 function EDODataByGeometry(theLatitude, theLongitude, theFilter = {})
 {
 	///
+	// Collections.
+	///
+	const DroughtObservatory = db._collection(module.context.configuration.collectionDroughtObservatory)
+	const DroughtObservatoryMap = db._collection(module.context.configuration.collectionDroughtObservatoryMap)
+
+	///
 	// Generate AQL filters.
 	///
 	const filter = EDOQueryFilter(theFilter)
@@ -165,10 +183,10 @@ function EDODataByGeometry(theLatitude, theLongitude, theFilter = {})
 	///
 	return aql`
 			LET click = GEO_POINT(${theLongitude}, ${theLatitude})
-			FOR shape IN DroughtObservatoryMap
+			FOR shape IN ${DroughtObservatoryMap}
 				${filter.shape}
 
-				FOR data IN DroughtObservatory
+				FOR data IN ${DroughtObservatory}
 					${filter.data}
 
 			        SORT data.std_date ASC
@@ -221,6 +239,12 @@ function EDODataByGeometry(theLatitude, theLongitude, theFilter = {})
 function EDODataByDate(theLatitude, theLongitude, theFilter = {})
 {
 	///
+	// Collections.
+	///
+	const DroughtObservatory = db._collection(module.context.configuration.collectionDroughtObservatory)
+	const DroughtObservatoryMap = db._collection(module.context.configuration.collectionDroughtObservatoryMap)
+
+	///
 	// Generate AQL filters.
 	///
 	const filter = EDOQueryFilter(theFilter)
@@ -247,10 +271,10 @@ function EDODataByDate(theLatitude, theLongitude, theFilter = {})
 	///
 	return aql`
 			LET click = GEO_POINT(${theLongitude}, ${theLatitude})
-			FOR shape IN DroughtObservatoryMap
+			FOR shape IN ${DroughtObservatoryMap}
 				${filter.shape}
 				
-				FOR data IN DroughtObservatory
+				FOR data IN ${DroughtObservatory}
 					${filter.data}
 			      
 				    SORT data.std_date ASC
@@ -293,6 +317,12 @@ function EDODataByDate(theLatitude, theLongitude, theFilter = {})
 function ShapeMetadataBySpan(theFilter = {})
 {
 	///
+	// Collections.
+	///
+	const Shapes = db._collection(module.context.configuration.collectionShapes)
+	const ShapeData = db._collection(module.context.configuration.collectionShapeData)
+
+	///
 	// Generate AQL filters.
 	///
 	const filter = ShapesQueryFilter(theFilter)
@@ -301,10 +331,10 @@ function ShapeMetadataBySpan(theFilter = {})
 	// Generate query.
 	///
 	return aql`
-		FOR shape IN Shapes
+		FOR shape IN ${Shapes}
 			${filter.shape}
 
-			FOR data IN ShapeData
+			FOR data IN ${ShapeData}
 		        ${filter.data}
 
 			    COLLECT span = data.std_date_span
@@ -350,6 +380,12 @@ function ShapeMetadataBySpan(theFilter = {})
 function ShapeMetadataByShape(theFilter = {})
 {
 	///
+	// Collections.
+	///
+	const Shapes = db._collection(module.context.configuration.collectionShapes)
+	const ShapeData = db._collection(module.context.configuration.collectionShapeData)
+
+	///
 	// Generate AQL filters.
 	///
 	const filter = ShapesQueryFilter(theFilter)
@@ -358,11 +394,11 @@ function ShapeMetadataByShape(theFilter = {})
 	// Generate query.
 	///
 	return aql`
-		FOR shape IN Shapes
+		FOR shape IN ${Shapes}
 			${filter.shape}
 			
 			LET summary = (
-				FOR data IN ShapeData
+				FOR data IN ${ShapeData}
 			        ${filter.data}
 	
 				    COLLECT span = data.std_date_span
@@ -415,6 +451,11 @@ function ShapeMetadataByShape(theFilter = {})
 function ShapeDataByShape(theFilter, theShape = {})
 {
 	///
+	// Collections.
+	///
+	const ShapeData = db._collection(module.context.configuration.collectionShapeData)
+
+	///
 	// Generate AQL filters.
 	///
 	const filter = ShapeQueryFilter(theFilter, theShape)
@@ -423,7 +464,7 @@ function ShapeDataByShape(theFilter, theShape = {})
 	// Generate query.
 	///
 	return aql`
-		FOR data IN ShapeData
+		FOR data IN ${ShapeData}
 			${filter.data}
 			
 			SORT data.std_date_span, data.std_date ASC

@@ -17,7 +17,7 @@ const createRouter = require('@arangodb/foxx/router')
 ///
 // Collections.
 ///
-const collection_data = db._collection('WorldClim')
+const collection_data = db._collection(module.context.configuration.collectionWorldClim)
 
 ///
 // Models.

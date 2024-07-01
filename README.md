@@ -574,6 +574,20 @@ The records are served and searched using a view:
         "identity"
       ],
       "fields": {
+        "_key": {},
+        "std_project": {},
+        "std_dataset": {},
+        "std_dataset_group": {},
+        "std_date_end": {},
+        "std_date_start": {},
+        "std_date_submission": {},
+        "count": {},
+        "_collection": {},
+        "_subject": {},
+        "_subjects": {},
+        "_classes": {},
+        "_domain": {},
+        "_tag": {},
         "_title": {
           "fields": {
             "iso_639_3_eng": {
@@ -584,18 +598,7 @@ The records are served and searched using a view:
             }
           }
         },
-        "std_date_start": {},
-        "_tag": {},
-        "std_date_submission": {},
-        "subjects": {},
-        "count": {},
-        "std_terms_quant": {},
-        "std_dataset": {},
-        "std_dataset_group": {},
-        "_subjects": {},
-        "_classes": {},
-        "_collection": {},
-        "_citation": {
+        "_description": {
           "fields": {
             "iso_639_3_eng": {
               "analyzers": [
@@ -605,14 +608,7 @@ The records are served and searched using a view:
             }
           }
         },
-        "_key": {},
-        "std_date_end": {},
-        "std_terms_key": {},
-        "std_terms_summary": {},
-        "_subject": {},
-        "std_date": {},
-        "_domain": {},
-        "_description": {
+        "_citation": {
           "fields": {
             "iso_639_3_eng": {
               "analyzers": [
@@ -629,7 +625,9 @@ The records are served and searched using a view:
           ]
         },
         "std_terms": {},
-        "std_project": {}
+        "std_terms_key": {},
+        "std_terms_quant": {},
+        "std_terms_summary": {}
       },
       "includeAllFields": false,
       "storeValues": "id",
@@ -1326,9 +1324,6 @@ The selection criteria is structured as follows:
 - ***`std_date_submission`***: Submission date range:
     - ***`std_date_start`***: Start date (included).
     - ***`std_date_end`***: End date (included).
-- ***`_title`***: Provide space delimited keywords to search dataset titlein English.
-- ***`_description`***: Provide space delimited keywords to search dataset description in English.
-- ***`_citation`***: Provide space delimited keywords to search dataset citations.
 - ***`count`***: Total number of data records:
     - ***`min`***: Minimum (included).
     - ***`max`***: Maximum (included).
@@ -1342,14 +1337,17 @@ The selection criteria is structured as follows:
 - ***`_tag`***: Tag codes featured in data descriptors:
     - ***`items`***: List of codes to match.
     - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+- ***`_title`***: Provide space delimited keywords to search dataset titlein English.
+- ***`_description`***: Provide space delimited keywords to search dataset description in English.
+- ***`_citation`***: Provide space delimited keywords to search dataset citations.
 - ***`species_list`***: Provide space delimited keywords to search scientific names.
 - ***`std_terms`***: Featured indicators:
     - ***`items`***: List of names to match.
     - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
-- ***`std_terms_quant`***: Featured quantitative indicators:
+- ***`std_terms_key`***: Featured key indicators:
     - ***`items`***: List of names to match.
     - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
-- ***`std_terms_key`***: Featured key indicators:
+- ***`std_terms_quant`***: Featured quantitative indicators:
     - ***`items`***: List of names to match.
     - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
 - ***`std_terms_summary`***: Featured summary indicators:

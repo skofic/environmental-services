@@ -25,6 +25,10 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
+        // Headers
+
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
+
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -112,6 +116,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -212,6 +217,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -332,6 +338,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -450,6 +457,10 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
+        // Headers
+
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
+
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -537,6 +548,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -637,6 +649,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -757,6 +770,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -875,6 +889,10 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
+        // Headers
+
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
+
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -955,6 +973,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -1048,6 +1067,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -1168,6 +1188,10 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
+        // Headers
+
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
+
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -1248,6 +1272,10 @@ class MyRequestController {
         URL = URL.appendingQueryParameters(URLParams)
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
+
+        // Headers
+
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
@@ -1330,6 +1358,10 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
+        // Headers
+
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
+
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -1410,6 +1442,10 @@ class MyRequestController {
         URL = URL.appendingQueryParameters(URLParams)
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
+
+        // Headers
+
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
@@ -1493,6 +1529,10 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
+        // Headers
+
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
+
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -1573,6 +1613,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -1696,6 +1737,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -1776,6 +1818,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -1860,6 +1903,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -1977,6 +2021,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -2085,6 +2130,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -2193,6 +2239,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -2301,6 +2348,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -2412,6 +2460,7 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 

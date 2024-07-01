@@ -17,7 +17,7 @@ const createRouter = require('@arangodb/foxx/router')
 ///
 // Collections and models.
 ///
-const collection = db._collection('Shapes')
+const collection = db._collection(module.context.configuration.collectionShapes)
 const ModelData = require('../models/rsShapeData')
 const ModelDataDescription =
 	'GCU shape record.\n\n' +

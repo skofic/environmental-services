@@ -7,14 +7,14 @@
 // Collections.
 ///
 const documentCollections = {
-	"chelsa": "Chelsa",
-	"worldclim": "WorldClim",
-	"shapes": "Shapes",
-	"shape_data": "ShapeData",
-	"unit_shapes": "UnitShapes",
-	"drought_observatory": "DroughtObservatory",
-	"drought_observatory_map": "DroughtObservatoryMap",
-	"dataset": "Dataset"
+	"chelsa": module.context.configuration.collectionChelsa,
+	"worldclim": module.context.configuration.WorldClim,
+	"shapes": module.context.configuration.Shapes,
+	"shape_data": module.context.configuration.ShapeData,
+	"unit_shapes": module.context.configuration.UnitShapes,
+	"drought_observatory": module.context.configuration.DroughtObservatory,
+	"drought_observatory_map": module.context.configuration.DroughtObservatoryMap,
+	"dataset": module.context.configuration.Dataset
 }
 const edgeCollections = {}
 
@@ -23,7 +23,7 @@ const edgeCollections = {}
 ///
 const views = {
 	"shapes": {
-		"name": "VIEW_SHAPE",
+		"name": module.context.configuration.viewShape,
 		"type": "arangosearch",
 		"properties": {
 			"links": {
@@ -57,7 +57,7 @@ const views = {
 		}
 	},
 	"dataset": {
-		"name": "VIEW_DATASET",
+		"name": module.context.configuration.viewDataset,
 		"type": "arangosearch",
 		"properties": {
 			"links": {
@@ -67,25 +67,19 @@ const views = {
 					],
 					"fields": {
 						"_key": {},
-						"count": {},
-						"_collection": {},
-						"_domain": {},
-						"_tag": {},
-						"_classes": {},
-						"_subject": {},
-						"_subjects": {},
 						"std_project": {},
-						"std_dataset_group": {},
 						"std_dataset": {},
-						"std_date": {},
+						"std_dataset_group": {},
 						"std_date_end": {},
 						"std_date_start": {},
 						"std_date_submission": {},
-						"std_terms": {},
-						"std_terms_key": {},
-						"std_terms_summary": {},
-						"std_terms_quant": {},
-						"subjects": {},
+						"count": {},
+						"_collection": {},
+						"_subject": {},
+						"_subjects": {},
+						"_classes": {},
+						"_domain": {},
+						"_tag": {},
 						"_title": {
 							"fields": {
 								"iso_639_3_eng": {
@@ -121,7 +115,11 @@ const views = {
 								"text_en",
 								"identity"
 							]
-						}
+						},
+						"std_terms": {},
+						"std_terms_key": {},
+						"std_terms_quant": {},
+						"std_terms_summary": {}
 					},
 					"includeAllFields": false,
 					"storeValues": "id",
