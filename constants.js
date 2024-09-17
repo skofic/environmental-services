@@ -8,13 +8,14 @@
 ///
 const documentCollections = {
 	"chelsa": module.context.configuration.collectionChelsa,
-	"worldclim": module.context.configuration.WorldClim,
-	"shapes": module.context.configuration.Shapes,
-	"shape_data": module.context.configuration.ShapeData,
-	"unit_shapes": module.context.configuration.UnitShapes,
-	"drought_observatory": module.context.configuration.DroughtObservatory,
-	"drought_observatory_map": module.context.configuration.DroughtObservatoryMap,
-	"dataset": module.context.configuration.Dataset
+	"worldclim": module.context.configuration.collectionWorldClim,
+	"drought_observatory": module.context.configuration.collectionDroughtObservatory,
+	"drought_observatory_map": module.context.configuration.collectionDroughtObservatoryMap,
+	"shapes": module.context.configuration.collectionShapes,
+	"shape_data": module.context.configuration.collectionShapeData,
+	"unit_shapes": module.context.configuration.collectionUnitShapes,
+	"unit_shapes": module.context.configuration.collectionUnitShapes,
+	"dataset": module.context.configuration.collectionDataset
 }
 const edgeCollections = {}
 
