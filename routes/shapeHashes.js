@@ -193,7 +193,7 @@ router.post('poly', function (req, res)
 	// Parameters.
 	///
 	const reference = req.body.coordinates
-	const test = { "type": "Polygon", "coordinates": reference}
+	// const test = { "type": "Polygon", "coordinates": reference}
 
 	///
 	// Perform service.
@@ -213,13 +213,23 @@ router.post('poly', function (req, res)
 	// Handle errors.
 	///
 	catch (error) {
-		throw error;
+		throw error
+	}
+	
+	///
+	// Handle eventual coordinates error.
+	///
+	if(result[0].geometry === null) {
+		res.status(400)
+		res.send("Provided geometry is not compatible with S2 library (http://s2geometry.io).")
 	}
 
 	///
 	// Return result.
 	///
-	res.send(result)
+	else {
+		res.send(result)
+	}
 
 }, 'list')
 
@@ -295,11 +305,21 @@ router.post('multipoly', function (req, res)
 	catch (error) {
 		throw error;
 	}
-
+	
+	///
+	// Handle eventual coordinates error.
+	///
+	if(result[0].geometry === null) {
+		res.status(400)
+		res.send("Provided geometry is not compatible with S2 library (http://s2geometry.io).")
+	}
+	
 	///
 	// Return result.
 	///
-	res.send(result)
+	else {
+		res.send(result)
+	}
 
 }, 'list')
 
