@@ -220,12 +220,11 @@ router.post('poly', function (req, res)
 	// Handle eventual coordinates error.
 	///
 	if(result[0].geometry === null) {
-		res.status(400)
-		res.send("Provided geometry is not compatible with S2 library (http://s2geometry.io).")
+		res.throw(400, "Provided geometry is not compatible with S2 library (http://s2geometry.io).")
 	}
-
-	///
-	// Return result.
+		
+		///
+		// Return result.
 	///
 	else {
 		res.send(result)
@@ -310,8 +309,7 @@ router.post('multipoly', function (req, res)
 	// Handle eventual coordinates error.
 	///
 	if(result[0].geometry === null) {
-		res.status(400)
-		res.send("Provided geometry is not compatible with S2 library (http://s2geometry.io).")
+		res.throw(400, "Provided geometry is not compatible with S2 library (http://s2geometry.io).")
 	}
 	
 	///
