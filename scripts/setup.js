@@ -41,7 +41,7 @@ for (const [key, collection] of Object.entries(documentCollections)) {
 			case 'shapes':
 			case 'dataset':
 				break
-
+			
 			case 'shape_data':
 				coll.ensureIndex({
 					name: 'idx_hash_span_date',
@@ -60,22 +60,31 @@ for (const [key, collection] of Object.entries(documentCollections)) {
 					fields: ['geometry_hash', 'std_terms[*]']
 				})
 				break
+			
+			case 'sunit_data':
+				coll.ensureIndex({
+					name: 'idx_unit_span_date',
+					type: 'persistent',
+					fields: ['gcu_id_number', 'std_date_span', 'std_date'],
+					unique: true
+				})
+				coll.ensureIndex({
+					name: 'idx_unit_datasets',
+					type: 'persistent',
+					fields: ['gcu_id_number', 'std_dataset_ids[*]']
+				})
+				coll.ensureIndex({
+					name: 'idx_unit_terms',
+					type: 'persistent',
+					fields: ['gcu_id_number', 'std_terms[*]']
+				})
+				break
 
 			case 'unit_shapes':
 				coll.ensureIndex({
-					name: 'idx_hash',
+					name: 'idx_geometry_hash_list',
 					type: 'persistent',
-					fields: ['geometry_hash']
-				})
-				coll.ensureIndex({
-					name: 'idx_gcu_id',
-					type: 'persistent',
-					fields: ['gcu_id_unit-id']
-				})
-				coll.ensureIndex({
-					name: 'idx_gcu_number',
-					type: 'persistent',
-					fields: ['gcu_id_number']
+					fields: ['geometry_hash_list[*]']
 				})
 				break
 
