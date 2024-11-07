@@ -38,22 +38,28 @@
             "default": "DroughtObservatoryMap"
         },
         "collectionShapes": {
-            "description": "Shapes collection name",
+            "description": "Unit geometries collection name",
             "type": "string",
             "required": true,
             "default": "Shapes"
         },
         "collectionShapeData": {
-            "description": "ShapeData collection name",
+            "description": "Shapes remote sensing collection name",
             "type": "string",
             "required": true,
             "default": "ShapeData"
+        },
+        "collectionUnitData": {
+            "description": "Units remote sensing collection name",
+            "type": "string",
+            "required": true,
+            "default": "UnitData"
         },
         "collectionUnitShapes": {
             "description": "UnitShapes collection name",
             "type": "string",
             "required": true,
-            "default": "UnitShapes"
+            "default": "UnitPolygons"
         },
         "collectionDataset": {
             "description": "Dataset collection name",

@@ -314,6 +314,134 @@ function EDODataByDate(theLatitude, theLongitude, theFilter = {})
  * Returns:
  * - {String}: The AQL query (aql\`query\`).
  */
+function UnitMetadataBySpan(theFilter = {})
+{
+	///
+	// Collections.
+	///
+	const UnitData = db._collection(module.context.configuration.collectionUnitData)
+	
+	///
+	// Generate AQL filters.
+	///
+	const filter = UnitsQueryFilter(theFilter)
+	
+	///
+	// Generate query.
+	///
+	return aql`
+		FOR data IN ${UnitData}
+	        ${filter.data}
+
+		    COLLECT span = data.std_date_span
+		    AGGREGATE terms = UNIQUE(data.std_terms),
+		              sets = UNIQUE(data.std_dataset_ids),
+		              start = MIN(data.std_date),
+		              end = MAX(data.std_date),
+		              count = COUNT()
+
+			RETURN {
+			    count: count,
+			    std_date_span: span,
+			    std_date_start: start,
+			    std_date_end: end,
+			    std_terms: UNIQUE(FLATTEN(terms)),
+			    std_dataset_ids: REMOVE_VALUE(UNIQUE(FLATTEN(sets)), null)
+			}
+        `                                                               // ==>
+	
+} // UnitMetadataBySpan()
+
+/**
+ * This function can be used to generate the AQL query required to return
+ * GCU unit summary data related to the provided search criteria,
+ * grouped by unit and date span.
+ * The function expects the filter provided as an object in the body,
+ * the function will return the resulting AQL query.
+ * The filter contains the following elements:
+ * - gcu_id_number_list: List of unit references.
+ * - std_date_span: The date spans (array of strings).
+ * - std_date_start: The start date (string).
+ * - std_date_end: The end date (string).
+ * - std_terms: The list of variables (array of strings).
+ * - std_dataset_ids: the list of dataset identifiers (array of strings).
+ * - paging: Paging parameters as an object with `offset` and `limit` properties.
+ *
+ * Parameters:
+ * - theUnits {String[]}: List of units to query.
+ * - theFilter {Object}: Query filter in body.
+ *
+ * Returns:
+ * - {String}: The AQL query (aql\`query\`).
+ */
+function ShapeMetadataByUnit(theUnits, theFilter = {})
+{
+	///
+	// Collections.
+	///
+	const UnitData = db._collection(module.context.configuration.collectionUnitData)
+	
+	///
+	// Generate AQL filters.
+	///
+	const filter = UnitsQueryFilterByUnit(theFilter)
+	
+	///
+	// Generate query.
+	///
+	return aql`
+		FOR unit IN ${theUnits}
+			
+			LET summary = (
+				FOR data IN ${UnitData}
+					FILTER data.gcu_id_number == unit
+			        ${filter.data}
+	
+				    COLLECT span = data.std_date_span
+				    AGGREGATE terms = UNIQUE(data.std_terms),
+				              sets = UNIQUE(data.std_dataset_ids),
+				              start = MIN(data.std_date),
+				              end = MAX(data.std_date),
+				              count = COUNT()
+	
+					RETURN {
+					    count: count,
+					    std_date_span: span,
+					    std_date_start: start,
+					    std_date_end: end,
+					    std_terms: UNIQUE(FLATTEN(terms)),
+					    std_dataset_ids: REMOVE_VALUE(UNIQUE(FLATTEN(sets)), null)
+					}
+			)
+			
+			RETURN {
+				gcu_id_number: unit,
+				properties: summary
+			}
+        `                                                               // ==>
+	
+} // ShapeMetadataByUnit()
+
+/**
+ * This function can be used to generate the AQL query required to return
+ * GCU shape summary data related to the provided search criteria,
+ * grouped by date span.
+ * The function expects the filter provided as an object in the body,
+ * the function will return the resulting AQL query.
+ * The filter contains the following elements:
+ * - geometry_hash_list: List of shape references.
+ * - std_date_span: The date spans (array of strings).
+ * - std_date_start: The start date (string).
+ * - std_date_end: The end date (string).
+ * - std_terms: The list of variables (array of strings).
+ * - std_dataset_ids: the list of dataset identifiers (array of strings).
+ *
+ * Parameters:
+ * - theFilter {Object}: Query filter in body.
+ *
+ * Returns:
+ * - {String}: The AQL query (aql\`query\`).
+ */
 function ShapeMetadataBySpan(theFilter = {})
 {
 	///
@@ -591,6 +719,136 @@ function EDOQueryFilter(theFilter)
  * - std_date_end: The end date (string).
  * - std_terms: The list of variables (array of strings).
  * - std_dataset_ids: the list of dataset identifiers (array of strings).
+ *
+ * Parameters:
+ * - theFilter {Object}: Query filter in body.
+ * - theUnit {Object}: Unit reference.
+ *
+ * Returns:
+ * - {Object}: An object composed of two elements: `data` containing
+ *             the AQL filter applying to the data and `terms` containing
+ *             the list of eventual requested variables.
+ */
+function UnitsQueryFilter(theFilter)
+{
+	///
+	// Init filters.
+	///
+	const filter = {
+		data: [
+			aql`FILTER data.gcu_id_number IN ${theFilter.gcu_id_number_list}`
+		],
+		terms: []
+	}
+	
+	///
+	// Collect body parameters.
+	///
+	for(const [key, value] of Object.entries(theFilter)) {
+		switch(key) {
+			case 'std_date_span':
+				filter.data.push(aql`FILTER data.std_date_span IN ${value}`)
+				break
+			
+			case 'std_date_start':
+				filter.data.push(aql`FILTER data.std_date >= ${value}`)
+				break
+			
+			case 'std_date_end':
+				filter.data.push(aql`FILTER data.std_date <= ${value}`)
+				break
+			
+			case 'std_terms':
+				filter.terms.push(...value)
+				filter.data.push(aql`FILTER ${value} ANY IN data.std_terms`)
+				break
+			
+			case 'std_dataset_ids':
+				filter.data.push(aql`FILTER ${value} ANY IN data.std_dataset_ids`)
+				break
+		}
+	}
+	
+	return {
+		data: aql.join(filter.data),
+		terms: filter.terms
+	}                                                                   // ==>
+	
+} // UnitsQueryFilter()
+
+/**
+ * This function can be used to convert remote sensing data query clauses
+ * into a series of AQL filters.
+ * The function expects the filter provided as an object in the body:
+ * - std_date_span: Date span, daily, monthly and yearly.
+ * - std_date_start: The start date (string).
+ * - std_date_end: The end date (string).
+ * - std_terms: The list of variables (array of strings).
+ * - std_dataset_ids: the list of dataset identifiers (array of strings).
+ *
+ * Parameters:
+ * - theFilter {Object}: Query filter in body.
+ * - theUnit {Object}: Unit reference.
+ *
+ * Returns:
+ * - {Object}: An object composed of two elements: `data` containing
+ *             the AQL filter applying to the data and `terms` containing
+ *             the list of eventual requested variables.
+ */
+function UnitsQueryFilterByUnit(theFilter)
+{
+	///
+	// Init filters.
+	///
+	const filter = {
+		data: [],
+		terms: []
+	}
+	
+	///
+	// Collect body parameters.
+	///
+	for(const [key, value] of Object.entries(theFilter)) {
+		switch(key) {
+			case 'std_date_span':
+				filter.data.push(aql`FILTER data.std_date_span IN ${value}`)
+				break
+			
+			case 'std_date_start':
+				filter.data.push(aql`FILTER data.std_date >= ${value}`)
+				break
+			
+			case 'std_date_end':
+				filter.data.push(aql`FILTER data.std_date <= ${value}`)
+				break
+			
+			case 'std_terms':
+				filter.terms.push(...value)
+				filter.data.push(aql`FILTER ${value} ANY IN data.std_terms`)
+				break
+			
+			case 'std_dataset_ids':
+				filter.data.push(aql`FILTER ${value} ANY IN data.std_dataset_ids`)
+				break
+		}
+	}
+	
+	return {
+		data: aql.join(filter.data),
+		terms: filter.terms
+	}                                                                   // ==>
+	
+} // UnitsQueryFilterByUnit()
+
+/**
+ * This function can be used to convert remote sensing data query clauses
+ * into a series of AQL filters.
+ * The function expects the filter provided as an object in the body:
+ * - std_date_span: Date span, daily, monthly and yearly.
+ * - std_date_start: The start date (string).
+ * - std_date_end: The end date (string).
+ * - std_terms: The list of variables (array of strings).
+ * - std_dataset_ids: the list of dataset identifiers (array of strings).
  * - geometry_point_radius: the list of observation area radius (array of numbers).
  *
  * Parameters:
@@ -613,7 +871,7 @@ function ShapeQueryFilter(theFilter, theShape)
 		],
 		terms: []
 	}
-
+	
 	///
 	// Collect body parameters.
 	///
@@ -622,31 +880,31 @@ function ShapeQueryFilter(theFilter, theShape)
 			case 'std_date_span':
 				filter.data.push(aql`FILTER data.std_date_span IN ${value}`)
 				break
-
+			
 			case 'std_date_start':
 				filter.data.push(aql`FILTER data.std_date >= ${value}`)
 				break
-
+			
 			case 'std_date_end':
 				filter.data.push(aql`FILTER data.std_date <= ${value}`)
 				break
-
+			
 			case 'std_terms':
 				filter.terms.push(...value)
 				filter.data.push(aql`FILTER ${value} ANY IN data.std_terms`)
 				break
-
+			
 			case 'std_dataset_ids':
 				filter.data.push(aql`FILTER ${value} ANY IN data.std_dataset_ids`)
 				break
 		}
 	}
-
+	
 	return {
 		data: aql.join(filter.data),
 		terms: filter.terms
 	}                                                                   // ==>
-
+	
 } // ShapeQueryFilter()
 
 /**
@@ -748,7 +1006,9 @@ module.exports = {
 	EDOMetadataByGeometry,
 	EDODataByGeometry,
 	EDODataByDate,
+	UnitMetadataBySpan,
 	ShapeMetadataBySpan,
+	ShapeMetadataByUnit,
 	ShapeMetadataByShape,
 	ShapeDataByShape
 }

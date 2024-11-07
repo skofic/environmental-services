@@ -390,33 +390,81 @@ The collection features three indexes, besides the default primary key:
 - An index comprising the `geometry_hash` and `std_dataset_ids[*]`, respectively representing the *geometry* and the individual *dataset references*.
 - An index comprising the `geometry_hash` and `std_terms[*]`, respectively representing the *geometry* and the individual featured *data property references*.
 
-### UnitShapes
+### UnitData
 
-This collection links the *unit identifiers* with the *geometry identifiers*, it is used to *group* all *geometries* belonging to a *conservation unit* and *conservation unit version*.
-
-#### Data
-
-The data contains the *reference* to the *geometry*, the *reference* to the *conservation unit* and the reference to the specific *conservation unit version*:
+This collection contains all data related to the `Shapes` collection at the *unit* level. Each record averages data for all geometries belonging to the conservation unit.
 
 ```json
 {
-  "geometry_hash": "554a3bb9ef58e60223845bfa6e78a6ad",
-  "gcu_id_number": "ALB00002",
-  "gcu_id_unit-id": "ALB000022020"
+  "gcu_id_number": "ROU00202",
+  "std_date_span": "std_date_span_day",
+  "std_date": "20191205",
+  "std_dataset_ids": [
+    "5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e"
+  ],
+  "std_terms": [
+    "chr_RelHumid",
+    "env_climate_wind",
+    "env_climate_slhf",
+    "env_climate_snsrad",
+    "env_climate_soil_temp_100",
+    "env_climate_tpr",
+    "env_climate_soil_temp_28",
+    "env_climate_soil_water_289",
+    "env_climate_soil_temp_289",
+    "env_climate_temp-2m",
+    "env_climate_soil_temp_7",
+    "env_climate_soil_water_100",
+    "env_climate_soil_water_28",
+    "env_climate_soil_water_7"
+  ],
+  "properties": {
+    "chr_RelHumid": 74.21861330668132,
+    "env_climate_slhf": -377741.5833333333,
+    "env_climate_snsrad": 2864526,
+    "env_climate_soil_temp_100": 280.44324493408203,
+    "env_climate_soil_temp_28": 275.2173487345378,
+    "env_climate_soil_temp_289": 286.51777331034344,
+    "env_climate_soil_temp_7": 273.4369519551595,
+    "env_climate_soil_water_100": 0.31182416280110675,
+    "env_climate_soil_water_28": 0.3526102701822917,
+    "env_climate_soil_water_289": 0.33695093790690106,
+    "env_climate_temp-2m": 271.1625150044759,
+    "env_climate_tpr": 0.000014901161193847656,
+    "env_climate_wind": 1.1208266067016894,
+    "env_climate_soil_water_7": 0.3541552225748698
+  }
 }
 ```
 
-The `geometry_hash` references the `Shapes` record primary key, it is the [MD5](https://en.wikipedia.org/wiki/MD5) hash of the [GeoJSON](https://geojson.org) geometry.
+The properties are the same, except that the geometry reference is replaced by the unit reference. The indexes are the same, with the unit reference in place of the shape reference.
+
+### UnitPolygons
+
+This collection links the *unit number* with the *geometry identifiers*, it is used to *group* all *geometries* belonging to a *conservation unit*.
+
+#### Data
+
+The data contains the *unit number* and the *list of shape references* belonging to that unit:
+
+```json
+{
+  "gcu_id_number": "ALB00002",
+  "geometry_hash_list": [
+    "554a3bb9ef58e60223845bfa6e78a6ad"
+  ]
+}
+```
 
 The `gcu_id_number` is the *identifier* of the *conservation unit*.
 
-The `gcu_id_unit-id` is the *identifier* of the specific *data version* of the *conservation unit*.
+The `geometry_hash_list` references the `Shapes` record primary key, it is the [MD5](https://en.wikipedia.org/wiki/MD5) hash of the [GeoJSON](https://geojson.org) geometry.
 
 All properties are documented in the [data dictionary](https://github.com/skofic/data-dictionary-service.git).
 
 #### Indexes
 
-All fields feature an index: `geometry_hash`, `gcu_id_number` and `gcu_id_unit-id`.
+All fields feature an index: `gcu_id_number` and `geometry_hash_list[*]`.
 
 ### DroughtObservatory
 
