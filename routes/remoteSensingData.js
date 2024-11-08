@@ -52,6 +52,13 @@ const geometrySchema = joi.string()
 		'Unit shape geometry hash.\n' +
 		'The value is the `_key` of the `Shapes` collection record.'
 	)
+const unitSchema = joi.string()
+	.regex(/^[A-Z]{3}[0-9]{5}$/)
+	.required()
+	.description(
+		'Unit number.\n' +
+		'Conservation unit identifier.'
+	)
 
 ///
 // Create and export router.
@@ -75,13 +82,13 @@ router.tag('Remote Sensing Data')
  * - `:shape`: The key of the unit shape.
  * - body: The list of spans.
  */
-router.post(function (req, res)
+router.post('shape', function (req, res)
 {
 	///
 	// Parameters.
 	///
 	const shape = req.queryParams.geometry_hash
-
+	
 	///
 	// Get query.
 	///
@@ -90,7 +97,7 @@ router.post(function (req, res)
 			req.body,
 			shape
 		)
-
+	
 	///
 	// Perform service.
 	///
@@ -100,40 +107,113 @@ router.post(function (req, res)
 	} catch (error) {
 		throw error
 	}
-
+	
 	///
 	// Return result.
 	///
 	res.send(result)
-
-}, 'GetDataBySpan')
-
+	
+}, 'GetShapeDataBySpan')
+	
 	///
 	// Path parameter schemas.
 	///
 	.queryParam('geometry_hash', geometrySchema)
-
+	
 	///
 	// Body parameters schemas.
 	///
 	.body(ModelSelectionData, ModelSelectionDataDescription)
-
+	
 	///
 	// Summary.
 	///
 	.summary('Data by geometry and time span')
-
+	
 	///
 	// Response schema.
 	///
 	.response([ModelSpanData], ModelSpanDataDescription)
-
+	
 	///
 	// Description.
 	///
 	.description(dd`
 		This service will return *all* remote sensing data related to \
 		the *provided* unit *shape geometry hash* and *selection criteria*.
+		There will be one record per date span and within that date span \
+		one record per date.
+	`)
+
+/**
+ * Get remote sensing data by unit and time spans.
+ *
+ * This service will return all observations of the provided unit
+ * for the provided time spans
+ *
+ * Parameters:
+ * - `:unit`: The unit number.
+ * - body: The list of spans.
+ */
+router.post('unit', function (req, res)
+{
+	///
+	// Parameters.
+	///
+	const unit = req.queryParams.gcu_id_number
+	
+	///
+	// Get query.
+	///
+	const query =
+		queries.UnitDataByShape(
+			req.body,
+			unit
+		)
+	
+	///
+	// Perform service.
+	///
+	let result
+	try {
+		result = db._query(query).toArray()
+	} catch (error) {
+		throw error
+	}
+	
+	///
+	// Return result.
+	///
+	res.send(result)
+	
+}, 'GetUnitDataBySpan')
+	
+	///
+	// Path parameter schemas.
+	///
+	.queryParam('gcu_id_number', unitSchema)
+	
+	///
+	// Body parameters schemas.
+	///
+	.body(ModelSelectionData, ModelSelectionDataDescription)
+	
+	///
+	// Summary.
+	///
+	.summary('Data by unit and time span')
+	
+	///
+	// Response schema.
+	///
+	.response([ModelSpanData], ModelSpanDataDescription)
+	
+	///
+	// Description.
+	///
+	.description(dd`
+		This service will return *all* remote sensing data related to \
+		the *provided unit* and *selection criteria*.
 		There will be one record per date span and within that date span \
 		one record per date.
 	`)

@@ -490,18 +490,11 @@
               "path": null
             },
             "description": "The service will return the *shape hash* related to the provided multi-polygon coordinates.\n\nThe MultiPolygon shape should be provided as an *array* of *Polygon shapes*.\nThe polygon shape should be provided at least as *one array* representing a *linear ring*.\nEach linear ring should consist of an array with at least *four longitude/latitude pairs*.\nThe *first* linear ring must be the *outermost*, while any *subsequent* linear ring will be interpreted as *holes*.\nThe *order* of the sequence of coordinates is important: *ounter-clock* means the polygon area is *inside*, *clockwise* means the are of the polygon is *outside*.\n\nThe service will return the following object:\n\n- `geometry`: The *GeoJSON* representation of the multi-polygon.\n- `geometry_hash`: The *hash* for the multi-polygon.",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "disabled": false,
-                "description": null
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "disabled": false,
-              "raw": "{\"coordinates\":[[[[40,40],[20,45],[45,30],[40,40]]],[[[20,35],[10,30],[10,10],[30,5],[45,20],[20,35]],[[30,20],[20,15],[20,25],[30,20]]]]}"
+              "raw": "{\n\"coordinates\": [ [ [[40, 40], [20, 45], [45, 30], [40, 40]] ], [ [[20, 35], [10, 30], [10, 10], [30, 5], [45, 20], [20, 35]], [[30, 20], [20, 15], [20, 25], [30, 20]] ] ]\n}"
             },
             "auth": null
           },
@@ -520,50 +513,17 @@
       "name": "CONSERVATION UNITS",
       "item": [
         {
-          "name": "Unit ID list by unit number",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/id?gcu_id_number=AUT00001",
-              "query": [
-                {
-                  "key": "gcu_id_number",
-                  "value": "AUT00001",
-                  "disabled": false,
-                  "description": "Conservation unit number"
-                }
-              ],
-              "protocol": null,
-              "host": [
-                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/id"
-              ],
-              "port": null,
-              "path": null
-            },
-            "description": "The service will return all *unit IDs* related to the provided *unit number*.\n\nThe service expects the `gcu_id_number` query parameter containing a unit number.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number*.\n- `gcu_id_unit-id_list`: The *list* of unit IDs associated with the *provided unit number*.",
-            "header": [],
-            "body": null,
-            "auth": null
-          },
-          "protocolProfileBehavior": {
-            "followRedirects": false,
-            "followOriginalHttpMethod": false,
-            "followAuthorizationHeader": false
-          },
-          "response": []
-        },
-        {
           "name": "Unit geometry references by unit ID",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/shape?gcu_id_unit-id=GBR000012010",
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/shape?gcu_id_number=GBR00001",
               "query": [
                 {
-                  "key": "gcu_id_unit-id",
-                  "value": "GBR000012010",
+                  "key": "gcu_id_number",
+                  "value": "GBR00001",
                   "disabled": false,
-                  "description": "Conservation unit ID"
+                  "description": "Conservation unit number"
                 }
               ],
               "protocol": null,
@@ -573,7 +533,7 @@
               "port": null,
               "path": null
             },
-            "description": "The service will return the *unit number* and the *list* of *unit shape references* related to the *provided unit ID*.\n\nThe service expects the `gcu_id_unit-id` query parameter containing a unit ID.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided unit ID*.\n- `gcu_id_unit-id`: The unit ID.\n- `geometry_hash_list`: The *list* of *shape references* associated with the *provided unit ID*.\n",
+            "description": "The service will return the *unit number* and the *list* of *unit shape references* related to the *provided unit ID*.\n\nThe service expects the `gcu_id_number` query parameter containing a unit number.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided unit ID*.\n- `geometry_hash_list`: The *list* of *shape references* associated with the *provided unit ID*.\n",
             "header": [],
             "body": null,
             "auth": null
@@ -606,7 +566,7 @@
               "port": null,
               "path": null
             },
-            "description": "The service will return the *unit number and ID* associated with the provided *shape reference*.\n\nThe service expects the `geometry_hash` query parameter containing a *unit shape geometry reference*.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided shape reference*.\n- `gcu_id_unit-id`: The unit ID associated with the *provided shape reference*.\n- `geometry_hash`: The *provided shape reference*.\n",
+            "description": "The service will return the *unit number* associated with the provided *shape reference* and the *full* list of related shape identifiers.\n\nThe service expects the `geometry_hash` query parameter containing a *unit shape geometry reference*.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided shape reference*.\n- `geometry_hash_list`: The *full list* of shape references belonging to the related unit.\n",
             "header": [],
             "body": null,
             "auth": null
@@ -742,15 +702,15 @@
       "name": "REMOTE SENSING META",
       "item": [
         {
-          "name": "Metadata by time span",
+          "name": "Shape metadata by time span",
           "request": {
             "method": "POST",
             "url": {
-              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/span",
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/span/shape",
               "query": null,
               "protocol": null,
               "host": [
-                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/span"
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/span/shape"
               ],
               "port": null,
               "path": null
@@ -779,7 +739,44 @@
           "response": []
         },
         {
-          "name": "Metadata by geometry and time span",
+          "name": "Unit metadata by time span",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/span/unit",
+              "query": null,
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/span/unit"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "This service will return the *summary* of *all data measurements* selected by the provided search parameters *grouped by date span*.\n\nThe service expects a series of search parameters in the body object:\n\n- `gcu_id_number_list`: *Required* list of GCU unit numbers.\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each date span:\n\n- `count`: The number of selected data records.\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"gcu_id_number_list\":[\"ITA00001\",\"AUT00001\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Shape metadata by geometry and time span",
           "request": {
             "method": "POST",
             "url": {
@@ -814,6 +811,43 @@
             "followAuthorizationHeader": false
           },
           "response": []
+        },
+        {
+          "name": "Unit metadata by geometry and time span",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/unit",
+              "query": null,
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/meta/unit"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "This service will return the *summary* of *all data measurements* selected by the provided search parameters grouped by *unit number* and *date span*.\n\nThe service expects a series of search parameters in the body object:\n\n- `gcu_id_number_list`: *Required* list of GCU unit numbers.\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each shape:\n\n- `gcu_id_number`: The unit number.\n- `properties`: Shape summary data grouped by date span, described below:\n- `count`: The number of selected data records.\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_start`: Dates range minimum.\n- `std_date_end`: Dates range maximum.\n- `std_terms`: List of featured variable names.\n- `std_dataset_ids`: List of featured dataset references.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"gcu_id_number_list\":[\"ITA00001\",\"AUT00001\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
         }
       ],
       "protocolProfileBehavior": null,
@@ -827,7 +861,7 @@
           "request": {
             "method": "POST",
             "url": {
-              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/data?geometry_hash=0000ba761f60e527dec3dedbebcf4911",
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/data/shape?geometry_hash=0000ba761f60e527dec3dedbebcf4911",
               "query": [
                 {
                   "key": "geometry_hash",
@@ -838,12 +872,56 @@
               ],
               "protocol": null,
               "host": [
-                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/data"
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/data/shape"
               ],
               "port": null,
               "path": null
             },
             "description": "This service will return *all data measurements* selected by the required *geometry hash* in the query path and *search parameters* in the body. The results will be grouped by *date span* and *measurement date*.\n\nThe service *requires* the shape reference to be provided in the query path and an *optional* series of search parameters in the body object:\n\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each selected date span, and within the span, one element for each measurement date:\n\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_series`: Shape data measurments for current date span:\n- `std_date`: Measurement date.\n- `properties`: Measurement variables.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2010\",\"std_date_end\":\"20101231\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}"
+            },
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Data by unit and time span",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/data/unit?gcu_id_number=GBR00001",
+              "query": [
+                {
+                  "key": "gcu_id_number",
+                  "value": "GBR00001",
+                  "disabled": false,
+                  "description": "Unit number"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/rs/data/unit"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "This service will return *all data measurements* selected by the required *unit number* in the query path and *search parameters* in the body. The results will be grouped by *date span* and *measurement date*.\n\nThe service *requires* the unit number to be provided in the query path and an *optional* series of search parameters in the body object:\n\n- `std_date_span`: *Optional* list of requested date spans.\n- `std_date_start`: *Optional* minimum date.\n- `std_date_end`: *Optional* end date.\n- `std_terms`: *Optional* list of requested variable names.\n- `std_dataset_ids`: *Optional* list of requested dataset references.\n\nThe resulting data will contain one record for each selected date span, and within the span, one element for each measurement date:\n\n- `std_date_span`: Date span: daily, monthly or yearly.\n- `std_date_series`: Shape data measurments for current date span:\n- `std_date`: Measurement date.\n- `properties`: Measurement variables.",
             "header": [
               {
                 "key": "Content-Type",

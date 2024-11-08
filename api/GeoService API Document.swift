@@ -25,10 +25,6 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
-        // Headers
-
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
-
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -116,7 +112,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -217,7 +212,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -338,7 +332,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -457,10 +450,6 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
-        // Headers
-
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
-
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -548,7 +537,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -649,7 +637,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -770,7 +757,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -889,10 +875,6 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
-        // Headers
-
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
-
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -973,7 +955,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -1066,82 +1047,12 @@ class MyRequestController {
 
         // Headers
 
-        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
+        request.addValue("text/plain; charset=utf-8", forHTTPHeaderField: "Content-Type")
 
-        // JSON Body
+        // Body
 
-        let bodyObject: [String : Any] = [
-            "coordinates": [
-                [
-                    [
-                        [
-                            40,
-                            40
-                        ],
-                        [
-                            20,
-                            45
-                        ],
-                        [
-                            45,
-                            30
-                        ],
-                        [
-                            40,
-                            40
-                        ]
-                    ]
-                ],
-                [
-                    [
-                        [
-                            20,
-                            35
-                        ],
-                        [
-                            10,
-                            30
-                        ],
-                        [
-                            10,
-                            10
-                        ],
-                        [
-                            30,
-                            5
-                        ],
-                        [
-                            45,
-                            20
-                        ],
-                        [
-                            20,
-                            35
-                        ]
-                    ],
-                    [
-                        [
-                            30,
-                            20
-                        ],
-                        [
-                            20,
-                            15
-                        ],
-                        [
-                            20,
-                            25
-                        ],
-                        [
-                            30,
-                            20
-                        ]
-                    ]
-                ]
-            ]
-        ]
-        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+        let bodyString = "{\n\"coordinates\": [ [ [[40, 40], [20, 45], [45, 30], [40, 40]] ], [ [[20, 35], [10, 30], [10, 10], [30, 5], [45, 20], [20, 35]], [[30, 20], [20, 15], [20, 25], [30, 20]] ] ]\n}"
+        request.httpBody = bodyString.data(using: .utf8, allowLossyConversion: true)
 
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
@@ -1160,91 +1071,6 @@ class MyRequestController {
     }
 }
 
-
-
-class MyRequestController {
-    func sendRequest() {
-        /* Configure session, choose between:
-           * defaultSessionConfiguration
-           * ephemeralSessionConfiguration
-           * backgroundSessionConfigurationWithIdentifier:
-         And set session-wide properties, such as: HTTPAdditionalHeaders,
-         HTTPCookieAcceptPolicy, requestCachePolicy or timeoutIntervalForRequest.
-         */
-        let sessionConfig = URLSessionConfiguration.default
-
-        /* Create session, and optionally set a URLSessionDelegate. */
-        let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
-
-        /* Create the Request:
-           Unit ID list by unit number (GET http://localhost:8529/_db/GeoService/env/gcu/id)
-         */
-
-        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/gcu/id") else {return}
-        let URLParams = [
-            "gcu_id_number": "AUT00001",
-        ]
-        URL = URL.appendingQueryParameters(URLParams)
-        var request = URLRequest(url: URL)
-        request.httpMethod = "GET"
-
-        // Headers
-
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
-
-        /* Start a new Task */
-        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
-            if (error == nil) {
-                // Success
-                let statusCode = (response as! HTTPURLResponse).statusCode
-                print("URL Session Task Succeeded: HTTP \(statusCode)")
-            }
-            else {
-                // Failure
-                print("URL Session Task Failed: %@", error!.localizedDescription);
-            }
-        })
-        task.resume()
-        session.finishTasksAndInvalidate()
-    }
-}
-
-
-protocol URLQueryParameterStringConvertible {
-    var queryParameters: String {get}
-}
-
-extension Dictionary : URLQueryParameterStringConvertible {
-    /**
-     This computed property returns a query parameters string from the given NSDictionary. For
-     example, if the input is @{@"day":@"Tuesday", @"month":@"January"}, the output
-     string will be @"day=Tuesday&month=January".
-     @return The computed parameters string.
-    */
-    var queryParameters: String {
-        var parts: [String] = []
-        for (key, value) in self {
-            let part = String(format: "%@=%@",
-                String(describing: key).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!,
-                String(describing: value).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)
-            parts.append(part as String)
-        }
-        return parts.joined(separator: "&")
-    }
-    
-}
-
-extension URL {
-    /**
-     Creates a new URL by adding the given query parameters.
-     @param parametersDictionary The query parameter dictionary to add.
-     @return A new URL.
-    */
-    func appendingQueryParameters(_ parametersDictionary : Dictionary<String, String>) -> URL {
-        let URLString : String = String(format: "%@?%@", self.absoluteString, parametersDictionary.queryParameters)
-        return URL(string: URLString)!
-    }
-}
 
 
 class MyRequestController {
@@ -1267,15 +1093,11 @@ class MyRequestController {
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/gcu/shape") else {return}
         let URLParams = [
-            "gcu_id_unit-id": "GBR000012010",
+            "gcu_id_number": "GBR00001",
         ]
         URL = URL.appendingQueryParameters(URLParams)
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
-
-        // Headers
-
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
@@ -1358,10 +1180,6 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
-        // Headers
-
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
-
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -1442,10 +1260,6 @@ class MyRequestController {
         URL = URL.appendingQueryParameters(URLParams)
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
-
-        // Headers
-
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
@@ -1529,10 +1343,6 @@ class MyRequestController {
         var request = URLRequest(url: URL)
         request.httpMethod = "GET"
 
-        // Headers
-
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
-
         /* Start a new Task */
         let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
             if (error == nil) {
@@ -1613,7 +1423,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -1727,17 +1536,16 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           Metadata by time span (POST http://localhost:8529/_db/GeoService/env/rs/meta/span)
+           Shape metadata by time span (POST http://localhost:8529/_db/GeoService/env/rs/meta/span/shape)
          */
 
-        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/meta/span") else {return}
+        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/meta/span/shape") else {return}
         var request = URLRequest(url: URL)
         request.httpMethod = "POST"
 
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -1808,7 +1616,87 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           Metadata by geometry and time span (POST http://localhost:8529/_db/GeoService/env/rs/meta/shape)
+           Unit metadata by time span (POST http://localhost:8529/_db/GeoService/env/rs/meta/span/unit)
+         */
+
+        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/meta/span/unit") else {return}
+        var request = URLRequest(url: URL)
+        request.httpMethod = "POST"
+
+        // Headers
+
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+
+        // JSON Body
+
+        let bodyObject: [String : Any] = [
+            "std_date_start": "2000",
+            "std_terms": [
+                "chr_RelHumid",
+                "env_climate_temp-2m",
+                "chr_LandSurfTemp",
+                "chr_AvLeafAreaIdx",
+                "chr_AvBiomass"
+            ],
+            "std_date_span": [
+                "std_date_span_day",
+                "std_date_span_month",
+                "std_date_span_year"
+            ],
+            "std_date_end": "2023",
+            "std_dataset_ids": [
+                "5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e",
+                "9f0b933b-a6e7-435d-a1ba-c49c10c94c52",
+                "647be387-4dda-4257-a7c8-e5c47e90ccc9",
+                "750b614a-8dbc-49e0-85e2-8279c2b80269",
+                "08e0810c-c259-409b-8626-e8699540cfaa",
+                "d9f9676f-d31e-4f31-80d7-fd00909039aa",
+                "5161a461-1fb1-46df-89de-fd1caab906e7",
+                "cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51",
+                "2a9ca201-0b15-495f-ad65-c138886986df"
+            ],
+            "gcu_id_number_list": [
+                "ITA00001",
+                "AUT00001"
+            ]
+        ]
+        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+
+        /* Start a new Task */
+        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+            if (error == nil) {
+                // Success
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                print("URL Session Task Succeeded: HTTP \(statusCode)")
+            }
+            else {
+                // Failure
+                print("URL Session Task Failed: %@", error!.localizedDescription);
+            }
+        })
+        task.resume()
+        session.finishTasksAndInvalidate()
+    }
+}
+
+
+
+class MyRequestController {
+    func sendRequest() {
+        /* Configure session, choose between:
+           * defaultSessionConfiguration
+           * ephemeralSessionConfiguration
+           * backgroundSessionConfigurationWithIdentifier:
+         And set session-wide properties, such as: HTTPAdditionalHeaders,
+         HTTPCookieAcceptPolicy, requestCachePolicy or timeoutIntervalForRequest.
+         */
+        let sessionConfig = URLSessionConfiguration.default
+
+        /* Create session, and optionally set a URLSessionDelegate. */
+        let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
+
+        /* Create the Request:
+           Shape metadata by geometry and time span (POST http://localhost:8529/_db/GeoService/env/rs/meta/shape)
          */
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/meta/shape") else {return}
@@ -1818,7 +1706,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -1889,10 +1776,90 @@ class MyRequestController {
         let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
 
         /* Create the Request:
-           Data by geometry and time span (POST http://localhost:8529/_db/GeoService/env/rs/data)
+           Unit metadata by geometry and time span (POST http://localhost:8529/_db/GeoService/env/rs/meta/unit)
          */
 
-        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/data") else {return}
+        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/meta/unit") else {return}
+        var request = URLRequest(url: URL)
+        request.httpMethod = "POST"
+
+        // Headers
+
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+
+        // JSON Body
+
+        let bodyObject: [String : Any] = [
+            "std_date_start": "2000",
+            "std_terms": [
+                "chr_RelHumid",
+                "env_climate_temp-2m",
+                "chr_LandSurfTemp",
+                "chr_AvLeafAreaIdx",
+                "chr_AvBiomass"
+            ],
+            "std_date_span": [
+                "std_date_span_day",
+                "std_date_span_month",
+                "std_date_span_year"
+            ],
+            "std_date_end": "2023",
+            "std_dataset_ids": [
+                "5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e",
+                "9f0b933b-a6e7-435d-a1ba-c49c10c94c52",
+                "647be387-4dda-4257-a7c8-e5c47e90ccc9",
+                "750b614a-8dbc-49e0-85e2-8279c2b80269",
+                "08e0810c-c259-409b-8626-e8699540cfaa",
+                "d9f9676f-d31e-4f31-80d7-fd00909039aa",
+                "5161a461-1fb1-46df-89de-fd1caab906e7",
+                "cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51",
+                "2a9ca201-0b15-495f-ad65-c138886986df"
+            ],
+            "gcu_id_number_list": [
+                "ITA00001",
+                "AUT00001"
+            ]
+        ]
+        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+
+        /* Start a new Task */
+        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+            if (error == nil) {
+                // Success
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                print("URL Session Task Succeeded: HTTP \(statusCode)")
+            }
+            else {
+                // Failure
+                print("URL Session Task Failed: %@", error!.localizedDescription);
+            }
+        })
+        task.resume()
+        session.finishTasksAndInvalidate()
+    }
+}
+
+
+
+class MyRequestController {
+    func sendRequest() {
+        /* Configure session, choose between:
+           * defaultSessionConfiguration
+           * ephemeralSessionConfiguration
+           * backgroundSessionConfigurationWithIdentifier:
+         And set session-wide properties, such as: HTTPAdditionalHeaders,
+         HTTPCookieAcceptPolicy, requestCachePolicy or timeoutIntervalForRequest.
+         */
+        let sessionConfig = URLSessionConfiguration.default
+
+        /* Create session, and optionally set a URLSessionDelegate. */
+        let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
+
+        /* Create the Request:
+           Data by geometry and time span (POST http://localhost:8529/_db/GeoService/env/rs/data/shape)
+         */
+
+        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/data/shape") else {return}
         let URLParams = [
             "geometry_hash": "0000ba761f60e527dec3dedbebcf4911",
         ]
@@ -1903,7 +1870,122 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
+
+        // JSON Body
+
+        let bodyObject: [String : Any] = [
+            "std_date_start": "2010",
+            "std_date_span": [
+                "std_date_span_day",
+                "std_date_span_month",
+                "std_date_span_year"
+            ],
+            "std_date_end": "20101231",
+            "std_dataset_ids": [
+                "5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e",
+                "9f0b933b-a6e7-435d-a1ba-c49c10c94c52",
+                "647be387-4dda-4257-a7c8-e5c47e90ccc9",
+                "750b614a-8dbc-49e0-85e2-8279c2b80269",
+                "08e0810c-c259-409b-8626-e8699540cfaa",
+                "d9f9676f-d31e-4f31-80d7-fd00909039aa",
+                "5161a461-1fb1-46df-89de-fd1caab906e7",
+                "cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51",
+                "2a9ca201-0b15-495f-ad65-c138886986df"
+            ],
+            "std_terms": [
+                "chr_RelHumid",
+                "env_climate_temp-2m",
+                "chr_LandSurfTemp",
+                "chr_AvLeafAreaIdx",
+                "chr_AvBiomass"
+            ]
+        ]
+        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+
+        /* Start a new Task */
+        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+            if (error == nil) {
+                // Success
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                print("URL Session Task Succeeded: HTTP \(statusCode)")
+            }
+            else {
+                // Failure
+                print("URL Session Task Failed: %@", error!.localizedDescription);
+            }
+        })
+        task.resume()
+        session.finishTasksAndInvalidate()
+    }
+}
+
+
+protocol URLQueryParameterStringConvertible {
+    var queryParameters: String {get}
+}
+
+extension Dictionary : URLQueryParameterStringConvertible {
+    /**
+     This computed property returns a query parameters string from the given NSDictionary. For
+     example, if the input is @{@"day":@"Tuesday", @"month":@"January"}, the output
+     string will be @"day=Tuesday&month=January".
+     @return The computed parameters string.
+    */
+    var queryParameters: String {
+        var parts: [String] = []
+        for (key, value) in self {
+            let part = String(format: "%@=%@",
+                String(describing: key).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!,
+                String(describing: value).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)
+            parts.append(part as String)
+        }
+        return parts.joined(separator: "&")
+    }
+    
+}
+
+extension URL {
+    /**
+     Creates a new URL by adding the given query parameters.
+     @param parametersDictionary The query parameter dictionary to add.
+     @return A new URL.
+    */
+    func appendingQueryParameters(_ parametersDictionary : Dictionary<String, String>) -> URL {
+        let URLString : String = String(format: "%@?%@", self.absoluteString, parametersDictionary.queryParameters)
+        return URL(string: URLString)!
+    }
+}
+
+
+class MyRequestController {
+    func sendRequest() {
+        /* Configure session, choose between:
+           * defaultSessionConfiguration
+           * ephemeralSessionConfiguration
+           * backgroundSessionConfigurationWithIdentifier:
+         And set session-wide properties, such as: HTTPAdditionalHeaders,
+         HTTPCookieAcceptPolicy, requestCachePolicy or timeoutIntervalForRequest.
+         */
+        let sessionConfig = URLSessionConfiguration.default
+
+        /* Create session, and optionally set a URLSessionDelegate. */
+        let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
+
+        /* Create the Request:
+           Data by unit and time span (POST http://localhost:8529/_db/GeoService/env/rs/data/unit)
+         */
+
+        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/data/unit") else {return}
+        let URLParams = [
+            "gcu_id_number": "GBR00001",
+        ]
+        URL = URL.appendingQueryParameters(URLParams)
+        var request = URLRequest(url: URL)
+        request.httpMethod = "POST"
+
+        // Headers
+
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
 
         // JSON Body
 
@@ -2021,7 +2103,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -2130,7 +2211,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -2239,7 +2319,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -2348,7 +2427,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 
@@ -2460,7 +2538,6 @@ class MyRequestController {
         // Headers
 
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb", forHTTPHeaderField: "Cookie")
 
         // JSON Body
 

@@ -11,7 +11,7 @@
         port: '8529',
         path: '/_db/GeoService/env/chelsa/click?lat=46.30140&lon=7.50134',
         method: 'GET',
-        headers: {"Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -62,7 +62,7 @@
         port: '8529',
         path: '/_db/GeoService/env/chelsa/dist?what=KEY&min=0&max=10000&sort=ASC',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -113,7 +113,7 @@
         port: '8529',
         path: '/_db/GeoService/env/chelsa/contain?what=KEY',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -164,7 +164,7 @@
         port: '8529',
         path: '/_db/GeoService/env/chelsa/contain?what=KEY',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -215,7 +215,7 @@
         port: '8529',
         path: '/_db/GeoService/env/worldclim/click?lat=46.30140&lon=7.50134',
         method: 'GET',
-        headers: {"Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -266,7 +266,7 @@
         port: '8529',
         path: '/_db/GeoService/env/worldclim/dist?what=KEY&min=0&max=10000&sort=ASC',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -317,7 +317,7 @@
         port: '8529',
         path: '/_db/GeoService/env/worldclim/contain?what=KEY',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -368,7 +368,7 @@
         port: '8529',
         path: '/_db/GeoService/env/worldclim/contain?what=KEY',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -419,7 +419,7 @@
         port: '8529',
         path: '/_db/GeoService/env/hash?lat=42&lon=12',
         method: 'GET',
-        headers: {"Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -470,7 +470,7 @@
         port: '8529',
         path: '/_db/GeoService/env/hash/poly',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -521,7 +521,7 @@
         port: '8529',
         path: '/_db/GeoService/env/hash/multipoly',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"text/plain; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -550,58 +550,7 @@
     .on('error', (error) => {
         callback(error);
     });
-    request.write("{\"coordinates\":[[[[40,40],[20,45],[45,30],[40,40]]],[[[20,35],[10,30],[10,10],[30,5],[45,20],[20,35]],[[30,20],[20,15],[20,25],[30,20]]]]}")
-    request.end();
-    
-
-})((error, statusCode, headers, body) => {
-    console.log('ERROR:', error); 
-    console.log('STATUS:', statusCode);
-    console.log('HEADERS:', JSON.stringify(headers));
-    console.log('BODY:', body);
-});
-
-// request Unit ID list by unit number 
-(function(callback) {
-    'use strict';
-        
-    const httpTransport = require('http');
-    const responseEncoding = 'utf8';
-    const httpOptions = {
-        hostname: 'localhost',
-        port: '8529',
-        path: '/_db/GeoService/env/gcu/id?gcu_id_number=AUT00001',
-        method: 'GET',
-        headers: {"Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
-    };
-    httpOptions.headers['User-Agent'] = 'node ' + process.version;
- 
-    // Paw Store Cookies option is not supported
-
-    const request = httpTransport.request(httpOptions, (res) => {
-        let responseBufs = [];
-        let responseStr = '';
-        
-        res.on('data', (chunk) => {
-            if (Buffer.isBuffer(chunk)) {
-                responseBufs.push(chunk);
-            }
-            else {
-                responseStr = responseStr + chunk;            
-            }
-        }).on('end', () => {
-            responseStr = responseBufs.length > 0 ? 
-                Buffer.concat(responseBufs).toString(responseEncoding) : responseStr;
-            
-            callback(null, res.statusCode, res.headers, responseStr);
-        });
-        
-    })
-    .setTimeout(0)
-    .on('error', (error) => {
-        callback(error);
-    });
-    request.write("")
+    request.write("{\n\"coordinates\": [ [ [[40, 40], [20, 45], [45, 30], [40, 40]] ], [ [[20, 35], [10, 30], [10, 10], [30, 5], [45, 20], [20, 35]], [[30, 20], [20, 15], [20, 25], [30, 20]] ] ]\n}")
     request.end();
     
 
@@ -621,9 +570,9 @@
     const httpOptions = {
         hostname: 'localhost',
         port: '8529',
-        path: '/_db/GeoService/env/gcu/shape?gcu_id_unit-id=GBR000012010',
+        path: '/_db/GeoService/env/gcu/shape?gcu_id_number=GBR00001',
         method: 'GET',
-        headers: {"Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -674,7 +623,7 @@
         port: '8529',
         path: '/_db/GeoService/env/gcu/rec?geometry_hash=0df76d46196094c8bade10e30faf6ae0',
         method: 'GET',
-        headers: {"Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -725,7 +674,7 @@
         port: '8529',
         path: '/_db/GeoService/env/shape?geometry_hash=0df76d46196094c8bade10e30faf6ae0',
         method: 'GET',
-        headers: {"Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -776,7 +725,7 @@
         port: '8529',
         path: '/_db/GeoService/env/shape/click?lat=41.83&lon=16.02',
         method: 'GET',
-        headers: {"Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -827,7 +776,7 @@
         port: '8529',
         path: '/_db/GeoService/env/shape/search',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -867,7 +816,7 @@
     console.log('BODY:', body);
 });
 
-// request Metadata by time span 
+// request Shape metadata by time span 
 (function(callback) {
     'use strict';
         
@@ -876,9 +825,9 @@
     const httpOptions = {
         hostname: 'localhost',
         port: '8529',
-        path: '/_db/GeoService/env/rs/meta/span',
+        path: '/_db/GeoService/env/rs/meta/span/shape',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -918,7 +867,58 @@
     console.log('BODY:', body);
 });
 
-// request Metadata by geometry and time span 
+// request Unit metadata by time span 
+(function(callback) {
+    'use strict';
+        
+    const httpTransport = require('http');
+    const responseEncoding = 'utf8';
+    const httpOptions = {
+        hostname: 'localhost',
+        port: '8529',
+        path: '/_db/GeoService/env/rs/meta/span/unit',
+        method: 'POST',
+        headers: {"Content-Type":"application/json; charset=utf-8"}
+    };
+    httpOptions.headers['User-Agent'] = 'node ' + process.version;
+ 
+    // Paw Store Cookies option is not supported
+
+    const request = httpTransport.request(httpOptions, (res) => {
+        let responseBufs = [];
+        let responseStr = '';
+        
+        res.on('data', (chunk) => {
+            if (Buffer.isBuffer(chunk)) {
+                responseBufs.push(chunk);
+            }
+            else {
+                responseStr = responseStr + chunk;            
+            }
+        }).on('end', () => {
+            responseStr = responseBufs.length > 0 ? 
+                Buffer.concat(responseBufs).toString(responseEncoding) : responseStr;
+            
+            callback(null, res.statusCode, res.headers, responseStr);
+        });
+        
+    })
+    .setTimeout(0)
+    .on('error', (error) => {
+        callback(error);
+    });
+    request.write("{\"gcu_id_number_list\":[\"ITA00001\",\"AUT00001\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}")
+    request.end();
+    
+
+})((error, statusCode, headers, body) => {
+    console.log('ERROR:', error); 
+    console.log('STATUS:', statusCode);
+    console.log('HEADERS:', JSON.stringify(headers));
+    console.log('BODY:', body);
+});
+
+// request Shape metadata by geometry and time span 
 (function(callback) {
     'use strict';
         
@@ -929,7 +929,7 @@
         port: '8529',
         path: '/_db/GeoService/env/rs/meta/shape',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -959,6 +959,57 @@
         callback(error);
     });
     request.write("{\"geometry_hash_list\":[\"c8ebeade136c209a7d6b40dc2cc3a72d\",\"02713e2716b7e8eec36ac6a61223f8a3\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}")
+    request.end();
+    
+
+})((error, statusCode, headers, body) => {
+    console.log('ERROR:', error); 
+    console.log('STATUS:', statusCode);
+    console.log('HEADERS:', JSON.stringify(headers));
+    console.log('BODY:', body);
+});
+
+// request Unit metadata by geometry and time span 
+(function(callback) {
+    'use strict';
+        
+    const httpTransport = require('http');
+    const responseEncoding = 'utf8';
+    const httpOptions = {
+        hostname: 'localhost',
+        port: '8529',
+        path: '/_db/GeoService/env/rs/meta/unit',
+        method: 'POST',
+        headers: {"Content-Type":"application/json; charset=utf-8"}
+    };
+    httpOptions.headers['User-Agent'] = 'node ' + process.version;
+ 
+    // Paw Store Cookies option is not supported
+
+    const request = httpTransport.request(httpOptions, (res) => {
+        let responseBufs = [];
+        let responseStr = '';
+        
+        res.on('data', (chunk) => {
+            if (Buffer.isBuffer(chunk)) {
+                responseBufs.push(chunk);
+            }
+            else {
+                responseStr = responseStr + chunk;            
+            }
+        }).on('end', () => {
+            responseStr = responseBufs.length > 0 ? 
+                Buffer.concat(responseBufs).toString(responseEncoding) : responseStr;
+            
+            callback(null, res.statusCode, res.headers, responseStr);
+        });
+        
+    })
+    .setTimeout(0)
+    .on('error', (error) => {
+        callback(error);
+    });
+    request.write("{\"gcu_id_number_list\":[\"ITA00001\",\"AUT00001\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}")
     request.end();
     
 
@@ -978,9 +1029,60 @@
     const httpOptions = {
         hostname: 'localhost',
         port: '8529',
-        path: '/_db/GeoService/env/rs/data?geometry_hash=0000ba761f60e527dec3dedbebcf4911',
+        path: '/_db/GeoService/env/rs/data/shape?geometry_hash=0000ba761f60e527dec3dedbebcf4911',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
+    };
+    httpOptions.headers['User-Agent'] = 'node ' + process.version;
+ 
+    // Paw Store Cookies option is not supported
+
+    const request = httpTransport.request(httpOptions, (res) => {
+        let responseBufs = [];
+        let responseStr = '';
+        
+        res.on('data', (chunk) => {
+            if (Buffer.isBuffer(chunk)) {
+                responseBufs.push(chunk);
+            }
+            else {
+                responseStr = responseStr + chunk;            
+            }
+        }).on('end', () => {
+            responseStr = responseBufs.length > 0 ? 
+                Buffer.concat(responseBufs).toString(responseEncoding) : responseStr;
+            
+            callback(null, res.statusCode, res.headers, responseStr);
+        });
+        
+    })
+    .setTimeout(0)
+    .on('error', (error) => {
+        callback(error);
+    });
+    request.write("{\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2010\",\"std_date_end\":\"20101231\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}")
+    request.end();
+    
+
+})((error, statusCode, headers, body) => {
+    console.log('ERROR:', error); 
+    console.log('STATUS:', statusCode);
+    console.log('HEADERS:', JSON.stringify(headers));
+    console.log('BODY:', body);
+});
+
+// request Data by unit and time span 
+(function(callback) {
+    'use strict';
+        
+    const httpTransport = require('http');
+    const responseEncoding = 'utf8';
+    const httpOptions = {
+        hostname: 'localhost',
+        port: '8529',
+        path: '/_db/GeoService/env/rs/data/unit?gcu_id_number=GBR00001',
+        method: 'POST',
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -1031,7 +1133,7 @@
         port: '8529',
         path: '/_db/GeoService/env/do/meta?lat=42&lon=12',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -1082,7 +1184,7 @@
         port: '8529',
         path: '/_db/GeoService/env/do/meta/shape?lat=42&lon=12',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -1133,7 +1235,7 @@
         port: '8529',
         path: '/_db/GeoService/env/do/data/shape?lat=42&lon=12',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -1184,7 +1286,7 @@
         port: '8529',
         path: '/_db/GeoService/env/do/data/date?lat=42&lon=12',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
@@ -1235,7 +1337,7 @@
         port: '8529',
         path: '/_db/GeoService/env/dataset/query?op=AND',
         method: 'POST',
-        headers: {"Content-Type":"application/json; charset=utf-8","Cookie":"FOXXSID=null; FOXXSID.sig=659130347e9eb043443995f5b9aef83b6238df078ef297696fdd33b56bd7b0cb"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
