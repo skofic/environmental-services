@@ -210,6 +210,7 @@ function filterIntegerRange(
  *
  * @param theProperty {String}: Property name.
  * @param theValue {Array}: List of elements to match.
+ *
  * @return {aql}: The filter clause.
  */
 function filterList(

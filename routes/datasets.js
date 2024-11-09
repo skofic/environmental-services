@@ -42,21 +42,13 @@ const view_reference = {
 ///
 // Models.
 ///
-const Model = require('../models/dataset')
-const ModelQuery = require('../models/datasetQuery')
-const opSchema = joi.string()
-	.valid("AND", "OR")
-	.default("AND")
-	.required()
-	.description('Chaining operator for query filters')
 
-///
-// Descriptions.
-///
+// Dataset
+const Model = require('../models/dataset')
 const ModelDescription = dd`
 	The dataset record contains the following properties:
 	- \`_key\`: The dataset unique identifier.
-	- \`_collection\`: The database collection name containing data.
+	- \`_collection_list\`: The database collections containing data.
 	- \`std_project\`: Dataset project code.
 	- \`std_dataset\`: Dataset code or acronym.
 	- \`std_date_start\`: Data date range start.
@@ -77,10 +69,13 @@ const ModelDescription = dd`
 	- \`std_terms_quant\`: List of quantitative variables featured in data.
 	- \`std_terms_summary\`: List of summary fields
 	- \`std_dataset_markers\`: List of species/markers combinations.`
+
+// Query
+const ModelQuery = require('../models/datasetQuery')
 const ModelQueryDescription = dd`
 	The body is an object that contains the query parameters:
 	- \`_key\`: Provide a list of matching dataset unique identifiers.
-	- \`_collection\`: Provide a list of matching database collection names where data is stored.
+	- \`_collection_list\`: The database collections containing data.
 	- \`std_project\`: Provide a list of matching project codes.
 	- \`std_dataset\`: Provide a wildcard search string for the dataset code.
 	- \`std_dataset_group\`: Provide a list of matching dataset group codes.
@@ -101,6 +96,13 @@ const ModelQueryDescription = dd`
 	- \`std_terms_quant\`: Provide list of featured quantitative variables in the dataset with all or any selector.
 	- \`std_terms_summary\`: Provide list of dataset summary fields with all or any selector.
 	Omit the properties that you don't want to search on.`
+
+// Operation chaining
+const opSchema = joi.string()
+	.valid("AND", "OR")
+	.default("AND")
+	.required()
+	.description('Chaining operator for query filters')
 
 
 ////
@@ -223,7 +225,6 @@ function datasetQueryFilters(request, response)
 		let filter = null
 		switch(key) {
 			case '_key':
-			case'_collection':
 			case 'std_project':
 			case'std_dataset_group':
 			case '_subject':
@@ -253,7 +254,8 @@ function datasetQueryFilters(request, response)
 			case 'count':
 				filter = queryFilters.filterIntegerRange(key, value)
 				break
-
+			
+			case'_collection_list':
 			case '_classes':
 			case '_domain':
 			case '_tag':

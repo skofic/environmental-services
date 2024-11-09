@@ -556,7 +556,9 @@ Records of this collection contain a set of fields that record the *metadata* of
 ```json
 {
   "_key": "4badf85d-270a-463c-89d3-04bc52d806bd",
-  "_collection": "Chelsa",
+  "_collection_list": [
+    "Chelsa"
+  ],
   "std_project": "EUFGIS",
   "std_dataset": "CHELSA_V2.1",
   "std_dataset_group": "CLIMATE",
@@ -580,7 +582,7 @@ Records of this collection contain a set of fields that record the *metadata* of
 
 The `_key` contains the *primary key* of the record.
 
-The `_collection` contains the *database collection name* in which *data* from the *current dataset* is stored. It is implied that all data in the dataset is stored in one collection.
+The `_collection_list` contains the *database collections name* in which *data* from the *current dataset* is stored.
 
 The `std_project` represents the *code* of the *project* that is tasked to collect and provide data.
 
@@ -630,7 +632,7 @@ The records are served and searched using a view:
         "std_date_start": {},
         "std_date_submission": {},
         "count": {},
-        "_collection": {},
+        "_collection_list": {},
         "_subject": {},
         "_subjects": {},
         "_classes": {},
@@ -1337,7 +1339,7 @@ This set of services will return metadata regarding the datasets featured in the
 A dataset record has the following structure:
 
 - ***`_key`***: The dataset primary key string.
-- ***`_collection`***: Database collection name where data for this dataset is stored.
+- ***`_collection_list`***: Database collection names where data for this dataset is stored.
 - ***`std_project`***: Code of the project to which the dataset belongs.
 - ***`std_dataset`***: Dataset code or acronym.
 - ***`std_dataset_group`***: Dataset group code or acronym.
@@ -1375,7 +1377,7 @@ This service will return all *external database dataset records* matching the qu
 The selection criteria is structured as follows:
 
 - ***`_key`***: The dataset primary key string.
-- ***`_collection`***: Database collection name where data for this dataset is stored.
+- ***`_collection_list`***: Database collection names where data for this dataset is stored.
 - ***`std_project`***: Code of the project to which the dataset belongs.
 - ***`std_dataset`***: Dataset code or acronym.
 - ***`std_dataset_group`***: Dataset group code or acronym.

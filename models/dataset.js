@@ -15,7 +15,8 @@ module.exports = {
 		_key: joi.string()
 			.optional()
 			.description("The key of the dataset"),
-		_collection: joi.string()
+		_collection_list: joi.array()
+			.items(joi.string())
 			.description("The name of the database collection containing the data"),
 		std_project: joi.string()
 			.required()

@@ -75,7 +75,7 @@ const views = {
 						"std_date_start": {},
 						"std_date_submission": {},
 						"count": {},
-						"_collection": {},
+						"_collection_list": {},
 						"_subject": {},
 						"_subjects": {},
 						"_classes": {},

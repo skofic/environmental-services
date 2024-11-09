@@ -15,9 +15,15 @@ module.exports = {
 		_key: joi.array()
 			.items(joi.string())
 			.description("Select by dataset identifiers"),
-		_collection: joi.array()
-			.items(joi.string())
-			.description("Select by database collection name"),
+		_collection_list: joi.object({
+			items: joi.array()
+				.items(joi.string())
+				.required(),
+			doAll: joi.boolean()
+				.default(false)
+				.required()
+		})
+			.description("Select by database collections"),
 		std_project: joi.array()
 			.items(joi.string())
 			.description("Select by dataset project codes"),

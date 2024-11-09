@@ -2549,9 +2549,6 @@ class MyRequestController {
                 ],
                 "doAll": false
             ],
-            "_collection": [
-                "DroughtObservatory"
-            ],
             "std_dataset_group": [
                 "EDO"
             ],
@@ -2563,6 +2560,12 @@ class MyRequestController {
                 "doAll": true
             ],
             "_title": "drought radiation index",
+            "_collection_list": [
+                "items": [
+                    "DroughtObservatory"
+                ],
+                "doAll": false
+            ],
             "std_date": [
                 "std_date_start": "1990",
                 "std_date_end": "2023"
