@@ -8,10 +8,10 @@ const { context } = require('@arangodb/locals')
 ///
 // Set routes.
 ///
-context.use('/chelsa', require('./routes/chelsaClimate'), 'Chelsa')
-context.use('/worldclim', require('./routes/worldclimClimate'), 'WorldClim')
+context.use('/chelsa', require('./routes/chelsa'), 'Chelsa')
+context.use('/worldclim', require('./routes/worldClim'), 'WorldClim')
 context.use('/hash', require('./routes/shapeHashes'), 'Hash Geometries')
-context.use('/gcu', require('./routes/unitsData'), 'Conservation Units')
+context.use('/gcu', require('./routes/units'), 'Conservation Units')
 context.use('/shape', require('./routes/unitShapes'), 'Conservation Unit Shapes')
 context.use('/rs/meta', require('./routes/remoteSensingMeta'), 'Remote Sensing Meta')
 context.use('/rs/data', require('./routes/remoteSensingData'), 'Remote Sensing Data')

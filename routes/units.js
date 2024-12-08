@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * unitsData.js
+ * units.js
  *
  * This script contains the routes for the Genetic Conservation Units data services.
  */

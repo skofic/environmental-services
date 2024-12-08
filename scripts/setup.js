@@ -61,7 +61,7 @@ for (const [key, collection] of Object.entries(documentCollections)) {
 				})
 				break
 			
-			case 'sunit_data':
+			case 'unit_data':
 				coll.ensureIndex({
 					name: 'idx_unit_span_date',
 					type: 'persistent',

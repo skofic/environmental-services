@@ -1,9 +1,9 @@
 'use strict'
 
 /**
- * worldclimClimate.js
+ * chelsa.js
  *
- * This script contains the routes for the WorldClim climate services.
+ * This script contains the routes for the Chelsa climate services.
  */
 
 ///
@@ -17,7 +17,7 @@ const createRouter = require('@arangodb/foxx/router')
 ///
 // Collections.
 ///
-const collection_data = db._collection(module.context.configuration.collectionWorldClim)
+const collection_data = db._collection(module.context.configuration.collectionChelsa)
 
 ///
 // Models.
@@ -44,11 +44,15 @@ Return *one record* containing the selection's quantitative data *aggregation*:
 - \`STD\`: *Standard deviation*.
 - \`VAR\`: *Variance*.
 `)
-const minDistanceSchema = joi.number().required()
+const minDistanceSchema = joi.number()
+	.required()
 	.description('*Minimum* distance *inclusive* in *meters*.')
-const maxDistanceSchema = joi.number().required()
+const maxDistanceSchema = joi.number()
+	.required()
 	.description('*Maximum* distance *inclusive* in *meters*.')
-const sortSchema = joi.string().valid('NO', 'ASC', 'DESC').required()
+const sortSchema = joi.string()
+	.valid('NO', 'ASC', 'DESC')
+	.default('NO')
 	.description(`
 Results selection *sort* order:
 
@@ -80,7 +84,7 @@ const DescriptionModelDistance = `
 The service body record contains the following properties:
 
 - \`geometry\`: The *GeoJSON geometry* whose *wgs84 centroid* is compared \
-with the *WorldClim measurement wgs84 centroids* to determine the *distance*. \
+with the *Chelsa measurement wgs84 centroids* to determine the *distance*. \
 It may be a *Point*, *MultiPoint*, *LineString*, *MultiLineString*, *Polygon* \
 or *MultiPolygon*. *This parameter is required*.
 - \`start\`: The zero-based *start index* of the returned *selection*. \
@@ -93,7 +97,7 @@ const DescriptionModelContains = `
 The service body record contains the following properties:
 
 - \`geometry\`: The *GeoJSON geometry* that *fully contains* the *wgs84 centroids* \
-of the *WorldClim measurements*. It may be a *Polygon* or *MultiPolygon*. \
+of the *Chelsa measurements*. It may be a *Polygon* or *MultiPolygon*. \
 *This parameter is required*.
 - \`start\`: The zero-based *start index* of the returned *selection*. \
 The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`, \
@@ -115,16 +119,16 @@ if omitted it defaults to 0.
 The property is relevant only when the \`what\` parameter is \`KEY\`, \`SHAPE\` or \`DATA\`.
 `
 const DescriptionModelRecord = `
-WorldClim records.
+Chelsa records.
 
 The service will return *one* or *more* records structured as follows:
 
 - \`count\`: The *number of records* in the current *selection*, only provided for *aggregated data requests*.
 - \`geometry_hash\`: The record *primary key*, which corresponds to the *MD5 hash* of the *GeoJSON point geometry*, \`geometry_point\`.
-- \`distance\`: The distance, in *meters*, between the *provided reference geometry* and the *selected WorldClim records*. This property is only provided by services that *select records* based on a *distance range*.
+- \`distance\`: The distance, in *meters*, between the *provided reference geometry* and the *selected Chelsa records*. This property is only provided by services that *select records* based on a *distance range*.
 - \`geometry_point\`: The *GeoJSON point geometry* corresponding to the *centroid* of the *data bounding box*.
 - \`geometry_bounds\`: The *GeoJSON polygon geometry* corresponding the *data bounding box*.
-- \`properties\`: The WorldClim *data properties*.
+- \`properties\`: The Chelsa *data properties*.
 
 The \`what\` path parameter defines what *type of result* the service should return. This can be a *selection of records*, or a *single record* containing the selection values aggregate.
 
@@ -143,7 +147,7 @@ The \`what\` path parameter defines what *type of result* the service should ret
 - \`VAR\`: The *variance*.
 `
 const DescriptionDistance = `
-The service will select all WorldClim records that lie within a \
+The service will select all Chelsa records that lie within a \
 *distance range* from the *reference geometry*. \
 The distance is calculated from the *wgs84 centroids* of both \
 the *reference geometry* and the *shape geometry*.
@@ -163,12 +167,12 @@ The sort order is determined by the *distance*.
 And the following *body parameters*:
 
 - \`geometry\`: This parameter represents the *reference geometry* whose *centroid* \
-will be used to select all WorldClim records *within* the provided *distance range*.
+will be used to select all Chelsa records *within* the provided *distance range*.
 - \`start\`: *Initial record index*, zero based, for returned selection of records.
 - \`limit\`: *Number of records* to return.
 `
 const DescriptionContains = `
-The service will select all WorldClim records whose *measurement area centroid* is \
+The service will select all Chelsa records whose *measurement area centroid* is \
 *fully contained* by the *provided reference geometry*. This means that the \
 measurement is located in the point at the center of the measurement area.
 
@@ -187,7 +191,7 @@ contains the *measurement area centroids*, in *GeoJSON format*.
 - \`limit\`: *Number of records* to return.
 `
 const DescriptionIntersects = `
-The service will select all WorldClim records whose *data bounds* intersect \
+The service will select all Chelsa records whose *data bounds* intersect \
 with the *provided reference geometry*.
 
 The service expects the following *query path parameter*:
@@ -211,10 +215,10 @@ measurement areas intersect with it.
 // Utils.
 ///
 const {
-	WorldClimDistanceAQL,
-	WorldClimContainsAQL,
-	WorldClimIntersectsAQL
-} = require('../utils/worldclimAggregateAQL')
+	ChelsaDistanceAQL,
+	ChelsaContainsAQL,
+	ChelsaIntersectsAQL
+} = require('../utils/chelsaAggregateAQL')
 
 ///
 // Create and export router.
@@ -225,13 +229,13 @@ module.exports = router
 ///
 // Tag router.
 ///
-router.tag('WorldClim')
+router.tag('Chelsa')
 
 
 /**
- * Return the WorldClim data record that contains the provided point.
+ * Return the Chelsa data record that contains the provided point.
  *
- * This service will return the WorldClim record that contains the provided coordinate.
+ * This service will return the Chelsa record that contains the provided coordinate.
  *
  * Parameters:
  * - `:lat`: The latitude.
@@ -301,18 +305,18 @@ router.get('click', function (req, res)
 	// Description.
 	///
 	.description(dd`
-		The service will return the WorldClim data record that contains the provided coordinates.
+		The service will return the Chelsa data record that contains the provided coordinates.
 	`)
 
 /**
- * Return the WorldClim data records found within the provided distance.
+ * Return the Chelsa data records found within the provided distance.
  *
- * This service will return the WorldClim records whose distance to the provided reference
+ * This service will return the Chelsa records whose distance to the provided reference
  * geometry is larger or equal to the provided minimum distance and smaller or equal to
  * the provided maximum distance.
  *
  * The distance is calculated from the centroid of the provided reference geometry to the
- * centroids of the WorldClim records.
+ * centroids of the Chelsa records.
  *
  * Parameters:
  * - `:what`: The result type, `KEY` only geometry key, `SHAPE` key and geometry, `DATA` properties, `MIN` minimum, `AVG` average, `MAX` maximum, `STD` standard deviation, `VAR` variance.
@@ -343,7 +347,7 @@ router.post('dist', function (req, res)
 	// Build query.
 	//
 	let query =
-		WorldClimDistanceAQL(
+		ChelsaDistanceAQL(
 			collection_data,
 			reference,
 			what,
@@ -402,7 +406,7 @@ router.post('dist', function (req, res)
 	.description(DescriptionDistance)
 
 /**
- * Return all WorldClim data points fully contained by the provided reference geometry.
+ * Return all Chelsa data points fully contained by the provided reference geometry.
  *
  * This service will return all the occurrence records whose centroids are fully contained
  * by the provided reference geometry, the latter may be a Polygon or MultiPolugon.
@@ -430,7 +434,7 @@ router.post('contain', function (req, res)
 	// Build query.
 	//
 	let query =
-		WorldClimContainsAQL(
+		ChelsaContainsAQL(
 			collection_data,
 			reference,
 			what,
@@ -483,9 +487,9 @@ router.post('contain', function (req, res)
 	.description(DescriptionContains)
 
 /**
- * Return all WorldClim data points that intersect with the provided reference geometry.
+ * Return all Chelsa data points that intersect with the provided reference geometry.
  *
- * This service will return all the WorldClim data points which intersect
+ * This service will return all the Chelsa data points which intersect
  * with the provided reference geometry.
  *
  * Parameters:
@@ -511,7 +515,7 @@ router.post('intersect', function (req, res)
 	// Build query.
 	//
 	let query =
-		WorldClimIntersectsAQL(
+		ChelsaIntersectsAQL(
 			collection_data,
 			reference,
 			what,
