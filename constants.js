@@ -34,7 +34,6 @@ const views = {
 					],
 					"fields": {
 						"_key": {},
-						"std_dataset_ids": {},
 						"geometry": {
 							"analyzers": [
 								"geojson"
@@ -43,12 +42,15 @@ const views = {
 						"properties": {
 							"fields": {
 								"chr_AvElevation": {},
-								"chr_AvSlope": {},
 								"chr_StdElevation": {},
+								"gcu_id_number": {},
+								"chr_AvSlope": {},
 								"geo_shape_area": {},
-								"chr_AvAspect": {}
+								"chr_AvAspect": {},
+								"chr_MinElevation": {},
+								"chr_MaxElevation": {}
 							}
-						},
+						}
 					},
 					"includeAllFields": false,
 					"storeValues": "none",
