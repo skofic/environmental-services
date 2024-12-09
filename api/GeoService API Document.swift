@@ -1448,17 +1448,17 @@ class MyRequestController {
                     ]
                 ]
             ],
-            "chr_AvAspect": [
-                "min": 150,
-                "max": 190
-            ],
-            "geometry_hash": [
+            "geometry_hash_list": [
                 "034ee0b07b3f7bf680396cd7a551d6e1",
                 "5930def0e729e382651e07f39b7909c7",
                 "4bee1683207b0baecee58e23bba9c5c2"
             ],
             "std_dataset_ids": [
                 "814b4937-3bbd-47c7-99d5-2cd51a0f3469"
+            ],
+            "chr_AvAspect": [
+                "min": 150,
+                "max": 190
             ],
             "intersects": [
                 "type": "Polygon",
@@ -1551,8 +1551,8 @@ class MyRequestController {
 
         let bodyObject: [String : Any] = [
             "geometry_hash_list": [
-                "c8ebeade136c209a7d6b40dc2cc3a72d",
-                "02713e2716b7e8eec36ac6a61223f8a3"
+                "5884f50ccde8024a30d84cf29c12c3ed",
+                "6117b4b921bbe98c0ee8c5a253132634"
             ],
             "std_date_start": "2000",
             "std_date_span": [
@@ -1711,8 +1711,8 @@ class MyRequestController {
 
         let bodyObject: [String : Any] = [
             "geometry_hash_list": [
-                "c8ebeade136c209a7d6b40dc2cc3a72d",
-                "02713e2716b7e8eec36ac6a61223f8a3"
+                "5884f50ccde8024a30d84cf29c12c3ed",
+                "6117b4b921bbe98c0ee8c5a253132634"
             ],
             "std_date_start": "2000",
             "std_date_span": [
@@ -1861,7 +1861,7 @@ class MyRequestController {
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/rs/data/shape") else {return}
         let URLParams = [
-            "geometry_hash": "0000ba761f60e527dec3dedbebcf4911",
+            "geometry_hash": "5884f50ccde8024a30d84cf29c12c3ed",
         ]
         URL = URL.appendingQueryParameters(URLParams)
         var request = URLRequest(url: URL)

@@ -5199,7 +5199,7 @@
     "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/shape/search/": {
       "post": {
         "summary": "Geometry search",
-        "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shapes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
+        "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash_list`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shapes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
         "operationId": "07d3ee03-91b6-4ae4-9f65-aae121675f20",
         "parameters": [
           {
@@ -5213,7 +5213,7 @@
           }
         ],
         "requestBody": {
-          "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shapes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
+          "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash_list`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shapes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
           "content": {
             "application/json": {
               "schema": {
@@ -5284,22 +5284,7 @@
                       }
                     }
                   },
-                  "chr_AvAspect": {
-                    "type": "object",
-                    "properties": {
-                      "min": {
-                        "type": "integer",
-                        "format": "int64",
-                        "example": 150
-                      },
-                      "max": {
-                        "type": "integer",
-                        "format": "int64",
-                        "example": 190
-                      }
-                    }
-                  },
-                  "geometry_hash": {
+                  "geometry_hash_list": {
                     "type": "string",
                     "items": {
                       "type": "string"
@@ -5318,6 +5303,21 @@
                     "example": [
                       "814b4937-3bbd-47c7-99d5-2cd51a0f3469"
                     ]
+                  },
+                  "chr_AvAspect": {
+                    "type": "object",
+                    "properties": {
+                      "min": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 150
+                      },
+                      "max": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 190
+                      }
+                    }
                   },
                   "intersects": {
                     "type": "object",
@@ -5395,174 +5395,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "distance": {
-                        "type": "number"
-                      },
-                      "geometry_hash": {
-                        "type": "string",
-                        "example": "4bee1683207b0baecee58e23bba9c5c2"
-                      },
-                      "std_dataset_ids": {
-                        "type": "string",
-                        "items": {
-                          "type": "string"
-                        },
-                        "example": [
-                          "814b4937-3bbd-47c7-99d5-2cd51a0f3469"
-                        ]
-                      },
-                      "properties": {
-                        "type": "object",
-                        "properties": {
-                          "chr_AvElevation": {
-                            "type": "number"
-                          },
-                          "chr_AvSlope": {
-                            "type": "number"
-                          },
-                          "chr_StdElevation": {
-                            "type": "number"
-                          },
-                          "geo_shape_area": {
-                            "type": "number"
-                          },
-                          "chr_AvAspect": {
-                            "type": "number"
-                          }
-                        }
-                      },
-                      "geometry": {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "example": "Polygon"
-                          },
-                          "coordinates": {
-                            "type": "object",
-                            "items": {
-                              "type": "array",
-                              "items": {
-                                "type": "array",
-                                "items": {
-                                  "type": "number"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      },
-                      "geometry_bounds": {
-                        "type": "object",
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "example": "Polygon"
-                          },
-                          "geodesic": {
-                            "type": "boolean"
-                          },
-                          "coordinates": {
-                            "type": "object",
-                            "items": {
-                              "type": "array",
-                              "items": {
-                                "type": "array",
-                                "items": {
-                                  "type": "number"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "headers": {
-              "Pragma": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "no-cache"
-                }
-              },
-              "X-Content-Type-Options": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "nosniff"
-                }
-              },
-              "Content-Security-Policy": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "frame-ancestors 'self'; form-action 'self';"
-                }
-              },
-              "Strict-Transport-Security": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "max-age=31536000 ; includeSubDomains"
-                }
-              },
-              "Server": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "ArangoDB"
-                }
-              },
-              "Content-Type": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "application/json; charset=utf-8"
-                }
-              },
-              "Cache-Control": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
-                }
-              },
-              "Expires": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "0"
-                }
-              },
-              "Content-Length": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "3917"
-                }
-              },
-              "X-Arango-Queue-Time-Seconds": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "0.000000"
-                }
-              },
-              "Connection": {
-                "description": "",
-                "schema": {
-                  "type": "string",
-                  "example": "Close"
+              "text/plain": {
+                "example": {
+                  "value": {}
                 }
               }
             }
@@ -5600,8 +5435,8 @@
                       "type": "string"
                     },
                     "example": [
-                      "c8ebeade136c209a7d6b40dc2cc3a72d",
-                      "02713e2716b7e8eec36ac6a61223f8a3"
+                      "5884f50ccde8024a30d84cf29c12c3ed",
+                      "6117b4b921bbe98c0ee8c5a253132634"
                     ]
                   },
                   "std_date_start": {
@@ -5672,7 +5507,7 @@
                       "count": {
                         "type": "integer",
                         "format": "int64",
-                        "example": 8378
+                        "example": 16790
                       },
                       "std_date_span": {
                         "type": "string",
@@ -5684,7 +5519,7 @@
                       },
                       "std_date_end": {
                         "type": "string",
-                        "example": "20221230"
+                        "example": "20221231"
                       },
                       "std_terms": {
                         "type": "string",
@@ -5692,20 +5527,20 @@
                           "type": "string"
                         },
                         "example": [
+                          "env_climate_soil_temp_7",
+                          "env_climate_soil_temp_28",
+                          "env_climate_soil_temp_100",
+                          "env_climate_soil_temp_289",
+                          "env_climate_soil_water_7",
+                          "env_climate_soil_water_28",
+                          "env_climate_soil_water_100",
+                          "env_climate_soil_water_289",
+                          "env_climate_temp-2m",
+                          "env_climate_tpr",
                           "chr_RelHumid",
                           "env_climate_wind",
                           "env_climate_slhf",
-                          "env_climate_snsrad",
-                          "env_climate_soil_temp_100",
-                          "env_climate_tpr",
-                          "env_climate_soil_temp_28",
-                          "env_climate_soil_water_289",
-                          "env_climate_soil_temp_289",
-                          "env_climate_temp-2m",
-                          "env_climate_soil_temp_7",
-                          "env_climate_soil_water_100",
-                          "env_climate_soil_water_28",
-                          "env_climate_soil_water_7"
+                          "env_climate_snsrad"
                         ]
                       },
                       "std_dataset_ids": {
@@ -5783,7 +5618,7 @@
                 "description": "",
                 "schema": {
                   "type": "string",
-                  "example": "1139"
+                  "example": "1258"
                 }
               },
               "X-Arango-Queue-Time-Seconds": {
@@ -6070,8 +5905,8 @@
                       "type": "string"
                     },
                     "example": [
-                      "c8ebeade136c209a7d6b40dc2cc3a72d",
-                      "02713e2716b7e8eec36ac6a61223f8a3"
+                      "5884f50ccde8024a30d84cf29c12c3ed",
+                      "6117b4b921bbe98c0ee8c5a253132634"
                     ]
                   },
                   "std_date_start": {
@@ -6141,7 +5976,7 @@
                     "properties": {
                       "geometry_hash": {
                         "type": "string",
-                        "example": "02713e2716b7e8eec36ac6a61223f8a3"
+                        "example": "5884f50ccde8024a30d84cf29c12c3ed"
                       },
                       "properties": {
                         "type": "object",
@@ -6215,7 +6050,7 @@
                 "description": "",
                 "schema": {
                   "type": "string",
-                  "example": "1459"
+                  "example": "2647"
                 }
               },
               "X-Arango-Queue-Time-Seconds": {
@@ -6446,7 +6281,7 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "default": "0000ba761f60e527dec3dedbebcf4911",
+              "default": "5884f50ccde8024a30d84cf29c12c3ed",
               "description": ""
             }
           },
@@ -6546,51 +6381,7 @@
                               "format": "utc-millisec"
                             },
                             "properties": {
-                              "type": "object",
-                              "properties": {
-                                "chr_RelHumid": {
-                                  "type": "number"
-                                },
-                                "env_climate_slhf": {
-                                  "type": "number"
-                                },
-                                "env_climate_snsrad": {
-                                  "type": "number"
-                                },
-                                "env_climate_soil_temp_100": {
-                                  "type": "number"
-                                },
-                                "env_climate_soil_temp_28": {
-                                  "type": "number"
-                                },
-                                "env_climate_soil_temp_289": {
-                                  "type": "number"
-                                },
-                                "env_climate_soil_temp_7": {
-                                  "type": "number"
-                                },
-                                "env_climate_soil_water_100": {
-                                  "type": "number"
-                                },
-                                "env_climate_soil_water_28": {
-                                  "type": "number"
-                                },
-                                "env_climate_soil_water_289": {
-                                  "type": "number"
-                                },
-                                "env_climate_soil_water_7": {
-                                  "type": "number"
-                                },
-                                "env_climate_tpr": {
-                                  "type": "number"
-                                },
-                                "env_climate_wind": {
-                                  "type": "number"
-                                },
-                                "env_climate_temp-2m": {
-                                  "type": "number"
-                                }
-                              }
+                              "type": "object"
                             }
                           }
                         }
@@ -6661,7 +6452,7 @@
                 "description": "",
                 "schema": {
                   "type": "string",
-                  "example": "232872"
+                  "example": "232658"
                 }
               },
               "X-Arango-Queue-Time-Seconds": {

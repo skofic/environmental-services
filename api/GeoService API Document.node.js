@@ -805,7 +805,7 @@
     .on('error', (error) => {
         callback(error);
     });
-    request.write("{\"geometry_hash\":[\"034ee0b07b3f7bf680396cd7a551d6e1\",\"5930def0e729e382651e07f39b7909c7\",\"4bee1683207b0baecee58e23bba9c5c2\"],\"std_dataset_ids\":[\"814b4937-3bbd-47c7-99d5-2cd51a0f3469\"],\"geo_shape_area\":{\"min\":32922692,\"max\":39275174},\"chr_AvElevation\":{\"min\":220,\"max\":930},\"chr_StdElevation\":{\"min\":5,\"max\":450},\"chr_AvSlope\":{\"min\":1,\"max\":30},\"chr_AvAspect\":{\"min\":150,\"max\":190},\"intersects\":{\"type\":\"Polygon\",\"coordinates\":[[[19.172351,50.399665],[11.205682,50.399665],[11.205682,45.511248],[19.172351,45.511248],[19.172351,50.399665]]]},\"distance\":{\"reference\":{\"type\":\"Point\",\"coordinates\":[15.407384,48.150157]},\"range\":{\"min\":0,\"max\":500000000}},\"paging\":{\"offset\":0,\"limit\":100}}")
+    request.write("{\"geometry_hash_list\":[\"034ee0b07b3f7bf680396cd7a551d6e1\",\"5930def0e729e382651e07f39b7909c7\",\"4bee1683207b0baecee58e23bba9c5c2\"],\"std_dataset_ids\":[\"814b4937-3bbd-47c7-99d5-2cd51a0f3469\"],\"geo_shape_area\":{\"min\":32922692,\"max\":39275174},\"chr_AvElevation\":{\"min\":220,\"max\":930},\"chr_StdElevation\":{\"min\":5,\"max\":450},\"chr_AvSlope\":{\"min\":1,\"max\":30},\"chr_AvAspect\":{\"min\":150,\"max\":190},\"intersects\":{\"type\":\"Polygon\",\"coordinates\":[[[19.172351,50.399665],[11.205682,50.399665],[11.205682,45.511248],[19.172351,45.511248],[19.172351,50.399665]]]},\"distance\":{\"reference\":{\"type\":\"Point\",\"coordinates\":[15.407384,48.150157]},\"range\":{\"min\":0,\"max\":500000000}},\"paging\":{\"offset\":0,\"limit\":100}}")
     request.end();
     
 
@@ -856,7 +856,7 @@
     .on('error', (error) => {
         callback(error);
     });
-    request.write("{\"geometry_hash_list\":[\"c8ebeade136c209a7d6b40dc2cc3a72d\",\"02713e2716b7e8eec36ac6a61223f8a3\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}")
+    request.write("{\"geometry_hash_list\":[\"5884f50ccde8024a30d84cf29c12c3ed\",\"6117b4b921bbe98c0ee8c5a253132634\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}")
     request.end();
     
 
@@ -958,7 +958,7 @@
     .on('error', (error) => {
         callback(error);
     });
-    request.write("{\"geometry_hash_list\":[\"c8ebeade136c209a7d6b40dc2cc3a72d\",\"02713e2716b7e8eec36ac6a61223f8a3\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}")
+    request.write("{\"geometry_hash_list\":[\"5884f50ccde8024a30d84cf29c12c3ed\",\"6117b4b921bbe98c0ee8c5a253132634\"],\"std_date_span\":[\"std_date_span_day\",\"std_date_span_month\",\"std_date_span_year\"],\"std_date_start\":\"2000\",\"std_date_end\":\"2023\",\"std_terms\":[\"chr_RelHumid\",\"env_climate_temp-2m\",\"chr_LandSurfTemp\",\"chr_AvLeafAreaIdx\",\"chr_AvBiomass\"],\"std_dataset_ids\":[\"5f9c61fc-8a82-41b5-b2ae-42c0068cfb6e\",\"9f0b933b-a6e7-435d-a1ba-c49c10c94c52\",\"647be387-4dda-4257-a7c8-e5c47e90ccc9\",\"750b614a-8dbc-49e0-85e2-8279c2b80269\",\"08e0810c-c259-409b-8626-e8699540cfaa\",\"d9f9676f-d31e-4f31-80d7-fd00909039aa\",\"5161a461-1fb1-46df-89de-fd1caab906e7\",\"cfe881bd-65f3-4c4c-a0fb-c0b9fd35ea51\",\"2a9ca201-0b15-495f-ad65-c138886986df\"]}")
     request.end();
     
 
@@ -1029,7 +1029,7 @@
     const httpOptions = {
         hostname: 'localhost',
         port: '8529',
-        path: '/_db/GeoService/env/rs/data/shape?geometry_hash=0000ba761f60e527dec3dedbebcf4911',
+        path: '/_db/GeoService/env/rs/data/shape?geometry_hash=5884f50ccde8024a30d84cf29c12c3ed',
         method: 'POST',
         headers: {"Content-Type":"application/json; charset=utf-8"}
     };
