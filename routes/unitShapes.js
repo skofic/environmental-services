@@ -45,7 +45,7 @@ const ModelSelection = require('../models/rsSelectionShape')
 const ModelSelectionDescription =
 	'Shape selection criteria.\n\n' +
 	'The selection data is structured as follows:\n\n' +
-	'- `geometry_hash`: List of shape geometry hashes.\n' +
+	'- `geometry_hash_list`: List of shape geometry hashes.\n' +
 	'- `std_dataset_ids`: List of dataset identifiers.\n' +
 	'- `geo_shape_area`: Shape area range, limits included.\n' +
 	'- `chr_AvElevation`: Shape average elevation range, limits included.\n' +
