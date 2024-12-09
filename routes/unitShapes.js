@@ -256,7 +256,7 @@ router.post('search', function (req, res)
 	const filters = []
 	for(const [key, value] of Object.entries(req.body)) {
 		switch(key) {
-			case 'geometry_hash':
+			case 'geometry_hash_list':
 				filters.push(aql`doc._key IN ${value}`)
 				break
 
