@@ -805,7 +805,7 @@
     .on('error', (error) => {
         callback(error);
     });
-    request.write("{\"geometry_hash_list\":[\"034ee0b07b3f7bf680396cd7a551d6e1\",\"5930def0e729e382651e07f39b7909c7\",\"4bee1683207b0baecee58e23bba9c5c2\"],\"std_dataset_ids\":[\"814b4937-3bbd-47c7-99d5-2cd51a0f3469\"],\"geo_shape_area\":{\"min\":32922692,\"max\":39275174},\"chr_AvElevation\":{\"min\":220,\"max\":930},\"chr_StdElevation\":{\"min\":5,\"max\":450},\"chr_AvSlope\":{\"min\":1,\"max\":30},\"chr_AvAspect\":{\"min\":150,\"max\":190},\"intersects\":{\"type\":\"Polygon\",\"coordinates\":[[[19.172351,50.399665],[11.205682,50.399665],[11.205682,45.511248],[19.172351,45.511248],[19.172351,50.399665]]]},\"distance\":{\"reference\":{\"type\":\"Point\",\"coordinates\":[15.407384,48.150157]},\"range\":{\"min\":0,\"max\":500000000}},\"paging\":{\"offset\":0,\"limit\":100}}")
+    request.write("{\"geometry_hash_list\":[\"02f184cfb58d5d8cb3b0769cb2631c94\",\"3bb8b24468aa2ddee2941a7455dcbc81\"],\"std_dataset_ids\":[\"814b4937-3bbd-47c7-99d5-2cd51a0f3469\"],\"geo_shape_area\":{\"min\":32922692,\"max\":39275174},\"chr_AvElevation\":{\"min\":220,\"max\":930},\"chr_StdElevation\":{\"min\":5,\"max\":450},\"chr_AvSlope\":{\"min\":1,\"max\":30},\"chr_AvAspect\":{\"min\":150,\"max\":190},\"intersects\":{\"type\":\"Polygon\",\"coordinates\":[[[19.172351,50.399665],[11.205682,50.399665],[11.205682,45.511248],[19.172351,45.511248],[19.172351,50.399665]]]},\"distance\":{\"reference\":{\"type\":\"Point\",\"coordinates\":[15.407384,48.150157]},\"range\":{\"min\":0,\"max\":500000000}},\"paging\":{\"offset\":0,\"limit\":100}}")
     request.end();
     
 

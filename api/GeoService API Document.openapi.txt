@@ -4816,25 +4816,33 @@
                         "type": "object",
                         "properties": {
                           "chr_AvElevation": {
-                            "type": "number"
-                          },
-                          "chr_AvSlope": {
                             "type": "integer",
                             "format": "int64",
-                            "example": 0
+                            "example": 13
+                          },
+                          "chr_MinElevation": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 13
+                          },
+                          "chr_MaxElevation": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 13
                           },
                           "chr_StdElevation": {
                             "type": "integer",
                             "format": "int64",
                             "example": 0
                           },
-                          "geo_shape_area": {
+                          "chr_AvSlope": {
                             "type": "number"
                           },
                           "chr_AvAspect": {
-                            "type": "integer",
-                            "format": "int64",
-                            "example": 0
+                            "type": "number"
+                          },
+                          "geo_shape_area": {
+                            "type": "number"
                           }
                         }
                       },
@@ -4865,9 +4873,6 @@
                           "type": {
                             "type": "string",
                             "example": "Polygon"
-                          },
-                          "geodesic": {
-                            "type": "boolean"
                           },
                           "coordinates": {
                             "type": "object",
@@ -4949,7 +4954,7 @@
                 "description": "",
                 "schema": {
                   "type": "string",
-                  "example": "1006"
+                  "example": "971"
                 }
               },
               "X-Arango-Queue-Time-Seconds": {
@@ -4975,7 +4980,7 @@
     "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/shape/click/": {
       "get": {
         "summary": "Geometry by point",
-        "description": "The service will return the *shape record* intersecting the *provided point* coordinate.\n\nThe service expects the `lat` and `lon` query parameters representing respectively the *latitude* and *longitude* of the point coordinate.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
+        "description": "The service will return the *shape record* whose bounds intersect with the *provided point* coordinate.\n\nThe service expects the `lat` and `lon` query parameters representing respectively the *latitude* and *longitude* of the point coordinate.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
         "operationId": "e34797a0-0576-42f0-a89d-323eea8e1e9d",
         "parameters": [
           {
@@ -4998,7 +5003,7 @@
           }
         ],
         "requestBody": {
-          "description": "The service will return the *shape record* intersecting the *provided point* coordinate.\n\nThe service expects the `lat` and `lon` query parameters representing respectively the *latitude* and *longitude* of the point coordinate.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
+          "description": "The service will return the *shape record* whose bounds intersect with the *provided point* coordinate.\n\nThe service expects the `lat` and `lon` query parameters representing respectively the *latitude* and *longitude* of the point coordinate.\n\nThe `geometry_hash` property of the returned record corresponds to the `_key` property of the shape record.",
           "content": {
             "text/plain": {}
           },
@@ -5033,16 +5038,26 @@
                           "chr_AvElevation": {
                             "type": "number"
                           },
-                          "chr_AvSlope": {
-                            "type": "number"
+                          "chr_MinElevation": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 90
+                          },
+                          "chr_MaxElevation": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 837
                           },
                           "chr_StdElevation": {
                             "type": "number"
                           },
-                          "geo_shape_area": {
+                          "chr_AvSlope": {
                             "type": "number"
                           },
                           "chr_AvAspect": {
+                            "type": "number"
+                          },
+                          "geo_shape_area": {
                             "type": "number"
                           }
                         }
@@ -5090,9 +5105,6 @@
                             "type": "string",
                             "example": "Polygon"
                           },
-                          "geodesic": {
-                            "type": "boolean"
-                          },
                           "coordinates": {
                             "type": "object",
                             "items": {
@@ -5173,7 +5185,7 @@
                 "description": "",
                 "schema": {
                   "type": "string",
-                  "example": "2786"
+                  "example": "2738"
                 }
               },
               "X-Arango-Queue-Time-Seconds": {
@@ -5199,7 +5211,7 @@
     "/{Protocol}:/{Host}:{Port}/_db/{Db}/{Path}/shape/search/": {
       "post": {
         "summary": "Geometry search",
-        "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash_list`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shapes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
+        "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash_list`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shape bounding boxes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
         "operationId": "07d3ee03-91b6-4ae4-9f65-aae121675f20",
         "parameters": [
           {
@@ -5213,7 +5225,7 @@
           }
         ],
         "requestBody": {
-          "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash_list`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shapes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
+          "description": "The service will return shape records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash_list`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shape bounding boxes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
           "content": {
             "application/json": {
               "schema": {
@@ -5290,9 +5302,8 @@
                       "type": "string"
                     },
                     "example": [
-                      "034ee0b07b3f7bf680396cd7a551d6e1",
-                      "5930def0e729e382651e07f39b7909c7",
-                      "4bee1683207b0baecee58e23bba9c5c2"
+                      "02f184cfb58d5d8cb3b0769cb2631c94",
+                      "3bb8b24468aa2ddee2941a7455dcbc81"
                     ]
                   },
                   "std_dataset_ids": {
@@ -5395,9 +5406,91 @@
           "200": {
             "description": "",
             "content": {
-              "text/plain": {
-                "example": {
-                  "value": {}
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "array"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Pragma": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "nosniff"
+                }
+              },
+              "Content-Security-Policy": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "frame-ancestors 'self'; form-action 'self';"
+                }
+              },
+              "Strict-Transport-Security": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "max-age=31536000 ; includeSubDomains"
+                }
+              },
+              "Server": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "ArangoDB"
+                }
+              },
+              "Content-Type": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=utf-8"
+                }
+              },
+              "Cache-Control": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0, s-maxage=0"
+                }
+              },
+              "Expires": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0"
+                }
+              },
+              "Content-Length": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "2"
+                }
+              },
+              "X-Arango-Queue-Time-Seconds": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "0.000000"
+                }
+              },
+              "Connection": {
+                "description": "",
+                "schema": {
+                  "type": "string",
+                  "example": "Close"
                 }
               }
             }

@@ -39,6 +39,11 @@ const views = {
 								"geojson"
 							]
 						},
+						"geometry_bounds": {
+							"analyzers": [
+								"geojson"
+							]
+						},
 						"properties": {
 							"fields": {
 								"chr_AvElevation": {},

@@ -52,7 +52,7 @@ const ModelSelectionDescription =
 	'- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n' +
 	'- `chr_AvSlope`: Shape average slope range, limits included.\n' +
 	'- `chr_AvAspect`: Shape average area range, limits included.\n' +
-	'- `intersects`: GeoJSON geometry that intersects shapes.\n' +
+	'- `intersects`: GeoJSON geometry that intersects shape bounding boxes.\n' +
 	'- `distance`: Provide the GeoJSON shape in *reference* and the distance range in *range*.\n' +
 	'- `paging`: Paging: provide offset and limit properties, or omit the property to return all available data.\n\n' +
 	'When filling the search criteria either provide a value or omit the corresponding property.\n' +
@@ -159,10 +159,10 @@ router.get(function (req, res)
 	`);
 
 /**
- * Return the shape record that intersects the provided point.
+ * Return the shape bounds that intersects the provided point.
  *
  * This service will return the shape record
- * that intersects the provided coordinate.
+ * whose bounds intersect the provided coordinate.
  *
  * Parameters:
  * - `:lat`: The latitude.
@@ -183,7 +183,7 @@ router.get('click', function (req, res)
 		LET point = GEO_POINT(${lon}, ${lat})
 		FOR doc IN VIEW_SHAPE
 			SEARCH ANALYZER(
-				GEO_INTERSECTS(point, doc.geometry),
+				GEO_INTERSECTS(point, doc.geometry_bounds),
 				"geojson"
 			)
 		RETURN {
@@ -229,13 +229,15 @@ router.get('click', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get shape record intersecting the provided coordinate')
+	.summary('Get shape record whose bounds intersect the provided point')
 
 	///
 	// Description.
 	///
 	.description(dd`
-		The service will return the shape record that intersects the provided coordinate.
+		The service will return the shape record whose bounds intersect the provided point.
+		Note that the point is not expected to be contained by the shape polygon, rather, it \
+		should be contained by the shape's bounding box.
 	`)
 
 /**
@@ -279,7 +281,7 @@ router.post('search', function (req, res)
 
 			case 'intersects':
 				filters.push(
-					aql`ANALYZER(GEO_INTERSECTS(${value}, doc.geometry), "geojson")`
+					aql`ANALYZER(GEO_INTERSECTS(${value}, doc.geometry_bounds), "geojson")`
 				)
 				break
 
