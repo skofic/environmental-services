@@ -40,6 +40,7 @@ for (const [key, collection] of Object.entries(documentCollections)) {
 
 			case 'shapes':
 			case 'dataset':
+			case 'unit_shapes':
 				break
 			
 			case 'shape_data':
@@ -77,14 +78,6 @@ for (const [key, collection] of Object.entries(documentCollections)) {
 					name: 'idx_unit_terms',
 					type: 'persistent',
 					fields: ['gcu_id_number', 'std_terms[*]']
-				})
-				break
-
-			case 'unit_shapes':
-				coll.ensureIndex({
-					name: 'idx_geometry_hash_list',
-					type: 'persistent',
-					fields: ['geometry_hash_list[*]']
 				})
 				break
 

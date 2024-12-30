@@ -64,6 +64,48 @@ const views = {
 			}
 		}
 	},
+	"units": {
+		"name": module.context.configuration.viewUnitsShape,
+		"type": "arangosearch",
+		"properties": {
+			"links": {
+				"UnitPolygons": {
+					"analyzers": [
+						"identity"
+					],
+					"fields": {
+						"_key": {},
+						"geometry": {
+							"analyzers": [
+								"geojson"
+							]
+						},
+						"geometry_bounds": {
+							"analyzers": [
+								"geojson"
+							]
+						},
+						"geometry_hash_list": {},
+						"properties": {
+							"fields": {
+								"chr_AvElevation": {},
+								"chr_StdElevation": {},
+								"gcu_id_number": {},
+								"chr_AvSlope": {},
+								"geo_shape_area": {},
+								"chr_AvAspect": {},
+								"chr_MinElevation": {},
+								"chr_MaxElevation": {}
+							}
+						}
+					},
+					"includeAllFields": false,
+					"storeValues": "none",
+					"trackListPositions": false
+				}
+			}
+		}
+	},
 	"dataset": {
 		"name": module.context.configuration.viewDataset,
 		"type": "arangosearch",

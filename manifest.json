@@ -78,6 +78,12 @@
             "type": "string",
             "required": true,
             "default": "VIEW_SHAPE"
+        },
+        "viewUnitsShape": {
+            "description": "Unit shapes view name",
+            "type": "string",
+            "required": true,
+            "default": "VIEW_UNIT_SHAPE"
         }
     },
     "tests": "test/**/*.js"
