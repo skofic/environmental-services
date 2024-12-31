@@ -570,7 +570,7 @@
     const httpOptions = {
         hostname: 'localhost',
         port: '8529',
-        path: '/_db/GeoService/env/gcu/shape?gcu_id_number=GBR00001',
+        path: '/_db/GeoService/env/gcu/shape?gcu_id_number=CHE00006',
         method: 'GET',
         headers: {}
     };
@@ -621,7 +621,7 @@
     const httpOptions = {
         hostname: 'localhost',
         port: '8529',
-        path: '/_db/GeoService/env/gcu/rec?geometry_hash=0df76d46196094c8bade10e30faf6ae0',
+        path: '/_db/GeoService/env/gcu/rec?geometry_hash=46164fdefc87fad25fc55e0146bae752',
         method: 'GET',
         headers: {}
     };
@@ -653,6 +653,108 @@
         callback(error);
     });
     request.write("")
+    request.end();
+    
+
+})((error, statusCode, headers, body) => {
+    console.log('ERROR:', error); 
+    console.log('STATUS:', statusCode);
+    console.log('HEADERS:', JSON.stringify(headers));
+    console.log('BODY:', body);
+});
+
+// request Unit by point 
+(function(callback) {
+    'use strict';
+        
+    const httpTransport = require('http');
+    const responseEncoding = 'utf8';
+    const httpOptions = {
+        hostname: 'localhost',
+        port: '8529',
+        path: '/_db/GeoService/env/gcu/click?lat=41.83&lon=16.02',
+        method: 'GET',
+        headers: {}
+    };
+    httpOptions.headers['User-Agent'] = 'node ' + process.version;
+ 
+    // Paw Store Cookies option is not supported
+
+    const request = httpTransport.request(httpOptions, (res) => {
+        let responseBufs = [];
+        let responseStr = '';
+        
+        res.on('data', (chunk) => {
+            if (Buffer.isBuffer(chunk)) {
+                responseBufs.push(chunk);
+            }
+            else {
+                responseStr = responseStr + chunk;            
+            }
+        }).on('end', () => {
+            responseStr = responseBufs.length > 0 ? 
+                Buffer.concat(responseBufs).toString(responseEncoding) : responseStr;
+            
+            callback(null, res.statusCode, res.headers, responseStr);
+        });
+        
+    })
+    .setTimeout(0)
+    .on('error', (error) => {
+        callback(error);
+    });
+    request.write("")
+    request.end();
+    
+
+})((error, statusCode, headers, body) => {
+    console.log('ERROR:', error); 
+    console.log('STATUS:', statusCode);
+    console.log('HEADERS:', JSON.stringify(headers));
+    console.log('BODY:', body);
+});
+
+// request Unit search 
+(function(callback) {
+    'use strict';
+        
+    const httpTransport = require('http');
+    const responseEncoding = 'utf8';
+    const httpOptions = {
+        hostname: 'localhost',
+        port: '8529',
+        path: '/_db/GeoService/env/shape/search',
+        method: 'POST',
+        headers: {"Content-Type":"application/json; charset=utf-8"}
+    };
+    httpOptions.headers['User-Agent'] = 'node ' + process.version;
+ 
+    // Paw Store Cookies option is not supported
+
+    const request = httpTransport.request(httpOptions, (res) => {
+        let responseBufs = [];
+        let responseStr = '';
+        
+        res.on('data', (chunk) => {
+            if (Buffer.isBuffer(chunk)) {
+                responseBufs.push(chunk);
+            }
+            else {
+                responseStr = responseStr + chunk;            
+            }
+        }).on('end', () => {
+            responseStr = responseBufs.length > 0 ? 
+                Buffer.concat(responseBufs).toString(responseEncoding) : responseStr;
+            
+            callback(null, res.statusCode, res.headers, responseStr);
+        });
+        
+    })
+    .setTimeout(0)
+    .on('error', (error) => {
+        callback(error);
+    });
+    request.write("{\"geo_shape_area\":{\"min\":32922692,\"max\":39275174},\"chr_AvElevation\":{\"min\":220,\"max\":930},\"chr_StdElevation\":{\"min\":5,\"max\":450},\"chr_AvSlope\":{\"min\":1,\"max\":30},\"chr_AvAspect\":{\"min\":150,\"max\":190},\"intersects\":{\"type\":\"Polygon\",\"coordinates\":[[[19.172351,50.399665],[11.205682,50.399665],[11.205682,45.511248],[19.172351,45.511248],[19.172351,50.399665]]]},\"distance\":{\"reference\":{\"type\":\"Point\",\"coordinates\":[15.407384,48.150157]},\"range\":{\"min\":0,\"max\":500000000}},\"paging\":{\"offset\":0,\"limit\":100}}")
     request.end();
     
 

@@ -1093,7 +1093,7 @@ class MyRequestController {
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/gcu/shape") else {return}
         let URLParams = [
-            "gcu_id_number": "GBR00001",
+            "gcu_id_number": "CHE00006",
         ]
         URL = URL.appendingQueryParameters(URLParams)
         var request = URLRequest(url: URL)
@@ -1174,7 +1174,7 @@ class MyRequestController {
 
         guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/gcu/rec") else {return}
         let URLParams = [
-            "geometry_hash": "0df76d46196094c8bade10e30faf6ae0",
+            "geometry_hash": "46164fdefc87fad25fc55e0146bae752",
         ]
         URL = URL.appendingQueryParameters(URLParams)
         var request = URLRequest(url: URL)
@@ -1233,6 +1233,203 @@ extension URL {
         return URL(string: URLString)!
     }
 }
+
+
+class MyRequestController {
+    func sendRequest() {
+        /* Configure session, choose between:
+           * defaultSessionConfiguration
+           * ephemeralSessionConfiguration
+           * backgroundSessionConfigurationWithIdentifier:
+         And set session-wide properties, such as: HTTPAdditionalHeaders,
+         HTTPCookieAcceptPolicy, requestCachePolicy or timeoutIntervalForRequest.
+         */
+        let sessionConfig = URLSessionConfiguration.default
+
+        /* Create session, and optionally set a URLSessionDelegate. */
+        let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
+
+        /* Create the Request:
+           Unit by point (GET http://localhost:8529/_db/GeoService/env/gcu/click)
+         */
+
+        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/gcu/click") else {return}
+        let URLParams = [
+            "lat": "41.83",
+            "lon": "16.02",
+        ]
+        URL = URL.appendingQueryParameters(URLParams)
+        var request = URLRequest(url: URL)
+        request.httpMethod = "GET"
+
+        /* Start a new Task */
+        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+            if (error == nil) {
+                // Success
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                print("URL Session Task Succeeded: HTTP \(statusCode)")
+            }
+            else {
+                // Failure
+                print("URL Session Task Failed: %@", error!.localizedDescription);
+            }
+        })
+        task.resume()
+        session.finishTasksAndInvalidate()
+    }
+}
+
+
+protocol URLQueryParameterStringConvertible {
+    var queryParameters: String {get}
+}
+
+extension Dictionary : URLQueryParameterStringConvertible {
+    /**
+     This computed property returns a query parameters string from the given NSDictionary. For
+     example, if the input is @{@"day":@"Tuesday", @"month":@"January"}, the output
+     string will be @"day=Tuesday&month=January".
+     @return The computed parameters string.
+    */
+    var queryParameters: String {
+        var parts: [String] = []
+        for (key, value) in self {
+            let part = String(format: "%@=%@",
+                String(describing: key).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!,
+                String(describing: value).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)
+            parts.append(part as String)
+        }
+        return parts.joined(separator: "&")
+    }
+    
+}
+
+extension URL {
+    /**
+     Creates a new URL by adding the given query parameters.
+     @param parametersDictionary The query parameter dictionary to add.
+     @return A new URL.
+    */
+    func appendingQueryParameters(_ parametersDictionary : Dictionary<String, String>) -> URL {
+        let URLString : String = String(format: "%@?%@", self.absoluteString, parametersDictionary.queryParameters)
+        return URL(string: URLString)!
+    }
+}
+
+
+class MyRequestController {
+    func sendRequest() {
+        /* Configure session, choose between:
+           * defaultSessionConfiguration
+           * ephemeralSessionConfiguration
+           * backgroundSessionConfigurationWithIdentifier:
+         And set session-wide properties, such as: HTTPAdditionalHeaders,
+         HTTPCookieAcceptPolicy, requestCachePolicy or timeoutIntervalForRequest.
+         */
+        let sessionConfig = URLSessionConfiguration.default
+
+        /* Create session, and optionally set a URLSessionDelegate. */
+        let session = URLSession(configuration: sessionConfig, delegate: nil, delegateQueue: nil)
+
+        /* Create the Request:
+           Unit search (POST http://localhost:8529/_db/GeoService/env/shape/search)
+         */
+
+        guard var URL = URL(string: "http://localhost:8529/_db/GeoService/env/shape/search") else {return}
+        var request = URLRequest(url: URL)
+        request.httpMethod = "POST"
+
+        // Headers
+
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+
+        // JSON Body
+
+        let bodyObject: [String : Any] = [
+            "paging": [
+                "limit": 100,
+                "offset": 0
+            ],
+            "chr_AvElevation": [
+                "min": 220,
+                "max": 930
+            ],
+            "distance": [
+                "range": [
+                    "min": 0,
+                    "max": 500000000
+                ],
+                "reference": [
+                    "type": "Point",
+                    "coordinates": [
+                        15.407384,
+                        48.150157
+                    ]
+                ]
+            ],
+            "chr_AvAspect": [
+                "min": 150,
+                "max": 190
+            ],
+            "intersects": [
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            19.172351,
+                            50.399665
+                        ],
+                        [
+                            11.205682,
+                            50.399665
+                        ],
+                        [
+                            11.205682,
+                            45.511248
+                        ],
+                        [
+                            19.172351,
+                            45.511248
+                        ],
+                        [
+                            19.172351,
+                            50.399665
+                        ]
+                    ]
+                ]
+            ],
+            "chr_AvSlope": [
+                "min": 1,
+                "max": 30
+            ],
+            "geo_shape_area": [
+                "min": 32922692,
+                "max": 39275174
+            ],
+            "chr_StdElevation": [
+                "min": 5,
+                "max": 450
+            ]
+        ]
+        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+
+        /* Start a new Task */
+        let task = session.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) -> Void in
+            if (error == nil) {
+                // Success
+                let statusCode = (response as! HTTPURLResponse).statusCode
+                print("URL Session Task Succeeded: HTTP \(statusCode)")
+            }
+            else {
+                // Failure
+                print("URL Session Task Failed: %@", error!.localizedDescription);
+            }
+        })
+        task.resume()
+        session.finishTasksAndInvalidate()
+    }
+}
+
 
 
 class MyRequestController {

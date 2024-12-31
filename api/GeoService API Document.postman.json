@@ -517,11 +517,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/shape?gcu_id_number=GBR00001",
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/shape?gcu_id_number=CHE00006",
               "query": [
                 {
                   "key": "gcu_id_number",
-                  "value": "GBR00001",
+                  "value": "CHE00006",
                   "disabled": false,
                   "description": "Conservation unit number"
                 }
@@ -533,7 +533,7 @@
               "port": null,
               "path": null
             },
-            "description": "The service will return the *unit number* and the *list* of *unit shape references* related to the *provided unit ID*.\n\nThe service expects the `gcu_id_number` query parameter containing a unit number.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided unit ID*.\n- `geometry_hash_list`: The *list* of *shape references* associated with the *provided unit ID*.\n",
+            "description": "The service will return the *unit record* and the *list* of *unit shape references* related to the *provided unit ID*.\n\nThe service expects the `gcu_id_number` query parameter containing a unit number.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided unit ID*.\n- `geometry_hash_list`: The *list* of *shape references* associated with the *provided unit ID*.\n\nThe record may also contain the following fields:\n\n- `geometry`: The unit geometries.\n- `geometry_bounds`: The unit geometries bounding box.\n- `properties`: Topographic property averages for the unit shapes.\n",
             "header": [],
             "body": null,
             "auth": null
@@ -550,11 +550,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/rec?geometry_hash=0df76d46196094c8bade10e30faf6ae0",
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/rec?geometry_hash=46164fdefc87fad25fc55e0146bae752",
               "query": [
                 {
                   "key": "geometry_hash",
-                  "value": "0df76d46196094c8bade10e30faf6ae0",
+                  "value": "46164fdefc87fad25fc55e0146bae752",
                   "disabled": false,
                   "description": "Geometry MD5 hash"
                 }
@@ -566,9 +566,85 @@
               "port": null,
               "path": null
             },
-            "description": "The service will return the *unit number* associated with the provided *shape reference* and the *full* list of related shape identifiers.\n\nThe service expects the `geometry_hash` query parameter containing a *unit shape geometry reference*.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided shape reference*.\n- `geometry_hash_list`: The *full list* of shape references belonging to the related unit.\n",
+            "description": "The service will return the *unit number* associated with the provided *shape reference* and the *full* list of related shape identifiers.\n\nThe service expects the `geometry_hash` query parameter containing a *unit shape geometry reference*.\n\nThe service will return the following object:\n\n- `gcu_id_number`: The *unit number* associated with the *provided unit ID*.\n- `geometry_hash_list`: The *list* of *shape references* associated with the *provided unit ID*.\n\nThe record may also contain the following fields:\n\n- `geometry`: The unit geometries.\n- `geometry_bounds`: The unit geometries bounding box.\n- `properties`: Topographic property averages for the unit shapes.\n",
             "header": [],
             "body": null,
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Unit by point",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/click?lat=41.83&lon=16.02",
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "41.83",
+                  "disabled": false,
+                  "description": "Coordinate latitude"
+                },
+                {
+                  "key": "lon",
+                  "value": "16.02",
+                  "disabled": false,
+                  "description": "Coordinate longitude"
+                }
+              ],
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/gcu/click"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return the *unit record* whose shape intersects with the *provided point* coordinate.\n\nThe service expects the `lat` and `lon` query parameters representing respectively the *latitude* and *longitude* of the point coordinate.",
+            "header": [],
+            "body": null,
+            "auth": null
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false,
+            "followOriginalHttpMethod": false,
+            "followAuthorizationHeader": false
+          },
+          "response": []
+        },
+        {
+          "name": "Unit search",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/shape/search",
+              "query": null,
+              "protocol": null,
+              "host": [
+                "{{Protocol}}://{{Host}}:{{Port}}/_db/{{Db}}/{{Path}}/shape/search"
+              ],
+              "port": null,
+              "path": null
+            },
+            "description": "The service will return unit records according to a set of provided query parameters.\n\nThe selection criteria is structured as follows:\n\n- `geometry_hash_list`: List of shape geometry hashes.\n- `std_dataset_ids`: List of dataset identifiers.\n- `geo_shape_area`: Shape area range, limits included.\n- `chr_AvElevation`: Shape average elevation range, limits included.\n- `chr_StdElevation`: Shape average elevation standard deviation range, limits included.\n- `chr_AvSlope`: Shape average slope range, limits included.\n- `chr_AvAspect`: Shape average area range, limits included.\n- `intersects`: GeoJSON geometry that intersects shape bounding boxes.\n- `distance`: Provide the GeoJSON shape in reference and the distance range in range.\n- `paging`: Paging: provide `offset` and `limit` properties, or omit the property to return all available data.\n\nWhen filling the search criteria either provide a value or omit the corresponding property.\nRange values are included in the expected range, it is also possible to omit one of the terms.\nDistance and elevation ranges are expected to be expressed in meters.\n",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false,
+                "description": null
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false,
+              "raw": "{\"geo_shape_area\":{\"min\":32922692,\"max\":39275174},\"chr_AvElevation\":{\"min\":220,\"max\":930},\"chr_StdElevation\":{\"min\":5,\"max\":450},\"chr_AvSlope\":{\"min\":1,\"max\":30},\"chr_AvAspect\":{\"min\":150,\"max\":190},\"intersects\":{\"type\":\"Polygon\",\"coordinates\":[[[19.172351,50.399665],[11.205682,50.399665],[11.205682,45.511248],[19.172351,45.511248],[19.172351,50.399665]]]},\"distance\":{\"reference\":{\"type\":\"Point\",\"coordinates\":[15.407384,48.150157]},\"range\":{\"min\":0,\"max\":500000000}},\"paging\":{\"offset\":0,\"limit\":100}}"
+            },
             "auth": null
           },
           "protocolProfileBehavior": {
