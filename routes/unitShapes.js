@@ -143,7 +143,7 @@ router.get(function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get shape by geometry hash')
+	.summary('Shape by geometry hash')
 
 	///
 	// Response schema.
@@ -229,7 +229,7 @@ router.get('click', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get shape intersecting the provided point')
+	.summary('Shape intersecting the provided point')
 
 	///
 	// Description.
