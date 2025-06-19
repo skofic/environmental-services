@@ -994,41 +994,6 @@ This service expects a single *body parameter*, `coordinates`, that represents t
 - The *first* linear ring *must be the outermost*, while any *subsequent* linear ring will be *interpreted as holes*.
 - The *order* of the *sequence of coordinates* is important: *counter-clock* means the polygon area is *inside*, *clockwise* means the area of the polygon is *outside*.
 
-### Conservation Units
-
-This set of services can be used to retrieve *conservation unit records* using the *unit number*, `gcu_id_number`, and the *unit ID*, `gcu_id_unit-id`. It also allows retrieving the associated *unit geometries*.
-
-These services cover the contents of the `UnitShapes` collection.
-
-#### Unit ID list by unit number
-
-This service returns the *list* of *unit IDs* associated with the *provided unit number*.
-
-The service expects the *unit number* to be provided as a *path query parameter*, `gcu_id_number`, and will return the following record:
-
-- ***`gcu_id_number`***: The provided unit number.
-- ***`gcu_id_unit-id_list`***: List of associated unit IDs.
-
-#### Unit geometry references by unit ID
-
-This service will return the *unit number* and *unit geometry references* associated with the provided *unit ID*.
-
-The service expects the *unit ID* to be provided as a *path query parameter*, `gcu_id_unit-id`, and will return the following record:
-
-- ***`gcu_id_number`***: The unit number.
-- ***`gcu_id_unit-id`***: The provided unit ID.
-- ***`geometry_hash_list`***: The list of [MD5](https://en.wikipedia.org/wiki/MD5) hashes of the associated geometries.
-
-#### Unit by geometry reference
-
-This service will return the *unit number*, *unit ID* associated with the provided *geometry hash*.
-
-The service expects the *unit geometry hash* to be provided as a *path query parameter*, `geometry_hash`, and will return the following record:
-
-- ***`gcu_id_number`***: The unit number.
-- ***`gcu_id_unit-id`***: The unit ID.
-- ***`geometry_hash`***: The [MD5](https://en.wikipedia.org/wiki/MD5) hash of the geometry.
-
 ### Units
 
 This set of services can be used to retrieve *conservation unit geometry records* using *unit information* and querying *properties*. Each record represents the *aggregation* of all *polygons*, belonging to a *specific conservation unit*, presented as a *multi-polygon*.
