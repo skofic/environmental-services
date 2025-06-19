@@ -128,7 +128,7 @@ router.post('shape', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Data by geometry and time span')
+	.summary('Shape data by geometry and time span')
 	
 	///
 	// Response schema.

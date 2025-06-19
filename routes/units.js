@@ -90,13 +90,13 @@ router.tag('Units')
 
 
 /**
- * Given unit number return corresponding shape hashes.
+ * Given unit number return unit shape record.
  *
- * This service will return the unit number, along with
- * an array of all the unit shape references related to the provided unit ID.
+ * This service will return the unit shape record
+ * related to the provided unit ID.
  *
  * Parameters:
- * - `:id`: The genetic conservation unit ID.
+ * - `gcu_id_number`: The genetic conservation unit number.
  */
 router.get('shape', function (req, res)
 {
@@ -133,20 +133,21 @@ router.get('shape', function (req, res)
 
 	.queryParam('gcu_id_number', unitNumberSchema)
 	.response([ModelUnitShapes], UnitShapesRecordDescription)
-	.summary('Unit geometry references by unit number')
+	.summary('Unit geometry by unit number')
 	.description(dd`
-		The service will return the *unit shape references* related to the *provided unit number*, \
-		along with the shapes collection, bounding box and topographic properties.
+		The service will return the *unit shape record* related to the *provided unit number*, \
+		along with the list of individual shape references (*links to the \`Shapes\` collection records*), \
+		bounding box and topographic properties averaged for the whole unit.
 	`);
 
 /**
- * Given unit ID return corresponding unit shape hashes.
+ * Given shape reference return corresponding unit shape record.
  *
- * This service will return the unit ID and number,along with
- * an array of all the unit shape references related to the provided unit ID.
+ * This service will return the unit shape record
+ * related to the provided individual shape reference.
  *
  * Parameters:
- * - `:id`: The genetic conservation unit ID.
+ * - `geometry_hash`: The reference to the Shapes record.
  */
 router.get('rec', function (req, res)
 {
@@ -183,17 +184,18 @@ router.get('rec', function (req, res)
 
 	.queryParam('geometry_hash', geometryHashSchema)
 	.response([ModelUnitShapes], UnitShapesRecordDescription)
-	.summary('Unit geometry references by shape reference')
+	.summary('Unit geometry by shape reference')
 	.description(dd`
-		The service will return the *unit data* related to the *provided shape reference*, \
-		along with the shapes collection, bounding box and topographic properties.
+		The service will return the *unit shape record* related to the *provided shape reference*, \
+		along with the list of individual shape references (*links to the \`Shapes\` collection records*), \
+		bounding box and topographic properties averaged for the whole unit.
 	`);
 
 /**
- * Return the unit that intersects the provided point.
+ * Given a coordinate return intersecting unit shape record.
  *
  * This service will return the unit record
- * whose shape intersect the provided coordinate.
+ * whose shape intersects the provided coordinate.
  *
  * Parameters:
  * - `:lat`: The latitude.
@@ -253,7 +255,7 @@ router.get('click', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get unit record that intersects the provided point')
+	.summary('Unit geometry intersecting the provided point')
 	
 	///
 	// Description.

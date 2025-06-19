@@ -94,7 +94,7 @@ router.tag('Unit Shapes')
  * This service will return the shape record identified by the provided geometry hash.
  *
  * Parameters:
- * - `:hash`: The shape geometry hash.
+ * - `geometry_hash`: The shape geometry hash.
  */
 router.get(function (req, res)
 {
@@ -229,7 +229,7 @@ router.get('click', function (req, res)
 	///
 	// Summary.
 	///
-	.summary('Get shape record that intersects the provided point')
+	.summary('Get shape intersecting the provided point')
 
 	///
 	// Description.
