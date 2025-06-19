@@ -51,24 +51,20 @@ const ModelDescription = dd`
 	- \`_collection_list\`: The database collections containing data.
 	- \`std_project\`: Dataset project code.
 	- \`std_dataset\`: Dataset code or acronym.
+	- \`std_dataset_group\`: Dataset group.
+	- \`std_date_submission\`: Dataset submission date.
 	- \`std_date_start\`: Data date range start.
 	- \`std_date_edd\`: Data date range end.
-	- \`std_date_submission\`: Dataset submission date.
-	- \`_subject\`: Dataset data subject.
-	- \`_subjects\`: List of subjects featured in data descriptors.
-	- \`_classes\`: List of classes featured in data descriptors.
-	- \`_domain\`: List of domains featured in data descriptors.
-	- \`_tag\`: List of tags featured in data descriptors.
-	- \`count\`: Number of data records.
 	- \`_title\`: Dataset title.
 	- \`_description\`: Dataset description.
 	- \`_citation\`: Required citations.
-	- \`species_list\`: List of species featured in data.
+	- \`_url\`: List of links.
+	- \`count\`: Number of data records.
 	- \`std_terms\`: List of variables featured in data.
 	- \`std_terms_key\`: List of key fields.
 	- \`std_terms_quant\`: List of quantitative variables featured in data.
-	- \`std_terms_summary\`: List of summary fields
-	- \`std_dataset_markers\`: List of species/markers combinations.`
+	- \`std_dataset_scope\`: Dataset scope.
+	- \`std_dataset_extent\`: Dataset extent.`
 
 // Query
 const ModelQuery = require('../models/datasetQuery')
@@ -79,22 +75,15 @@ const ModelQueryDescription = dd`
 	- \`std_project\`: Provide a list of matching project codes.
 	- \`std_dataset\`: Provide a wildcard search string for the dataset code.
 	- \`std_dataset_group\`: Provide a list of matching dataset group codes.
-	- \`std_date\`: Data date range, provide search values for start and end dates.
 	- \`std_date_submission\`: Dataset submission date range, provide start and end dates.
-	- \`count\`: Provide data records count range.
-	- \`_subject\`: Provide list of matching dataset subjects.
-	- \`_subjects\`: Provide list of matching data descriptor subjects.
-	- \`_classes\`: Provide list of matching classes.
-	- \`_domain\`: Provide list of matching domains.
-	- \`_tag\`: Provide list of dataset tags with all or any selector.
+	- \`std_date\`: Data date range, provide search values for start and end dates.
 	- \`_title\`: Provide space delimited keywords to search dataset title.
 	- \`_description\`: Provide space delimited keywords to search dataset description.
 	- \`_citation\`: Provide space delimited keywords to search dataset citations.
-	- \`species_list\`: Provide space delimited keywords to search species.
+	- \`count\`: Provide data records count range.
 	- \`std_terms\`: Provide list of featured variables in the dataset with all or any selector.
 	- \`std_terms_key\`: Provide list of dataset key fields with all or any selector.
 	- \`std_terms_quant\`: Provide list of featured quantitative variables in the dataset with all or any selector.
-	- \`std_terms_summary\`: Provide list of dataset summary fields with all or any selector.
 	Omit the properties that you don't want to search on.`
 
 // Operation chaining
@@ -227,8 +216,6 @@ function datasetQueryFilters(request, response)
 			case '_key':
 			case 'std_project':
 			case'std_dataset_group':
-			case '_subject':
-			case '_subjects':
 				filter = queryFilters.filterList(key, value)
 				break
 
@@ -242,26 +229,22 @@ function datasetQueryFilters(request, response)
 				break
 
 			case '_citation':
-			case 'species_list':
 				filter = queryFilters.filterTokens(key, value, 'text_en')
 				break
 
 			case 'std_date':
+			case 'std_date_submission':
 				filter = queryFilters.filterDateRange(value)
 				break
 
-			case 'std_date_submission':
 			case 'count':
 				filter = queryFilters.filterIntegerRange(key, value)
 				break
 			
 			case'_collection_list':
-			case '_classes':
-			case '_domain':
-			case '_tag':
+			case 'std_terms':
 			case 'std_terms_key':
 			case 'std_terms_summary':
-			case 'std_terms':
 			case 'std_terms_quant':
 				filter = queryFilters.filterLists(key, value, value.doAll)
 				break
