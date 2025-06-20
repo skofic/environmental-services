@@ -42,6 +42,7 @@ for (const [key, collection] of Object.entries(documentCollections))
 			case 'shapes':
 			case 'dataset':
 			case 'unit_shapes':
+			case 'terms':
 				break
 			
 			case 'shape_data':
@@ -108,10 +109,72 @@ for (const [key, collection] of Object.entries(documentCollections))
 ///
 // Create edge collections.
 ///
-for (const [key, collection] of Object.entries(edgeCollections)) {
-	if (!db._collection(collection)) {
-		db._createEdgeCollection(collection);
-	} else if (context.isProduction) {
+for (const [key, collection] of Object.entries(edgeCollections))
+{
+	///
+	// Handle missing collection.
+	///
+	if (!db._collection(collection))
+	{
+		///
+		// Create collection.
+		//
+		const coll = db._createEdgeCollection(collection);
+		
+		///
+		// Create indexes.
+		///
+		switch(key)
+		{
+			case 'edges':
+				coll.ensureIndex({
+					name: 'idx-schema-path-predicate',
+					type: 'persistent',
+					fields: ['_path[*]', '_predicate'],
+					deduplicate: true,
+					sparse: false,
+					unique: false
+				})
+				coll.ensureIndex({
+					name: 'idx_path_predicate',
+					type: 'persistent',
+					fields: ['_predicate', '_path[*]'],
+					deduplicate: true,
+					sparse: false,
+					unique: false
+				})
+				coll.ensureIndex({
+					name: 'idx_from_predicate_path',
+					type: 'persistent',
+					fields: ['_from', '_predicate', '_path[*]'],
+					deduplicate: true,
+					sparse: false,
+					unique: false
+				})
+				coll.ensureIndex({
+					name: 'idx_to_predicate_path',
+					type: 'persistent',
+					fields: ['_to', '_predicate', '_path[*]'],
+					deduplicate: true,
+					sparse: false,
+					unique: false
+				})
+				break
+			
+			case 'links':
+				coll.ensureIndex({
+					name: 'idx-schema-predicate',
+					type: 'persistent',
+					fields: ['_predicate'],
+					deduplicate: false,
+					sparse: false,
+					unique: false
+				})
+				break
+		}
+	}
+	
+	else if (context.isProduction) {
 		console.debug(`collection ${collection} already exists. Leaving it untouched.`)
 	}
 }

@@ -67,6 +67,24 @@
             "required": true,
             "default": "Dataset"
         },
+        "collectionTerm": {
+            "description": "Terms collection name",
+            "type": "string",
+            "required": true,
+            "default": "terms"
+        },
+        "collectionEdge": {
+            "description": "Edges collection name",
+            "type": "string",
+            "required": true,
+            "default": "edges"
+        },
+        "collectionLink": {
+            "description": "Links collection name",
+            "type": "string",
+            "required": true,
+            "default": "links"
+        },
         "viewDataset": {
             "description": "Dataset view name",
             "type": "string",
@@ -84,6 +102,12 @@
             "type": "string",
             "required": true,
             "default": "VIEW_UNIT_SHAPE"
+        },
+        "viewTerm": {
+            "description": "Term view name",
+            "type": "string",
+            "required": true,
+            "default": "VIEW_TERM"
         }
     },
     "tests": "test/**/*.js"

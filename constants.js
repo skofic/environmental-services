@@ -15,9 +15,12 @@ const documentCollections = {
 	"shapes": module.context.configuration.collectionShapes,
 	"unit_data": module.context.configuration.collectionUnitData,
 	"unit_shapes": module.context.configuration.collectionUnitShapes,
-	"worldclim": module.context.configuration.collectionWorldClim
+	"worldclim": module.context.configuration.collectionWorldClim,
+	"terms": module.context.configuration.collectionTerm
 }
 const edgeCollections = {
+	"edges": module.context.configuration.collectionEdge,
+	"links": module.context.configuration.collectionLink
 }
 
 ///
@@ -165,6 +168,158 @@ const views = {
 					},
 					"includeAllFields": false,
 					"storeValues": "id",
+					"trackListPositions": false
+				}
+			}
+		}
+	},
+	"terms": {
+		"name": module.context.configuration.viewTerm,
+		"type": "arangosearch",
+		"properties": {
+			"links": {
+				"terms": {
+					"analyzers": [
+						"identity"
+					],
+					"fields": {
+						"_key": {},
+						"_code": {
+							"fields": {
+								"_nid": {
+									"analyzers": [
+										"identity",
+										"text_en"
+									]
+								},
+								"_lid": {
+									"analyzers": [
+										"identity",
+										"text_en"
+									]
+								},
+								"_gid": {
+									"analyzers": [
+										"identity",
+										"text_en"
+									]
+								},
+								"_aid": {},
+								"_pid": {
+									"analyzers": [
+										"identity",
+										"text_en"
+									]
+								},
+								"_name": {
+									"analyzers": [
+										"identity",
+										"text_en"
+									]
+								}
+							}
+						},
+						"_info": {
+							"fields": {
+								"_title": {
+									"fields": {
+										"iso_639_3_eng": {
+											"analyzers": [
+												"text_en",
+												"identity"
+											]
+										}
+									}
+								},
+								"_definition": {
+									"fields": {
+										"iso_639_3_eng": {
+											"analyzers": [
+												"text_en",
+												"identity"
+											]
+										}
+									}
+								},
+								"_description": {
+									"fields": {
+										"iso_639_3_eng": {
+											"analyzers": [
+												"text_en",
+												"identity"
+											]
+										}
+									}
+								},
+								"_examples": {
+									"fields": {
+										"iso_639_3_eng": {
+											"analyzers": [
+												"text_en",
+												"identity"
+											]
+										}
+									}
+								},
+								"_notes": {
+									"fields": {
+										"iso_639_3_eng": {
+											"analyzers": [
+												"text_en",
+												"identity"
+											]
+										}
+									}
+								},
+								"_provider": {
+									"analyzers": [
+										"text_en",
+										"identity"
+									]
+								}
+							}
+						},
+						"_data": {
+							"fields": {
+								"_tag": {
+									"analyzers": [
+										"identity",
+										"text_en"
+									]
+								},
+								"_domain": {},
+								"_subject": {},
+								"_list": {},
+								"_class": {}
+							}
+						},
+						"_rule": {
+							"fields": {
+								"_required": {
+									"fields": {
+										"_selection-descriptors_any": {},
+										"_selection-descriptors_one": {},
+										"_selection-descriptors_one-none": {},
+										"_selection-descriptors_one-none-of": {},
+										"_selection-descriptors_all": {}
+									}
+								},
+								"_recommended": {
+									"fields": {
+										"_selection-descriptors_any": {},
+										"_selection-descriptors_one": {},
+										"_selection-descriptors_one-none": {},
+										"_selection-descriptors_one-none-of": {},
+										"_selection-descriptors_all": {}
+									}
+								},
+								"_banned": {},
+								"_computed": {}
+							}
+						}
+					},
+					"includeAllFields": false,
+					"storeValues": "none",
 					"trackListPositions": false
 				}
 			}
