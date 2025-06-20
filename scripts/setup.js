@@ -11,7 +11,8 @@ const {documentCollections, edgeCollections, views} = require('../constants')
 ///
 // Create document collections.
 ///
-for (const [key, collection] of Object.entries(documentCollections)) {
+for (const [key, collection] of Object.entries(documentCollections))
+{
 	if (!db._collection(collection)) {
 		///
 		// Create collection.

@@ -17,7 +17,8 @@ const documentCollections = {
 	"unit_shapes": module.context.configuration.collectionUnitShapes,
 	"worldclim": module.context.configuration.collectionWorldClim
 }
-const edgeCollections = {}
+const edgeCollections = {
+}
 
 ///
 // Views.
@@ -117,19 +118,13 @@ const views = {
 					],
 					"fields": {
 						"_key": {},
+						"_collection_list": {},
 						"std_project": {},
 						"std_dataset": {},
 						"std_dataset_group": {},
-						"std_date_end": {},
-						"std_date_start": {},
 						"std_date_submission": {},
-						"count": {},
-						"_collection_list": {},
-						"_subject": {},
-						"_subjects": {},
-						"_classes": {},
-						"_domain": {},
-						"_tag": {},
+						"std_date_start": {},
+						"std_date_end": {},
 						"_title": {
 							"fields": {
 								"iso_639_3_eng": {
@@ -160,16 +155,13 @@ const views = {
 								}
 							}
 						},
-						"species_list": {
-							"analyzers": [
-								"text_en",
-								"identity"
-							]
-						},
+						"_url": {},
+						"count": {},
 						"std_terms": {},
 						"std_terms_key": {},
 						"std_terms_quant": {},
-						"std_terms_summary": {}
+						"std_dataset_scope": {},
+						"std_dataset_extent": {}
 					},
 					"includeAllFields": false,
 					"storeValues": "id",
