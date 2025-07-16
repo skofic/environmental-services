@@ -19,3 +19,4 @@ context.use('/rs/data', require('./routes/remoteSensingData'), 'Remote Sensing D
 context.use('/do/meta', require('./routes/droughtObservatoryMeta'), 'European Drought Observatory Meta')
 context.use('/do/data', require('./routes/droughtObservatoryData'), 'European Drought Observatory Data')
 context.use('/dataset', require('./routes/datasets'), 'Datasets')
+context.use('/data', require('./routes/data'), 'Data')
