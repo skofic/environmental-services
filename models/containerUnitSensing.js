@@ -26,47 +26,21 @@ module.exports = {
 			species_list: joi.array()
 				.items(joi.string())
 		}),
-		Chelsa: joi.object({
-			"1981-2010": joi.object(),
-			"2011-2040": joi.object({
-				"MPI-ESM1-2-HR": joi.object({
-					"ssp370": joi.object()
+		Sensing: joi.object({
+			std_date_span: joi.string()
+				.valid(
+					"std_date_span_day",
+					"std_date_span_week",
+					"std_date_span_month",
+					"std_date_span_year",
+					"std_date_span_range"
+				),
+			std_date_series: joi.array().items(
+				joi.object({
+					std_date: joi.string().regex(/^[0-9]{4,8}$/).required(),
+					properties: joi.object().required()
 				})
-			}),
-			"2041-2070": joi.object({
-				"MPI-ESM1-2-HR": joi.object({
-					"ssp370": joi.object()
-				})
-			}),
-			"2071-2100": joi.object({
-				"MPI-ESM1-2-HR": joi.object({
-					"ssp370": joi.object()
-				})
-			})
-		}),
-		WorldClim: joi.object({
-			topography: joi.object(),
-			"1970-2000": joi.object(),
-			"2021-2040": joi.object({
-				"MPI-ESM1-2-HR": joi.object({
-					"ssp370": joi.object()
-				})
-			}),
-			"2041-2060": joi.object({
-				"MPI-ESM1-2-HR": joi.object({
-					"ssp370": joi.object()
-				})
-			}),
-			"2061-2080": joi.object({
-				"MPI-ESM1-2-HR": joi.object({
-					"ssp370": joi.object()
-				})
-			}),
-			"2081-2100": joi.object({
-				"MPI-ESM1-2-HR": joi.object({
-					"ssp370": joi.object()
-				})
-			})
+			)
 		})
 	},
 	forClient(obj) {

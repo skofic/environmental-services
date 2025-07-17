@@ -1408,12 +1408,12 @@ A dataset record has the following structure:
 - ***`_subject`***: Dataset data subject.
 - ***`species_list`***: List of featured taxa scientific names.
 - ***`std_dataset_markers`***: List of taxa/marker combinations:
-    - ***`species`***: Scientific name.
-    - ***`chr_GenIndex`***: Genetic index.
-    - ***`chr_GenoTech`***: Method.
-    - ***`chr_MarkerType`***: Type of Marker/Trait.
-    - ***`chr_NumberOfLoci`***: Number of loci.
-    - ***`chr_SequenceLength`***: Sequence length.
+  - ***`species`***: Scientific name.
+  - ***`chr_GenIndex`***: Genetic index.
+  - ***`chr_GenoTech`***: Method.
+  - ***`chr_MarkerType`***: Type of Marker/Trait.
+  - ***`chr_NumberOfLoci`***: Number of loci.
+  - ***`chr_SequenceLength`***: Sequence length.
 
 Note that datasets belonging to external databases and EUFGIS characterisation datasets feature a different set of descriptors, the above selection encompasses both types.
 
@@ -1429,40 +1429,142 @@ The selection criteria is structured as follows:
 - ***`std_dataset`***: Dataset code or acronym.
 - ***`std_dataset_group`***: Dataset group code or acronym.
 - ***`std_date`***: Date range:
-    - ***`std_date_start`***: Start date (included).
-    - ***`std_date_end`***: End date (included).
+  - ***`std_date_start`***: Start date (included).
+  - ***`std_date_end`***: End date (included).
 - ***`std_date_submission`***: Submission date range:
-    - ***`std_date_start`***: Start date (included).
-    - ***`std_date_end`***: End date (included).
+  - ***`std_date_start`***: Start date (included).
+  - ***`std_date_end`***: End date (included).
 - ***`count`***: Total number of data records:
-    - ***`min`***: Minimum (included).
-    - ***`max`***: Maximum (included).
+  - ***`min`***: Minimum (included).
+  - ***`max`***: Maximum (included).
 - ***`_subject`***: List of matching dataset data subjects.
 - ***`_classes`***: Class codes featured in data descriptors:
-    - ***`items`***: List of codes to match.
-    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+  - ***`items`***: List of codes to match.
+  - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
 - ***`_domain`***: Domain codes featured in data descriptors:
-    - ***`items`***: List of codes to match.
-    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+  - ***`items`***: List of codes to match.
+  - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
 - ***`_tag`***: Tag codes featured in data descriptors:
-    - ***`items`***: List of codes to match.
-    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+  - ***`items`***: List of codes to match.
+  - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
 - ***`_title`***: Provide space delimited keywords to search dataset titlein English.
 - ***`_description`***: Provide space delimited keywords to search dataset description in English.
 - ***`_citation`***: Provide space delimited keywords to search dataset citations.
 - ***`species_list`***: Provide space delimited keywords to search scientific names.
 - ***`std_terms`***: Featured indicators:
-    - ***`items`***: List of names to match.
-    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+  - ***`items`***: List of names to match.
+  - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
 - ***`std_terms_key`***: Featured key indicators:
-    - ***`items`***: List of names to match.
-    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+  - ***`items`***: List of names to match.
+  - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
 - ***`std_terms_quant`***: Featured quantitative indicators:
-    - ***`items`***: List of names to match.
-    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+  - ***`items`***: List of names to match.
+  - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
 - ***`std_terms_summary`***: Featured summary indicators:
-    - ***`items`***: List of names to match.
-    - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+  - ***`items`***: List of names to match.
+  - ***`doAll`***: `true` means all elements must match; `false` means at least one should match.
+
+### Data
+
+This set of services will return the full data associated with a specific unit belonging to external databases.
+
+#### Units by species - `/data/species`
+
+This service will return the record of the units that feature any of the species provided as a query parameter.
+
+The body of the request contains the following properties:
+
+- ***`species_list`***: An array containing the list of species to associate with the units. The query will select any unit that features at least one of the species.
+
+The unit record contains the following properties:
+
+- ***`gcu_id_unit-id`***: The unit identifier.
+- ***`gcu_id_number`***: The unit number.
+- ***`gcu_loc_coordinates-restriction`***: The coordinates restriction flag. If the flag is set, the record will not contain the climate location point.
+- ***`gcu_loc_climate`***: The climate location point in GeoJSON format.
+- ***`species_list`***: The list of unit target species.
+
+#### Unit climate - `/data/climate`
+
+This service will return the climate data associated with the unit number provided as a query parameter.
+
+The request contains the following query parameters:
+
+- ***`gcu_id_number`***: The unit number.
+
+The climate record contains the following properties:
+
+- ***`Unit`***: The unit record:
+  - ​	***`gcu_id_unit-id`***: The unit identifier.
+  - ***`gcu_id_number`***: The unit number.
+  - ***`gcu_loc_coordinates-restriction`***: The coordinates restriction flag. If the flag is set, the record will not contain the climate location point.
+  - ***`gcu_loc_climate`***: The climate location point in GeoJSON format.
+  - ***`species_list`***: The list of unit target species.
+- ***`Chelsa`***: The Chelsa climate data record:
+  - ***`1981-2010`***: Historical data.
+  - ***`2011-2040`***: Future modelled data using Earth System Model MPI-ESM1-2-HR and Shared Socioeconomic Pathway.
+  - ***`2041-2070`***: Future modelled data using Earth System Model MPI-ESM1-2-HR and Shared Socioeconomic Pathway.
+  - ***`2071-2100`***: Future modelled data using Earth System Model MPI-ESM1-2-HR and Shared Socioeconomic Pathway.
+- ***`WorldClim`***: WorldClim climate data record:
+  - ***`topography`***: Reference topography.
+  - ***`1970-2000`***: Historical data.
+  - ***`2021-2040`***: Future modelled data using Earth System Model MPI-ESM1-2-HR and Shared Socioeconomic Pathway.
+  - ***`2041-2060`***: Future modelled data using Earth System Model MPI-ESM1-2-HR and Shared Socioeconomic Pathway.
+  - ***`2061-2080`***: Future modelled data using Earth System Model MPI-ESM1-2-HR and Shared Socioeconomic Pathway.
+  - ***`2081-2100`***: Future modelled data using Earth System Model MPI-ESM1-2-HR and Shared Socioeconomic Pathway.
+
+#### Unit soil - `/data/soil`
+
+This service will return the drought observatory data associated with the unit number provided as a query parameter. It is also possible to indicate a date range for the data.
+
+The request contains the following query parameters:
+
+- ***`gcu_id_number`***: The unit number.
+- ***`std_date_start`***: Date range start.
+- ***`std_date_end`***: Date range end.
+
+The climate record contains the following properties:
+
+- ***`Unit`***: The unit record:
+  - ​	***`gcu_id_unit-id`***: The unit identifier.
+  - ***`gcu_id_number`***: The unit number.
+  - ***`gcu_loc_coordinates-restriction`***: The coordinates restriction flag. If the flag is set, the record will not contain the climate location point.
+  - ***`gcu_loc_climate`***: The climate location point in GeoJSON format.
+  - ***`species_list`***: The list of unit target species.
+- ***`Soil`***: List of soil data records grouped by bounding box size.
+  - ***`geometry_point_radius`***: Resolution of bounding box in decimal degrees.
+  - ***`std_date_series`***: Data series for bounding box.
+    - ***`std_date`***: Observation date.
+    - ***`properties`***: Observed values for date.
+
+#### Unit remote sensing - `/data/sensing`
+
+This service will return the remote sensing data associated with the unit number provided as a query parameter. It is also possible to indicate a date range for the data.
+
+Note that in order to have remote sensing data the unit must feature its geometries.
+
+The request contains the following query parameters:
+
+- ***`gcu_id_number`***: The unit number.
+- ***`std_date_start`***: Date range start.
+- ***`std_date_end`***: Date range end.
+
+The climate record contains the following properties:
+
+- ***`Unit`***: The unit record:
+  - ​	***`gcu_id_unit-id`***: The unit identifier.
+  - ***`gcu_id_number`***: The unit number.
+  - ***`gcu_loc_coordinates-restriction`***: The coordinates restriction flag. If the flag is set, the record will not contain the climate location point.
+  - ***`gcu_loc_climate`***: The climate location point in GeoJSON format.
+  - ***`species_list`***: The list of unit target species.
+- ***`Sensing`***: List of remote sensing data records grouped by date span.
+  - ***`std_date_span`***: Date span:
+    - ***`std_date_span_day`***: Daily data.
+    - ***`std_date_span_month`***: Monthly data.
+    - ***`std_date_span_year`***: Yearly data.
+  - ***`std_date_series`***: Time series for date span.
+    - ***`std_date`***: Observation date.
+    - ***`properties`***: Observed values for date.
 
 ## Progress
 
