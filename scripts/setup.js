@@ -82,6 +82,20 @@ for (const [key, collection] of Object.entries(documentCollections))
 					fields: ['gcu_id_number', 'std_terms[*]']
 				})
 				break
+			
+			case 'unit':
+				coll.ensureIndex({
+					name: 'idx_gcu_number',
+					type: 'persistent',
+					fields: ['gcu_id_number'],
+					unique: true
+				})
+				coll.ensureIndex({
+					name: 'idx_unit_species',
+					type: 'persistent',
+					fields: ['species_list[*]']
+				})
+				break
 
 			case 'drought_observatory':
 				coll.ensureIndex({

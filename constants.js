@@ -15,6 +15,7 @@ const documentCollections = {
 	"shapes": module.context.configuration.collectionShapes,
 	"unit_data": module.context.configuration.collectionUnitData,
 	"unit_shapes": module.context.configuration.collectionUnitShapes,
+	"unit": module.context.configuration.collectionUnit,
 	"worldclim": module.context.configuration.collectionWorldClim,
 	"terms": module.context.configuration.collectionTerm
 }

@@ -67,6 +67,12 @@
             "required": true,
             "default": "Dataset"
         },
+        "collectionUnit": {
+            "description": "Units collection name",
+            "type": "string",
+            "required": true,
+            "default": "Units"
+        },
         "collectionTerm": {
             "description": "Terms collection name",
             "type": "string",
